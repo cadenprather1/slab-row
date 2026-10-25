@@ -503,6 +503,13 @@ body.incall #boothAlert{top:calc(178px + env(safe-area-inset-top,0px))}
 body.callmin #vreq,body.callmin #boothAlert{top:calc(58px + env(safe-area-inset-top,0px))}
 #callPanel.min{width:auto;padding:0;border:0;background:none;box-shadow:none;display:block;top:calc(8px + env(safe-area-inset-top,0px));overflow:visible}
 body.tvopen #callPanel.min{left:auto;right:12px;transform:none;top:calc(62px + env(safe-area-inset-top,0px))}
+.qc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
+.qcb{display:grid;gap:1px;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 9px;color:var(--ink);font:inherit;cursor:pointer;min-width:0}
+.qcb:hover,.qcb:focus-visible{border-color:var(--gold);outline:none}
+.qcb b{font-family:var(--f-mono);font-size:14px}
+.qcb span{font-size:11px;color:var(--mute);line-height:1.25}
+.qcb.firm b{color:var(--ink)}.qcb.mid b{color:var(--gold)}.qcb.close b{color:var(--go)}
+.qcl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);width:100%}
 .cpill{display:flex;align-items:center;gap:8px;background:var(--go);color:#03210f;border:0;border-radius:999px;padding:4px 14px 4px 5px;font:inherit;font-weight:800;font-size:13.5px;box-shadow:0 8px 22px rgba(0,0,0,.55);cursor:pointer;white-space:nowrap}
 .cpill .ph{width:26px;height:26px;border-radius:50%;background:#03210f;display:grid;place-items:center;flex:none}
 .cpill .ph svg{width:14px;height:14px;fill:var(--go)}
@@ -613,7 +620,7 @@ body.tvopen #callPanel.min{left:auto;right:12px;transform:none;top:calc(62px + e
 .pick.on{background:var(--orange);border-color:var(--orange);color:#1d0d00}
 .tcard.picked .rslab{outline:3px solid var(--orange);outline-offset:5px}
 .designgrid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:16px;align-items:start}
-@media (max-width:760px){.designgrid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.designgrid{grid-template-columns:minmax(0,1fr)}.designgrid .dprev{order:-1}}
 .dctl{display:grid;gap:12px}
 .dctl fieldset{border:0;padding:0;margin:0;display:grid;gap:6px}
 .dctl legend{font-size:12px;color:var(--mute);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
@@ -826,7 +833,9 @@ const spentOf=L=>sumOf(L.filter(e=>e.side!=='sell'),'total');
 const CLOTHS={navy:['#1d2843','#0c1222','Navy'],black:['#26262b','#0a0a0c','Black'],felt:['#23603f','#0f2e1e','Green felt'],burgundy:['#5a1a28','#22080e','Burgundy'],walnut:['#6b4426','#2a180c','Walnut']};
 const LININGS={red:['#2b1419','#14080b','Red velvet'],black:['#1d1d22','#0b0b0d','Black velvet'],navy:['#17213d','#0b1020','Navy velvet'],cream:['#efe6cf','#d4c7a8','Cream suede']};
 const ACCENTS=['#3db5ff','#ff7a2f','#3ccf7e','#a35cff','#f06292','#e3a12f','#e0473a','#eef2fa'];
-const styleOf=()=>Object.assign({cloth:'navy',accent:'#3db5ff',lining:'red',tagline:'',sign:'',biz:true},ME.style||{});
+const BSDEF={cloth:'navy',accent:'#3db5ff',lining:'red',tagline:'',sign:'',biz:true,backdrop:'dark',plant:true,lights:false,rug:true};
+const styleOf=()=>Object.assign({},BSDEF,ME.style||{});
+function boothStyle(v){if(!v)return null;if(v.mine)return styleOf();if(v.style)return Object.assign({},BSDEF,v.style);return null}
 function loadME(d){if(!d||!Array.isArray(d.inv))return false;try{d=JSON.parse(JSON.stringify(d))}catch(e){return false}/* cloud data arrives frozen: work on an editable copy */ME=Object.assign({v:1,role:'collector',name:'You',from:'Your City, ST 00000',table:'My Table',ledger:[]},d);ME.inv.forEach(decorate);return true}
 let DB=null,UID=null,saveT=null,STORE='device';
 function provisional(){try{const raw=localStorage.getItem('slabrow.me.v1');if(raw&&loadME(JSON.parse(raw)))return}catch(e){}seedME()}
@@ -844,7 +853,7 @@ function refreshView(){if(S.view==='inventory')renderInventory();else if(S.view=
 const owned=()=>ME.inv.filter(c=>!c.sold);
 const forSale=()=>ME.inv.filter(c=>!c.sold&&c.forSale);
 const snap=c=>({name:c.name,year:c.year,set:c.set,num:c.num,grade:c.grade,...(c.img?{img:JSON.parse(JSON.stringify(c.img))}:{})});
-VBY.me={id:'me',mine:true,get name(){return ME.table||'My Table'},handle:'@you',online:true,mode:'open',get color(){return ME.premium?styleOf().accent:'#3db5ff'},spec:'Your table',get city(){return ME.from},floor:1,shipFree:9999,get inv(){return forSale()}};
+VBY.me={id:'me',mine:true,get name(){return ME.table||'My Table'},handle:'@you',online:true,mode:'open',get color(){return styleOf().accent},spec:'Your table',get city(){return ME.from},floor:1,shipFree:9999,get inv(){return forSale()}};
 function attendeeParty(bot){const name=bot.userData.name;const id='p_'+name.replace(/[^a-z0-9]/gi,'');if(VBY[id])return VBY[id];
   const pool=[...POOL].sort(()=>Math.random()-.5).slice(0,2+Math.floor(Math.random()*2));
   const p=V(id,name,'@'+name,true,'open',`hsl(${hash(name)%360} 55% 45%)`,'Collector · walking the floor',pick(ATT_CITIES),.86,9999,pool);p.kind='attendee';p.buyRate=.9;VBY[id]=p;return p}
@@ -945,9 +954,9 @@ function vwActionsHTML(v,c){if(!v)return '';if(c.sold)return `<div class="vwact"
   const inDeal=(S.deal[v.id]||[]).includes(c.id),lot=S.pick[v.id]||[],inLot=lot.includes(c.id),talk=canTalk(v,ctxOf(v)),q=S.q[v.id];
   const reply=VW.since!=null?(S.chat[v.id]||[]).slice(VW.since).filter(m=>m.f!=='me').pop():null;
   return `<div class="vwact"><div class="row">${inDeal?`<button class="btn gold" data-act="vwBuy">Buy · deal is ${money(dealTotal(v))}</button>`:`<button class="btn gold" data-act="vwDeal">Add to deal · ${money(c.price)}</button>`}<button class="btn ghost" data-act="vwLot" aria-pressed="${inLot}">${inLot?'✓ In your lot':'Add to lot'}</button></div>
-   ${talk?`<form class="row" data-form="vwOffer"><div class="amt" style="flex:1"><span class="mute">$</span><input name="amt" id="vwamt" inputmode="decimal" placeholder="Your offer" autocomplete="off" aria-label="Offer amount"></div><button class="btn ghost">Offer</button></form>`
+   ${talk?`<form class="row" data-form="vwOffer"><div class="amt" style="flex:1"><span class="mute">$</span><input name="amt" id="vwamt" inputmode="decimal" placeholder="Your offer" autocomplete="off" aria-label="Offer amount"></div><button class="btn ghost">Offer</button></form>${reply&&reply.counter&&!reply.used?'':qoHTML('vwOffer','',c.price)}`
     :`<p class="mute" style="font-size:12.5px;margin:0">${esc(v.name)} takes offers one person at a time. ${q?.state==='waiting'?`You’re #${q.pos} in line.`:`<button class="linkbtn" data-act="vwLine">Get in line</button> to make an offer. Buying works any time.`}</p>`}
-   ${reply?`<div class="say"><span>${esc(reply.t)}</span>${reply.counter&&!reply.used?`<button class="btn gold sm" data-act="acceptCounter" data-id="${v.id}|${reply.counter.c}|${reply.counter.a}">Accept ${money(reply.counter.a)}</button>`:''}${reply.btn?`<button class="btn gold sm" data-act="${reply.btn.act}" data-id="${reply.btn.id}">${esc(reply.btn.label)}</button>`:''}</div>`:''}
+   ${reply?`<div class="say"><span>${esc(reply.t)}</span>${reply.counter&&!reply.used?`<button class="btn gold sm" data-act="acceptCounter" data-id="${v.id}|${reply.counter.c}|${reply.counter.a}">Accept ${money(reply.counter.a)}</button>`:''}${reply.btn?`<button class="btn gold sm" data-act="${reply.btn.act}" data-id="${reply.btn.id}">${esc(reply.btn.label)}</button>`:''}</div>${reply.counter&&!reply.used&&talk&&S.mine[`c:${v.id}|${reply.counter.c}`]&&reply.counter.c===c.id?qcHTML('vwOffer','',c.price,reply.counter.a,S.mine[`c:${v.id}|${reply.counter.c}`]):''}`:''}
    ${inLot&&lot.length>1?`<p class="mute" style="font-size:12px;margin:0">${lot.length} cards in your lot. Make one offer on all of them from the panel on the right.</p>`:''}</div>`}
 function vwInfoHTML(c){const g=c.grade.split(' ')[0],col=GCOL[g]||['#3a4255','#e8edf6'],seller=VW.vid==='me'?(ME.table||'My Table'):VBY[VW.vid]?.name;
   return `<div class="vwinfo"><div class="vwlbl"><b style="background:${col[0]};color:${col[1]}">${esc(c.grade)}</b><span>${esc([c.year,c.set,c.num].filter(Boolean).join(' · '))}</span></div>
@@ -1060,19 +1069,33 @@ function sign(text,sub,w,x,y,z,ry,accent=ACC){
 let AG=null,ALL_AV=[],SERVED=[],CAROUSELS=[],CARO={};
 function avatarGeo(){if(AG)return AG;const leg=new THREE.CylinderGeometry(.085,.07,.84,10);leg.translate(0,-.42,0);const arm=new THREE.CylinderGeometry(.06,.052,.6,8);arm.translate(0,-.3,0);
   AG={leg,arm,shoe:new THREE.BoxGeometry(.13,.09,.28),hips:new THREE.CylinderGeometry(.2,.19,.2,12),torso:new THREE.CylinderGeometry(.245,.2,.62,16),shoulder:new THREE.SphereGeometry(.088,10,8),
-    hand:new THREE.SphereGeometry(.058,8,6),neck:new THREE.CylinderGeometry(.06,.065,.1,8),head:new THREE.SphereGeometry(.135,18,14),hair:new THREE.SphereGeometry(.143,18,9,0,Math.PI*2,0,Math.PI*.52),shadow:new THREE.CircleGeometry(.38,18)};return AG}
+    hand:new THREE.SphereGeometry(.058,8,6),neck:new THREE.CylinderGeometry(.06,.065,.1,8),head:new THREE.SphereGeometry(.135,18,14),hair:new THREE.SphereGeometry(.143,18,9,0,Math.PI*2,0,Math.PI*.52),shadow:new THREE.CircleGeometry(.38,18),longHair:new THREE.BoxGeometry(.26,.3,.07),curl:new THREE.SphereGeometry(.055,8,6),crown:new THREE.SphereGeometry(.152,18,9,0,Math.PI*2,0,Math.PI*.5),beanie:new THREE.SphereGeometry(.156,18,10,0,Math.PI*2,0,Math.PI*.56),brim:new THREE.BoxGeometry(.2,.018,.15),lens:new THREE.BoxGeometry(.062,.04,.012),bridge:new THREE.BoxGeometry(.04,.012,.012)};return AG}
 const SKINS=[0xf1c9a5,0xd9a37c,0xb07a52,0x8a5a3c,0x5e3b26,0xe8b896];
 const HAIRS=[0x15100c,0x3a2616,0x6b4a2a,0xc9a46a,0x222222,0x5a3b22];
 const SHIRTS=[0x121316,0xf0f1f3,0x2b4c7e,0x7a2e2e,0x2f5d3a,0xc77d2a,0x6b4fa0,0x8a8f99,0x1f6fb2,0xd9cbb0];
 const PANTS=[0x1b2230,0x2a2a2a,0x3b4a66,0x5b4a3a,0x23272f,0x6a6f78];
+const HAIRSTYLES=[['short','Short'],['buzz','Buzz'],['long','Long'],['curly','Curly'],['bald','Bald']];
+const HATS=[['none','No hat'],['cap','Cap'],['back','Backwards cap'],['beanie','Beanie']];
+const GLASSES=[['none','None'],['glasses','Glasses'],['shades','Shades']];
+const LK={skin:['#f1c9a5','#e8b896','#d9a37c','#b07a52','#8a5a3c','#5e3b26'],hair:['#15100c','#3a2616','#6b4a2a','#c9a46a','#e3c98a','#9a3b1c','#8d8f94','#222222'],
+  shirt:['#101114','#f0f1f3','#2b4c7e','#1f6fb2','#7a2e2e','#e0473a','#2f5d3a','#3ccf7e','#c77d2a','#e3a12f','#6b4fa0','#f06292','#8a8f99','#d9cbb0'],
+  pants:['#1b2230','#2a2a2a','#3b4a66','#5b7fa6','#5b4a3a','#c2b08a','#23272f','#6a6f78'],shoes:['#f4f5f7','#111214','#e0473a','#1f6fb2','#c2b08a'],hat:['#1f6fb2','#101114','#e0473a','#2f5d3a','#f0f1f3','#e3a12f','#6b4fa0']};
+const lookOf=()=>Object.assign({skin:'#d9a37c',hair:'#15100c',hairStyle:'short',shirt:'#101114',pants:'#1b2230',shoes:'#f4f5f7',hat:'none',hatColor:'#1f6fb2',glasses:'none'},ME.look||{});
 function makeAvatar(o={}){
   const G=avatarGeo(),root=new THREE.Group(),rig=new THREE.Group();root.add(rig);
-  const pM=mat(o.pants??pick(PANTS)),sM=mat(o.shirt??pick(SHIRTS)),kM=mat(o.skin??pick(SKINS)),hM=mat(o.hair??pick(HAIRS)),shoeM=mat(0xf4f5f7,{roughness:.5});
+  const pM=mat(o.pants??pick(PANTS)),sM=mat(o.shirt??pick(SHIRTS)),kM=mat(o.skin??pick(SKINS)),hM=mat(o.hair??pick(HAIRS)),shoeM=mat(o.shoes??0xf4f5f7,{roughness:.5});
   const mk=(g,m,x,y,z,p=rig)=>{const me=new THREE.Mesh(g,m);me.position.set(x,y,z);p.add(me);return me};
   const lL=mk(G.leg,pM,-.105,.92,0),lR=mk(G.leg,pM,.105,.92,0);mk(G.shoe,shoeM,0,-.86,.05,lL);mk(G.shoe,shoeM,0,-.86,.05,lR);
   mk(G.hips,pM,0,.96,0);const up=new THREE.Group();up.position.y=.96;rig.add(up);const tor=mk(G.torso,sM,0,.37,0,up);tor.scale.z=.7;
   const aL=mk(G.arm,sM,-.29,.63,0,up),aR=mk(G.arm,sM,.29,.63,0,up);aL.rotation.z=-.07;aR.rotation.z=.07;mk(G.hand,kM,0,-.62,0,aL);mk(G.hand,kM,0,-.62,0,aR);
-  mk(G.neck,kM,0,.73,0,up);const hg=new THREE.Group();hg.position.y=.78;up.add(hg);const hd=mk(G.head,kM,0,.1,0,hg);hd.scale.set(1,1.12,1.06);const hr=mk(G.hair,hM,0,.13,-.012,hg);hr.rotation.x=-.32;hr.scale.set(1,1.05,1.08);
+  mk(G.neck,kM,0,.73,0,up);const hg=new THREE.Group();hg.position.y=.78;up.add(hg);const hd=mk(G.head,kM,0,.1,0,hg);hd.scale.set(1,1.12,1.06);const hs=o.hairStyle||'short';if(hs!=='bald'){const hr=mk(G.hair,hM,0,.13,-.012,hg);hr.rotation.x=-.32;hr.scale.set(1,1.05,1.08);
+    if(hs==='buzz'){hr.scale.set(.975,.92,1.02);hr.position.y=.115}
+    if(hs==='long')mk(G.longHair,hM,0,-.01,-.095,hg);
+    if(hs==='curly')for(let i=0;i<9;i++){const a=i/9*Math.PI*2;mk(G.curl,hM,Math.cos(a)*.11,.2+Math.sin(i*2.1)*.02,Math.sin(a)*.1-.02,hg)}}
+  if(o.hat&&o.hat!=='none'){const cM=mat(o.hatColor||'#1f6fb2',{roughness:.7});
+    if(o.hat==='beanie'){const b=mk(G.beanie,cM,0,.125,-.01,hg);b.rotation.x=-.18;b.scale.set(1,1.18,1.08)}
+    else{const c=mk(G.crown,cM,0,.15,-.01,hg);c.rotation.x=-.12;c.scale.set(1,.9,1.08);const br=mk(G.brim,cM,0,.165,o.hat==='back'?-.2:.2,hg);br.rotation.x=o.hat==='back'?-.12:.12}}
+  if(o.glasses&&o.glasses!=='none'){const gM=mat(o.glasses==='shades'?'#0b0c10':'#22252d',{roughness:.3,metalness:.4});const ly=.115,lz=.15;const l1=mk(G.lens,gM,-.05,ly,lz,hg),l2=mk(G.lens,gM,.05,ly,lz,hg);if(o.glasses==='shades'){l1.scale.set(1.15,1.2,1);l2.scale.set(1.15,1.2,1)}mk(G.bridge,gM,0,ly+.005,lz,hg)}
   const sh=new THREE.Mesh(G.shadow,basic(0,{transparent:true,opacity:.35,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.02;root.add(sh);
   root.userData={rig,up,hg,lL,lR,aL,aR,phase:0,lean:0,leanT:0,shadow:sh,path:[],stuck:0,wait:0};ALL_AV.push(root);return root;
 }
@@ -1267,16 +1290,18 @@ function buildVenue(){
 
 function buildBooth(v,bx0,bz0){
   const g=new THREE.Group();g.position.set(bx0,0,bz0);scene.add(g);
-  box(7.2,.1,5,mat(v.mine&&ME.premium?CLOTHS[styleOf().cloth][0]:0xe8ebf0,{roughness:.45}),0,.05,0,g);
-  const backT=tex(1024,512,(c,w,h)=>{c.fillStyle='#070a14';c.fillRect(0,0,w,h);c.fillStyle=v.color;c.fillRect(56,96,10,240);
-    c.fillStyle='#fff';c.font='italic 900 92px Montserrat,"Arial Black",sans-serif';c.fillText(v.name,90,190,w-130);
-    c.fillStyle=v.color;c.font='600 34px Figtree,sans-serif';c.fillText(v.spec,92,252,w-140);c.fillStyle='#8f9bb6';c.font='600 26px "JetBrains Mono",monospace';c.fillText(`${v.handle} · ${v.mode==='open'?'OPEN TABLE':'TALK BY LINE'}`,92,312)});
+  const st=boothStyle(v),acc=st?st.accent:v.color,cl=st?(CLOTHS[st.cloth]||CLOTHS.navy):null,bd=st?st.backdrop:'dark';
+  box(7.2,.1,5,mat(cl&&st.rug?cl[0]:0xe8ebf0,{roughness:.45}),0,.05,0,g);
+  const backT=tex(1024,512,(c,w,h)=>{const bg=bd==='light'?'#eef1f6':bd==='accent'?acc:'#070a14',fg=bd==='light'?'#0b1020':'#fff',sub=bd==='accent'?'#ffffff':acc;c.fillStyle=bg;c.fillRect(0,0,w,h);c.fillStyle=bd==='accent'?'#fff':acc;c.fillRect(56,96,10,240);
+    c.fillStyle=fg;c.font='italic 900 92px Montserrat,"Arial Black",sans-serif';c.fillText(v.name,90,190,w-130);
+    c.fillStyle=sub;c.font='600 34px Figtree,sans-serif';c.fillText(st&&st.tagline?st.tagline:v.spec,92,252,w-140);c.fillStyle=bd==='light'?'#5b6680':bd==='accent'?'rgba(255,255,255,.8)':'#8f9bb6';c.fillStyle='#8f9bb6';c.font='600 26px "JetBrains Mono",monospace';c.fillText(`${v.handle} · ${v.mode==='open'?'OPEN TABLE':'TALK BY LINE'}`,92,312)});
   const dm=mat(0x070a14);const back=add(new THREE.Mesh(new THREE.BoxGeometry(6.4,3.2,.25),[dm,dm,dm,dm,new THREE.MeshBasicMaterial({map:backT}),dm]),0,1.72,-2.2,g);blockers.push(back);
-  neon(6.2,v.color,0,3.45,-2.05,true,g);
-  const mon=tex(512,288,(c,w,h)=>{c.fillStyle='#f5f7fb';c.fillRect(0,0,w,h);c.fillStyle='#0b1020';c.font='700 26px Figtree';c.fillText('TONIGHT ON THE TABLE',24,44);v.inv.slice(0,4).forEach((cd,i)=>{c.fillStyle='#333';c.font='600 22px Figtree';c.fillText(`${cd.name} · ${cd.grade}`,24,96+i*46,330);c.fillStyle=v.color;c.font='700 22px "JetBrains Mono"';c.fillText(money(cd.list),370,96+i*46)})});
+  neon(6.2,acc,0,3.45,-2.05,true,g);
+  if(st&&st.lights){const bulbM=new THREE.MeshBasicMaterial({color:0xffe6a8});for(let i=0;i<14;i++){const x=-3+i*6/13;add(new THREE.Mesh(new THREE.SphereGeometry(.055,8,6),bulbM),x,3.62-Math.sin(i/13*Math.PI)*.18,-1.98,g)}const pl=new THREE.PointLight(0xffd9a0,.5,8,1.6);pl.position.set(0,3.2,-.6);g.add(pl)}
+  const mon=tex(512,288,(c,w,h)=>{c.fillStyle='#f5f7fb';c.fillRect(0,0,w,h);c.fillStyle='#0b1020';c.font='700 26px Figtree';c.fillText('TONIGHT ON THE TABLE',24,44);v.inv.slice(0,4).forEach((cd,i)=>{c.fillStyle='#333';c.font='600 22px Figtree';c.fillText(`${cd.name} · ${cd.grade}`,24,96+i*46,330);c.fillStyle=acc;c.font='700 22px "JetBrains Mono"';c.fillText(money(cd.list),370,96+i*46)})});
   plane(1.9,1.07,new THREE.MeshBasicMaterial({map:mon}),2.1,2.25,-2.06,0,g);
-  const ctrT=tex(512,160,(c,w,h)=>{c.fillStyle='#f3f5f8';c.fillRect(0,0,w,h);c.fillStyle=v.color;c.fillRect(0,h-14,w,14);c.fillStyle='#0b1020';c.font='italic 900 44px Montserrat,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(v.name.toUpperCase(),w/2,h/2-6,w-30)});
-  const wm=mat(0xf3f5f8,{roughness:.5});add(new THREE.Mesh(new THREE.BoxGeometry(3.6,1,.95),[wm,wm,wm,wm,new THREE.MeshStandardMaterial({map:ctrT,roughness:.5}),wm]),0,.5,.3,g);
+  const ctrT=tex(512,160,(c,w,h)=>{c.fillStyle=cl?cl[0]:'#f3f5f8';c.fillRect(0,0,w,h);c.fillStyle=acc;c.fillRect(0,h-14,w,14);c.fillStyle=cl?'#ffffff':'#0b1020';c.font='italic 900 44px Montserrat,sans-serif';c.textAlign='center';c.textBaseline='middle';const sg=st&&st.sign;c.fillText(v.name.toUpperCase(),w/2,sg?h/2-24:h/2-6,w-30);if(sg){c.font='700 26px Figtree,sans-serif';c.fillStyle=cl?'rgba(255,255,255,.85)':'#3b4660';c.fillText(sg,w/2,h/2+24,w-30)}});
+  const wm=mat(cl?cl[0]:0xf3f5f8,{roughness:.5});add(new THREE.Mesh(new THREE.BoxGeometry(3.6,1,.95),[wm,wm,wm,wm,new THREE.MeshStandardMaterial({map:ctrT,roughness:.5}),wm]),0,.5,.3,g);
   box(3.7,.06,1.05,mat(0x1a1d26,{roughness:.3}),0,1.03,.3,g);
   { const sorted=[...v.inv].sort((a,b)=>b.list-a.list),nCase=sorted.length>=3?Math.min(3,sorted.length-1):0,m=sorted.length-nCase;
     if(nCase){const frame=mat(0x3b404b,{roughness:.35,metalness:.6});box(1.5,.05,.78,mat(0x2b1217,{roughness:1}),-1.0,1.085,.3,g);
@@ -1286,7 +1311,7 @@ function buildBooth(v,bx0,bz0){
       if(i<nCase){add(s,-1.0+(i-(nCase-1)/2)*.44,1.13,.33,g);s.rotation.x=-1.3}
       else{const j=i-nCase,sx=(nCase?.55:0)+(j-(m-1)/2)*(nCase?.42:.62);add(s,sx,1.26,.38,g);s.rotation.x=-.4;box(.2,.03,.16,mat(0x222a3d),sx,1.07,.44,g)}
       slabMeshes[c.id]=s;s.visible=!c.sold}) }
-  const pg=new THREE.Group();add(new THREE.Mesh(new THREE.CylinderGeometry(.34,.26,.6,14),mat(0xf3f5f8)),0,.3,0,pg);for(let i=0;i<3;i++)add(new THREE.Mesh(new THREE.SphereGeometry(.46-i*.09,12,10),mat(0x2e6b3d,{roughness:.9})),rnd(-.08,.08),.9+i*.36,0,pg);add(pg,-3.05,0,-1.6,g);
+  const pg=new THREE.Group();add(new THREE.Mesh(new THREE.CylinderGeometry(.34,.26,.6,14),mat(0xf3f5f8)),0,.3,0,pg);for(let i=0;i<3;i++)add(new THREE.Mesh(new THREE.SphereGeometry(.46-i*.09,12,10),mat(0x2e6b3d,{roughness:.9})),rnd(-.08,.08),.9+i*.36,0,pg);if(!st||st.plant)add(pg,-3.05,0,-1.6,g);
   {const bm=tex(512,190,(x,w,h)=>{x.fillStyle='#ffd54a';x.beginPath();x.roundRect?x.roundRect(6,6,w-12,h-12,18):x.rect(6,6,w-12,h-12);x.fill();x.fillStyle='#2a1f00';x.textAlign='center';x.font='italic 900 74px Montserrat,"Arial Black",sans-serif';x.fillText('BE BACK SOON',w/2,102,w-40);x.font='700 30px Figtree,sans-serif';x.fillText(v.mine?'Look around · I’ll be right over':'Cards are still out · look around',w/2,150,w-40)});
     const bs=new THREE.Mesh(new THREE.PlaneGeometry(1.35,.5),new THREE.MeshBasicMaterial({map:bm,transparent:true}));bs.position.set(.9,1.38,.82);bs.rotation.x=-.18;g.add(bs);var bbsMesh=bs}
   const va=makeAvatar({shirt:new THREE.Color(v.color).getHex()});va.position.set(-.5,0,-.75);g.add(va);va.visible=v.online&&!v.mine;
@@ -1390,7 +1415,7 @@ function buildWorld(){
   scene=new THREE.Scene();scene.background=new THREE.Color(0x05070d);
   camera=new THREE.PerspectiveCamera(62,1,.08,260);clock=new THREE.Clock();ray=new THREE.Raycaster();
   buildVenue();
-  player=makeAvatar({shirt:0x101114,pants:0x1b2230,skin:0xd9a37c,hair:0x15100c});player.position.set(5,0,32);player.rotation.y=Math.PI;scene.add(player);
+  player=makeAvatar(lookOf());player.position.set(5,0,32);player.rotation.y=Math.PI;scene.add(player);
   player.userData.vy=0;
   cam.yaw=0;cam.look=.1;cam.fp=false;S.sat=false;S.op=null;S.near=null;S.nearLabel='';S.side=null;S.explored=new Set();S.objective=0;S.checkedIn=false;zoneNow=null;
   const expoNext=()=>{const b=pick(booths);return Math.random()<.6?boothGoal(b):[pick(Object.keys(NODES).filter(k=>/^[XEN]\d$/.test(k))),null]};
@@ -1847,7 +1872,7 @@ function sellHTML(v){
    <div class="sellhead"><span class="mute">${sel.length?`${sel.length} of ${mine.length} in your bundle`:`${mine.length} card${mine.length>1?'s':''} in your binder`}</span><span>${sel.length<mine.length?`<button class="linkbtn" data-act="sellPickAll" data-id="${v.id}">Select all</button>`:''}${sel.length?`<button class="linkbtn" data-act="sellPickClear" data-id="${v.id}">Clear</button>`:''}</span></div>`+mine.map(c=>{const k=v.id+'|'+c.id,p=S.pitch[k],on=sel.includes(c.id);
    return `<div class="sellrow pk ${on?'on':''}"><button class="spick ${on?'on':''}" data-act="sellPick" data-id="${v.id}|${c.id}" aria-pressed="${on}" aria-label="${on?'Remove':'Add'} ${esc(c.name)} ${on?'from':'to'} bundle" title="${on?'Remove from bundle':'Add to bundle'}">${on?'✓':'+'}</button>${slabBtn(c,'me')}<div style="min-width:0"><div style="font-weight:700;font-size:14px">${esc(c.name)}</div><div class="mute" style="font-size:12px">${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)}</div><div class="mono" style="font-size:12px;margin-top:2px">Ask ${money(c.price)} · paid ${money(c.cost)}${c.forSale?'':' · not listed'}</div></div>
    ${p&&!on?`<div class="say">${p.typing?`<span class="mute">${esc(v.handle)} is looking it over…</span>`:esc(p.msg)}</div>${p.offer&&!p.typing?`<div class="oprofit" style="grid-column:1/-1">${profitHTML(c,p.offer)}</div>`:''}`:''}
-   <div class="ctl">${on?`<span class="chip" style="border-color:var(--orange);color:var(--orange)">In bundle</span>`:!p||p.dead?`<button class="btn gold sm" data-act="pitch" data-id="${k}">Pitch at ${money(c.price)}</button>`:(p.typing||p.wait)?'':`${p.offer?`<button class="btn gold sm" data-act="sellAccept" data-id="${k}">Sell for ${money(p.offer)}</button>`:''}<form class="inline" data-form="pitchCounter" data-id="${k}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter amount"></div><button class="btn ghost sm">Counter</button></form>`}</div></div>`}).join('')}
+   <div class="ctl">${on?`<span class="chip" style="border-color:var(--orange);color:var(--orange)">In bundle</span>`:!p||p.dead?`<button class="btn gold sm" data-act="pitch" data-id="${k}">Pitch at ${money(c.price)}</button>`:(p.typing||p.wait)?'':`${p.offer?`<button class="btn gold sm" data-act="sellAccept" data-id="${k}">Sell for ${money(p.offer)}</button>`:''}${p.offer?qcHTML('pitchCounter',k,c.price,p.offer,S.mine['pt:'+k]||c.price):''}<form class="inline" data-form="pitchCounter" data-id="${k}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter amount"></div><button class="btn ghost sm">Counter</button></form>`}</div></div>`}).join('')}
 const bundleCards=v=>(S.sellPick[v.id]||[]).map(id=>ME.inv.find(c=>c.id===id)).filter(c=>c&&!c.sold);
 const sumBy=(cs,k)=>+cs.reduce((s,c)=>s+(+c[k]||0),0).toFixed(2);
 function bundleHTML(v,mine){const cs=bundleCards(v);if(!cs.length)return '';const b=S.bundle[v.id],n=cs.length,ask=sumBy(cs,'price'),paid=sumBy(cs,'cost');
@@ -1856,7 +1881,7 @@ function bundleHTML(v,mine){const cs=bundleCards(v);if(!cs.length)return '';cons
   if(n<2)ctl=`<span class="mute" style="font-size:12.5px">Tick at least one more card to pitch a bundle.</span>`;
   else if(!same||b.dead)ctl=`<button class="btn gold sm" data-act="bundlePitch" data-id="${v.id}">Pitch all ${n} at ${money(ask)}</button><form class="inline" data-form="bundleAsk" data-id="${v.id}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Your price" autocomplete="off" aria-label="Bundle price"></div><button class="btn ghost sm">Pitch at my price</button></form>`;
   else if(b.typing||b.wait)ctl='';
-  else ctl=`${b.offer?`<button class="btn gold sm" data-act="bundleAccept" data-id="${v.id}">Sell all ${n} for ${money(b.offer)}</button>`:''}<form class="inline" data-form="bundleCounter" data-id="${v.id}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter for the bundle"></div><button class="btn ghost sm">Counter</button></form>`;
+  else ctl=`${b.offer?`<button class="btn gold sm" data-act="bundleAccept" data-id="${v.id}">Sell all ${n} for ${money(b.offer)}</button>`:''}${b.offer?qcHTML('bundleCounter',v.id,ask,b.offer,S.mine['bd:'+v.id]||ask):''}<form class="inline" data-form="bundleCounter" data-id="${v.id}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter for the bundle"></div><button class="btn ghost sm">Counter</button></form>`;
   return `<div class="lot sbundle"><div class="bh"><span class="eyebrow" style="color:var(--orange)">Your bundle · ${n} card${n>1?'s':''}</span><b class="mono">${money(ask)}</b></div>
    <div class="bstack">${cs.slice(0,8).map(c=>slab(c,'b')).join('')}${n>8?`<span class="more">+${n-8} more</span>`:''}</div>
    <div class="dealft" style="border:0;padding:0"><span>Asks add up to ${money(ask)} · you paid ${money(paid)}</span></div>
@@ -1944,7 +1969,7 @@ function renderLot(v){const el=$('#vlot-'+v.id);if(!el)return;const cs=pickCards
   el.innerHTML=`<div class="lot"><div class="dealhd"><span class="eyebrow" style="color:var(--orange)">Lot · ${cs.length} selected</span><span class="mono">asking ${money(ask)}</span></div>
   <div class="chips">${cs.map(c=>`<button class="lchip" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="Remove ${esc(c.name)} from lot">${esc(c.name)} · ${money(c.price)} ✕</button>`).join('')}</div>
   ${L.msg||L.typing?`<div class="say">${L.typing?`<span class="mute">${esc(v.handle)} is adding it up…</span>`:esc(L.msg)}</div>`:''}
-  <div class="ctl">${talk?`${L.counter?`<button class="btn gold sm" data-act="lotAccept" data-id="${v.id}">Take all ${cs.length} for ${money(L.counter)}</button>`:''}<form data-form="lotOffer" data-id="${v.id}" class="inline"><div class="amt sm"><span class="mute">$</span><input name="amt" id="lot-${v.id}" inputmode="decimal" placeholder="Lot offer" autocomplete="off" aria-label="Offer for the lot"></div><button class="btn gold sm">Offer on lot</button></form>`:`<p class="note" style="width:100%">${esc(v.name)} takes lot offers one person at a time. Get in line from the Talk tab, or add these at asking.</p>`}
+  <div class="ctl">${talk?`${L.counter?`<button class="btn gold sm" data-act="lotAccept" data-id="${v.id}">Take all ${cs.length} for ${money(L.counter)}</button>`:''}${L.counter&&S.mine['lot:'+v.id]?qcHTML('lotOffer',v.id,ask,L.counter,S.mine['lot:'+v.id]):L.counter?'':qoHTML('lotOffer',v.id,ask)}<form data-form="lotOffer" data-id="${v.id}" class="inline"><div class="amt sm"><span class="mute">$</span><input name="amt" id="lot-${v.id}" inputmode="decimal" placeholder="Lot offer" autocomplete="off" aria-label="Offer for the lot"></div><button class="btn gold sm">Offer on lot</button></form>`:`<p class="note" style="width:100%">${esc(v.name)} takes lot offers one person at a time. Get in line from the Talk tab, or add these at asking.</p>`}
    <button class="btn ghost sm" data-act="lotAddAll" data-id="${v.id}">Add at asking</button><button class="linkbtn" data-act="lotClear" data-id="${v.id}">Clear</button></div></div>`}
 function lotRespond(v,cs,amt){const ask=cs.reduce((s,c)=>s+c.price,0),floor=cs.reduce((s,c)=>s+Math.min(c.price,Math.ceil(c.list*v.floor/5)*5),0),min=round5(floor*(cs.length>=3?.94:cs.length===2?.97:1));
   if(amt>=ask)return {ok:ask,msg:`No need to go over. ${money(ask)} for all ${cs.length}.`};
@@ -1969,7 +1994,7 @@ function rcardHTML(c){if(hasPhotos(c))return pcardHTML(c,'f');const parts=c.grad
   const ph=photo(c,'f');
   return `<div class="rslab ${raw?'raw':''}">${lbl}${ph?`<div class="rart ph" style="background-image:url('${ph}')"></div>`:`<div class="rart" style="--art:${c.art}"><span class="rin">${initials(c.name)}</span><span class="rnm">${esc(c.name)}</span><span class="rset">${esc(c.year)} ${esc(c.set)}</span></div>`}</div>`}
 function tcardHTML(c,v,x,y,kind,rot=0){const pk=(S.pick[v.id]||[]).includes(c.id),inDeal=(S.deal[v.id]||[]).includes(c.id);return `${c.sold||v.mine?'':`<button class="pick ${pk?'on':''}" style="left:${x-13}px;top:${y-13}px" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="${pk?'Remove from':'Add to'} lot: ${esc(c.name)}" title="Select for a lot offer">${pk?'✓':'+'}</button>`}<button class="tflip" style="left:${x+37}px;top:${y+246+(kind==='stand'?18:12)}px;width:76px" data-act="flip" data-id="tf-${c.id}" aria-label="Flip ${esc(c.name)} to see the back">↻ Flip</button><button class="tcard ${kind} ${c.sold?'sold':''} ${pk?'picked':''} ${S.vdetail[v.id]===c.id?'sel':''}" style="left:${x}px;top:${y}px;--r:${rot}deg" data-act="tvCard" data-id="${v.id}|${c.id}" aria-label="${esc(c.name)}, ${esc(c.grade)}, ${money(c.price)}">${flipHTML(c,'tf-'+c.id)}<span class="ptag">${c.price<c.list?`<s>${money(c.list)}</s><span class="neg2">${money(c.price)}</span>`:money(c.price)}</span>${c.sold?'<span class="soldtag">SOLD</span>':inDeal?'<span class="holdtag">IN YOUR DEAL</span>':c.held?'<span class="holdtag">HELD FOR YOU</span>':''}</button>`}
-function renderTvSurface(target,vv){const v=vv||TV.v;target=target||$('#tvSurf');if(!v)return;const inv=v.inv;const st=v.mine&&ME.premium?styleOf():null;
+function renderTvSurface(target,vv){const v=vv||TV.v;target=target||$('#tvSurf');if(!v)return;const inv=v.inv;const st=boothStyle(v);
   const graded=inv.filter(c=>c.grade!=='Raw').sort((a,b)=>b.list-a.list),raw=inv.filter(c=>c.grade==='Raw');
   const nCase=Math.min(4,Math.ceil(graded.length/2)),caseC=graded.slice(0,nCase),standC=graded.slice(nCase);
   const CW=150,CH=246,G=30,ROW=1500,x0=70;let html='',x=x0,y=168,maxX=0,maxY=y+CH+44;
@@ -2158,13 +2183,24 @@ function newOffer(bot,via,want){const list=forSale().filter(c=>!S.offers.some(o=
   if(bot){bot.userData.path=[];bot.userData.wait=10;bot.rotation.y=Math.atan2(player.position.x-bot.position.x,player.position.z-bot.position.z);say(bot,cds.length>1?`Would you bundle your ${cd.name} with ${cds.length-1} more?`:`Is your ${cd.name} still for sale?`,4200)}
   toast(`New offer: ${money(amt)} for ${cds.length>1?`${cds.length} of your cards`:`your ${cd.name}`}${locked?' · Esc to free the mouse':''}`)}
 /* what you actually clear on a sale: price − 8% fee − what you paid, with and without covering shipping */
+/* quick counters: each moves 25 / 50 / 75% of the gap from your number toward theirs */
+function niceRound(x){const st=x<50?1:x<300?5:x<2000?10:x<10000?25:100;return Math.round(x/st)*st}
+function quickCounters(theirs,mine,list){theirs=+theirs;mine=+mine;if(!(theirs>0)||!(mine>0)||Math.abs(mine-theirs)<2)return[];const up=mine<theirs,lo=Math.min(mine,theirs),hi=Math.max(mine,theirs),out=[],seen=new Set();
+  (up?[['Nudge up',.25,'firm'],['Meet halfway',.5,'mid'],['Close the gap',.75,'close']]:[['Hold firm',.25,'firm'],['Meet halfway',.5,'mid'],['Close the gap',.75,'close']]).forEach(([lab,k,cls])=>{const raw=mine+(theirs-mine)*k;let p=niceRound(raw);if(p<=lo||p>=hi)p=Math.round(raw);if(p<=lo||p>=hi||seen.has(p))return;seen.add(p);out.push({p,lab,cls,pct:list>0?Math.round(p/list*100):null})});return out}
+function qcBtn(form,id,x,card){return `<button type="button" class="qcb ${x.cls||''}" data-act="qc" data-id="${esc(form)}~${esc(id||'')}~${x.p}${card?'~'+esc(card):''}"><b>${money(x.p)}</b><span>${esc(x.lab)}${x.pct!=null?` · ${x.pct}% of ask`:''}</span></button>`}
+function qcHTML(form,id,list,theirs,mine,card){const q=quickCounters(theirs,mine,list);return q.length?`<span class="qcl">Quick counter</span><div class="qc" role="group" aria-label="Quick counters">${q.map(x=>qcBtn(form,id,x,card)).join('')}</div>`:''}
+function qoHTML(form,id,list,card){if(!(list>2))return '';const out=[],seen=new Set();[[.9,'firm'],[.85,'mid'],[.8,'close']].forEach(([k,cls])=>{const p=niceRound(list*k);if(p>0&&p<list&&!seen.has(p)){seen.add(p);out.push({p,cls,lab:Math.round(k*100)+'% of ask',pct:null})}});
+  return out.length?`<span class="qcl">Quick offer</span><div class="qc" role="group" aria-label="Quick offers">${out.map(x=>qcBtn(form,id,x,card)).join('')}</div>`:''}
+S.mine={};
+document.addEventListener('submit',e=>{const f=e.target;if(!f||!f.dataset||!f.amt)return;const a=parseFloat(String(f.amt.value).replace(/[$,]/g,''));if(!(a>0))return;const fn=f.dataset.form,id=f.dataset.id;let k=null;
+  if(fn==='ofCounter')k='of:'+id;else if(fn==='vwOffer'&&VW)k=`c:${VW.vid}|${VW.cid}`;else if(fn==='offer'&&f.card)k=`c:${id}|${f.card.value}`;else if(fn==='lotOffer')k='lot:'+id;else if(fn==='rCounter')k='r:'+id;else if(fn==='pitchCounter')k='pt:'+id;else if(fn==='bundleCounter'||fn==='bundleAsk')k='bd:'+id;if(k)S.mine[k]=a},true);
 function profitHTML(cds,amt,lead=''){cds=[].concat(cds);const opts=shipFor(cds,amt),sh=opts.find(x=>x.id===(amt>=500?'pri':'bmwt'))||opts[0],cost=sumBy(cds,'cost'),p=+(amt-amt*.08-cost).toFixed(2),ps=+(p-sh.cost).toFixed(2);
   return `${lead?`<span class="mute">${lead}</span>`:''}<span class="${p>=0?'pos':'neg'}">${p>=0?'Profit':'Loss'} <b>${signed(p)}</b></span><span class="mute">· <b class="${ps>=0?'pos':'neg'}">${signed(ps)}</b> if you pay ${money(sh.cost)} shipping</span>`}
 function ocardHTML(o){const m=o.cds.length>1,ask=sumBy(o.cds,'price'),paid=sumBy(o.cds,'cost'),low=sumBy(o.cds,'floor');
   const others=forSale().filter(c=>!o.cds.includes(c)&&!S.offers.some(x=>x!==o&&x.cds.includes(c)));
-  return `<div class="ocard"><div class="otop">${m?`<div class="bstack">${o.cds.slice(0,3).map(c=>slab(c)).join('')}</div>`:slabBtn(o.cds[0],'me')}<div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">${esc(o.via)}${m?' · bundle':''}</span><b style="font-size:14.5px">${money(o.amt)} for ${m?`${o.cds.length} of your cards`:`your ${esc(o.cds[0].name)}`}</b><span class="who">${esc(o.party.name)} (${o.party.kind==='attendee'?'collector':'dealer'}) · ask ${money(ask)} · paid ${money(paid)}${o.amt<low?' · below your lowest':''}</span>${m?`<span class="who">${esc(o.cds.map(c=>c.name).join(', '))}</span>`:''}</div></div><div class="oprofit" id="opf-${o.id}">${profitHTML(o.cds,o.amt)}</div>${o.msg?`<div class="note">${esc(o.msg)}</div>`:''}
+  return `<div class="ocard"><div class="otop">${m?`<div class="bstack">${o.cds.slice(0,3).map(c=>slab(c)).join('')}</div>`:slabBtn(o.cds[0],'me')}<div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">${esc(o.via)}${m?' · bundle':''}</span><b style="font-size:14.5px">${money(o.amt)} for ${m?`${o.cds.length} of your cards`:`your ${esc(o.cds[0].name)}`}</b><span class="who">${esc(o.party.name)} (${o.party.kind==='attendee'?'collector':'dealer'}) · ask ${money(ask)} · paid ${money(paid)}${o.amt<low?' · below your lowest':''}</span>${m?`<span class="who">${esc(o.cds.map(c=>c.name).join(', '))}</span>`:''}</div></div><div class="oprofit" id="opf-${o.id}">${profitHTML(o.cds,o.amt)}</div>${o.msg?`<div class="note">${esc(o.msg)}</div>`:''}${o.pricing||o.adding?'':`<div class="oqc">${qcHTML('ofCounter',o.id,ask,o.amt,S.mine['of:'+o.id]||ask)}</div>`}
    ${o.adding?`<div class="oadd"><span class="who">Add cards to this offer, and ${esc(o.party.name)} will price the whole bundle</span><div class="chips">${others.map(c=>{const on=o.addSel.includes(c.id);return `<button class="ochip ${on?'on':''}" data-act="ofAddPick" data-id="${o.id}|${c.id}" aria-pressed="${on}">${on?'✓ ':'+ '}${esc(c.name)} <span class="mono">${money(c.price)}</span></button>`}).join('')||'<span class="who">No other cards for sale.</span>'}</div><div class="act">${o.addSel.length?`<button class="btn gold sm" data-act="ofAddGo" data-id="${o.id}">Ask for a price on all ${o.cds.length+o.addSel.length}</button>`:''}<button class="btn ghost sm" data-act="ofAdd" data-id="${o.id}">Cancel</button></div></div>`:''}
-   ${o.pricing?'':`<div class="act"><button class="btn gold sm" data-act="ofAccept" data-id="${o.id}">Accept ${money(o.amt)}</button><form data-form="ofCounter" data-id="${o.id}" style="display:flex;gap:6px"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" aria-label="Counter amount" autocomplete="off" data-input="ofCtr" data-id="${o.id}"></div><button class="btn ghost sm">Counter</button></form><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Decline</button>${!o.adding&&others.length?`<button class="linkbtn" data-act="ofAdd" data-id="${o.id}">+ Add cards</button>`:''}</div>`}</div>`}
+   ${o.pricing?'':`<div class="act"><button class="btn gold sm" data-act="ofAccept" data-id="${o.id}">Accept ${money(o.amt)}</button><form data-form="ofCounter" data-id="${o.id}" style="display:flex;gap:6px"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Custom" aria-label="Custom counter amount" autocomplete="off" data-input="ofCtr" data-id="${o.id}"></div><button class="btn ghost sm">Counter</button></form><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Decline</button>${!o.adding&&others.length?`<button class="linkbtn" data-act="ofAdd" data-id="${o.id}">+ Add cards</button>`:''}</div>`}</div>`}
 const offersOn=()=>ME.offersOn!==false;
 function renderOffers(){S.offers=S.offers.filter(o=>o.cds.every(c=>!c.sold&&c.forSale));const el=$('#offers'),n=S.offers.length;
   if(!n){el.innerHTML='';S.offersOpen=false;return}
@@ -2219,7 +2255,8 @@ const kpi=(a,b,c,cls='')=>`<div class="kpi"><small>${a}</small><b class="${cls}"
 function renderInventory(){
   $('#app').innerHTML=`<div class="mkhead"><div class="intro" style="margin:0"><h1>Inventory</h1><p class="mute">Every card you own, vendor or not. Set your asking price and the lowest you’ll take, then mark it for sale. For-sale cards are listed in the marketplace 24/7, go on your table at shows in vendor mode, and can be pitched to any dealer or collector you meet.</p></div><span class="savebadge"></span></div>
   <div class="panel"><div class="phead"><h2>How you show up at shows</h2></div>${rolePicker()}</div>
-  <div class="panel ${ME.premium?'':'locked'}" id="design"></div>
+  <div class="panel" id="avpanel"></div>
+  <div class="panel" id="design"></div>
   <div class="kpis" id="invsum"></div>
   ${ME.inv.some(c=>c.example&&!c.sold)?`<p class="note" style="margin-bottom:16px">Cards marked <b>Example</b> are samples so you can try buying and selling. <button class="btn ghost sm" data-act="clearExamples">Remove examples</button></p>`:''}
   <div class="panel"><div class="phead"><h2>Add a card</h2><button class="btn ghost sm" data-act="togglePaste">Paste a list instead</button></div>
@@ -2241,18 +2278,42 @@ function renderInventory(){
   <div class="panel"><div class="phead"><h2>Your cards</h2><div class="toolbar">${[['all','In hand'],['sale','For sale'],['off','Not listed'],['sold','Sold']].map(([k,l])=>`<button class="pill" data-act="invF" data-id="${k}" aria-pressed="${S.invF===k}">${l}</button>`).join('')}<input type="search" data-input="invQ" id="invq" placeholder="Search" value="${esc(S.invQ)}" style="padding:5px 9px;font-size:13px" aria-label="Search your cards"></div></div><div class="tablewrap" id="invtable"></div></div>`;
   renderInvSummary();renderInvTable();renderDesign();updateSaveBadge();
 }
-function renderDesign(){const el=$('#design');if(!el)return;const st=styleOf();el.className='panel '+(ME.premium?'':'locked');
-  el.innerHTML=`<div class="phead"><h2>Your table design <span class="chip gold">Pro</span></h2>${ME.premium?'<span class="mute" style="font-size:12.5px">Slab Row Pro · $14.99/mo</span>':'<button class="btn gold sm" data-act="goPro">Unlock with Pro</button>'}</div>
+function renderDesign(){renderAvatarPanel();const el=$('#design');if(!el)return;const st=styleOf();el.className='panel';
+  const tg=(k,on,a,b)=>`<button class="txt" data-act="style" data-id="${k}|${on?'':'1'}" aria-pressed="${!!on}">${on?a:b}</button>`;
+  el.innerHTML=`<div class="phead"><h2>Your booth</h2><span class="mute" style="font-size:12.5px">${ME.role==='vendor'?'Shows on your table at every show. Changes appear next time you walk in.':'Switch to vendor above to get a table at shows.'}</span></div>
   <div class="designgrid"><div class="dctl">
    <fieldset><legend>Tablecloth</legend><div class="sw">${Object.entries(CLOTHS).map(([k,c])=>`<button data-act="style" data-id="cloth|${k}" aria-pressed="${st.cloth===k}" title="${c[2]}" aria-label="${c[2]}" style="background:linear-gradient(${c[0]},${c[1]})"></button>`).join('')}</div></fieldset>
    <fieldset><legend>Accent color</legend><div class="sw">${ACCENTS.map(c=>`<button data-act="style" data-id="accent|${c}" aria-pressed="${st.accent===c}" aria-label="Accent ${c}" style="background:${c}"></button>`).join('')}</div></fieldset>
    <fieldset><legend>Display-case lining</legend><div class="sw">${Object.entries(LININGS).map(([k,c])=>`<button class="txt" data-act="style" data-id="lining|${k}" aria-pressed="${st.lining===k}">${c[2]}</button>`).join('')}</div></fieldset>
    <label style="display:grid;gap:4px;font-size:12px;color:var(--mute);font-weight:600">Banner tagline<input data-style="tagline" id="st-tag" maxlength="60" value="${esc(st.tagline)}" placeholder="Modern football · fair prices"></label>
    <label style="display:grid;gap:4px;font-size:12px;color:var(--mute);font-weight:600">Counter sign<input data-style="sign" id="st-sign" maxlength="80" value="${esc(st.sign)}" placeholder="3 for $50 on raw rookies"></label>
-   <div class="sw"><button class="txt" data-act="style" data-id="biz|${st.biz?'':'1'}" aria-pressed="${!!st.biz}">${st.biz?'Business cards on':'Business cards off'}</button></div>
-   ${ME.premium?'<button class="linkbtn" data-act="cancelPro" style="justify-self:start;color:var(--mute)">Cancel Pro</button>':''}
+   <fieldset><legend>Back wall</legend><div class="sw">${[['dark','Dark'],['light','Light'],['accent','Accent color']].map(([k,l])=>`<button class="txt" data-act="style" data-id="backdrop|${k}" aria-pressed="${st.backdrop===k}">${l}</button>`).join('')}</div></fieldset>
+   <fieldset><legend>Extras</legend><div class="sw">${tg('plant',st.plant,'Plant on','Plant off')}${tg('lights',st.lights,'String lights on','String lights off')}${tg('rug',st.rug,'Floor rug on','Floor rug off')}${tg('biz',st.biz,'Business cards on','Business cards off')}</div></fieldset>
   </div><div class="dprev" id="dprev"><div class="inner" id="dprevIn"></div></div></div>`;
-  const box=$('#dprev'),inner=$('#dprevIn');const was=ME.premium;if(!was){ME.premium=true}const d=renderTvSurface(inner,VBY.me);ME.premium=was;const sc=Math.min(1,(box.clientWidth-20)/d.W);inner.style.transform=`translate(10px,10px) scale(${sc})`;box.style.height=(d.H*sc+20)+'px'}
+  const box=$('#dprev'),inner=$('#dprevIn');const d=renderTvSurface(inner,VBY.me);const sc=Math.min(1,(box.clientWidth-20)/d.W);inner.style.transform=`translate(10px,10px) scale(${sc})`;box.style.height=(d.H*sc+20)+'px'}
+function renderAvatarPanel(){const el=$('#avpanel');if(!el)return;const L=lookOf();
+  const sw=(k,arr)=>`<div class="sw">${arr.map(c=>`<button data-act="look" data-id="${k}|${c}" aria-pressed="${L[k]===c}" aria-label="${k} ${c}" style="background:${c}"></button>`).join('')}</div>`;
+  const tx=(k,arr)=>`<div class="sw">${arr.map(([v,l])=>`<button class="txt" data-act="look" data-id="${k}|${v}" aria-pressed="${L[k]===v}">${l}</button>`).join('')}</div>`;
+  el.innerHTML=`<div class="phead"><h2>Your avatar</h2><button class="btn ghost sm" data-act="lookRandom">Surprise me</button></div>
+  <div class="designgrid"><div class="dctl">
+   <fieldset><legend>Skin</legend>${sw('skin',LK.skin)}</fieldset>
+   <fieldset><legend>Hair</legend>${tx('hairStyle',HAIRSTYLES)}${L.hairStyle!=='bald'?sw('hair',LK.hair):''}</fieldset>
+   <fieldset><legend>Hat</legend>${tx('hat',HATS)}${L.hat!=='none'?sw('hatColor',LK.hat):''}</fieldset>
+   <fieldset><legend>Glasses</legend>${tx('glasses',GLASSES)}</fieldset>
+   <fieldset><legend>Shirt</legend>${sw('shirt',LK.shirt)}<label class="mute" style="font-size:12px;display:flex;gap:8px;align-items:center">Any color <input type="color" data-look="shirt" value="${esc(L.shirt)}" aria-label="Custom shirt color"></label></fieldset>
+   <fieldset><legend>Pants</legend>${sw('pants',LK.pants)}</fieldset>
+   <fieldset><legend>Shoes</legend>${sw('shoes',LK.shoes)}</fieldset>
+  </div><div class="dprev avprev" id="avprev"><span class="mute" style="position:absolute;left:12px;top:10px;font-size:11px;z-index:1;letter-spacing:.06em;text-transform:uppercase">Preview</span></div></div>`;
+  avPreview()}
+const AVP={};
+function avPreview(){const host=$('#avprev');if(!host||!window.THREE)return;
+  if(!AVP.r){try{AVP.r=new THREE.WebGLRenderer({antialias:true,alpha:true})}catch(e){return}AVP.r.setPixelRatio(Math.min(2,devicePixelRatio||1));AVP.sc=new THREE.Scene();AVP.cam=new THREE.PerspectiveCamera(32,1,.1,50);AVP.cam.position.set(0,1.15,4.3);AVP.cam.lookAt(0,.98,0);
+    AVP.sc.add(new THREE.HemisphereLight(0xdfe8ff,0x223044,.9));const d=new THREE.DirectionalLight(0xffffff,.9);d.position.set(2,4,3);AVP.sc.add(d);
+    const fl=new THREE.Mesh(new THREE.CircleGeometry(.9,32),new THREE.MeshBasicMaterial({color:0x1b2438}));fl.rotation.x=-Math.PI/2;AVP.sc.add(fl);
+    const loop=()=>{if(!AVP.r.domElement.isConnected){AVP.loop=false;return}if(AVP.av)AVP.av.rotation.y+=.012;AVP.r.render(AVP.sc,AVP.cam);requestAnimationFrame(loop)};AVP.start=()=>{if(!AVP.loop){AVP.loop=true;requestAnimationFrame(loop)}}}
+  if(AVP.av){AVP.sc.remove(AVP.av);const i=ALL_AV.indexOf(AVP.av);if(i>=0)ALL_AV.splice(i,1)}
+  AVP.av=makeAvatar(lookOf());{const i=ALL_AV.indexOf(AVP.av);if(i>=0)ALL_AV.splice(i,1)}AVP.av.rotation.y=.5;AVP.sc.add(AVP.av);
+  const w=Math.max(200,host.clientWidth),h=innerWidth<760?230:300;AVP.r.setSize(w,h);AVP.cam.aspect=w/h;AVP.cam.updateProjectionMatrix();host.style.height=h+'px';host.prepend(AVP.r.domElement);AVP.start()}
 function renderInvSummary(){const el=$('#invsum');if(!el)return;const own=owned(),fs=forSale();
   el.innerHTML=kpi('Cards in hand',own.length,`${fs.length} for sale`)+kpi('You paid',money(sumOf(own,'cost')),'cost basis of cards in hand')+kpi('Asking',money(sumOf(fs,'price')),'total of listed cards')+kpi('Comps value',money(sumOf(own,'mkt')),'estimated market, all cards')}
 function renderInvTable(){const f=S.invF,q=S.invQ.toLowerCase();
@@ -2280,7 +2341,7 @@ function renderDesk(){
   ${packHTML()}
   <div class="panel"><div class="phead"><h2>Running profit</h2><span class="mute" style="font-size:12.5px">One point per sale</span></div><div id="chartbox"></div></div>
   <div class="panel"><div class="phead"><h2>Ledger</h2><div class="toolbar">${[['all','All'],['buy','Bought'],['sell','Sold']].map(([k,l])=>`<button class="pill" data-act="ledgerF" data-id="${k}" aria-pressed="${S.ledgerF===k}">${l}</button>`).join('')}</div></div><div class="tablewrap" id="ledger"></div></div>
-  <div class="panel"><div class="phead"><h2>Your details</h2></div><div class="addform"><label>Display name<input data-me="name" id="me-name" value="${esc(ME.name)}"></label><label>Ship-from address (city, state, ZIP)<input data-me="from" id="me-from" value="${esc(ME.from)}"></label><label>Table name (vendor mode)<input data-me="table" id="me-table" value="${esc(ME.table)}"></label></div>${ME.premium?'<p class="note">Slab Row Pro is active · $14.99/mo · design your table in Inventory. <button class="linkbtn" data-act="cancelPro">Cancel Pro</button></p>':'<p class="note">Want your own tablecloth, colors and signage? <button class="linkbtn" data-act="goPro">See Slab Row Pro</button></p>'}<label class="switch"><input type="checkbox" data-pref="offersOn" id="pref-offers" ${offersOn()?'checked':''}> Let dealers and collectors send me offers on my for-sale cards</label>${rolePicker()}</div>`;
+  <div class="panel"><div class="phead"><h2>Your details</h2></div><div class="addform"><label>Display name<input data-me="name" id="me-name" value="${esc(ME.name)}"></label><label>Ship-from address (city, state, ZIP)<input data-me="from" id="me-from" value="${esc(ME.from)}"></label><label>Table name (vendor mode)<input data-me="table" id="me-table" value="${esc(ME.table)}"></label></div><p class="note">Change your avatar and design your booth in <button class="linkbtn" data-act="nav" data-id="inventory">Inventory</button>.</p><label class="switch"><input type="checkbox" data-pref="offersOn" id="pref-offers" ${offersOn()?'checked':''}> Let dealers and collectors send me offers on my for-sale cards</label>${rolePicker()}</div>`;
   const cb=$('#chartbox');cb.innerHTML=chartSVG(sells,Math.max(280,cb.clientWidth));
   renderLedger();updateSaveBadge();
 }
@@ -2348,7 +2409,9 @@ const ACT={
     <button class="btn gold" data-act="startPro" style="justify-self:start">Start Pro · $14.99/mo</button><p class="mute" style="font-size:12px">Demo subscription. No card is charged.</p></div>`)},
   startPro:()=>{ME.premium=true;ME.style=styleOf();ME.ledger.unshift({id:'P-'+Date.now().toString(36).toUpperCase(),ts:Date.now(),side:'pro',card:{name:'Slab Row Pro',year:'',set:'Monthly plan',num:'',grade:''},party:'Slab Row',price:14.99,ship:0,fee:0,total:14.99,where:'Subscription'});save();closeModal();renderTabs();refreshView();toast('Pro is on. Design your table below.')},
   cancelPro:()=>{ME.premium=false;save();refreshView();toast('Pro canceled. Your table goes back to the standard look.')},
-  style:p=>{if(!ME.premium)return ACT.goPro();const [k,val]=p.split('|');ME.style=styleOf();ME.style[k]=val;save();renderDesign()},
+  style:p=>{const [k,val]=p.split('|');ME.style=styleOf();ME.style[k]=['plant','lights','rug','biz'].includes(k)?!!val:val;save();renderDesign()},
+  look:p=>{const [k,val]=p.split('|');ME.look=lookOf();ME.look[k]=val;save();renderAvatarPanel()},
+  lookRandom:()=>{const P=a=>a[Math.floor(Math.random()*a.length)];ME.look={skin:P(LK.skin),hair:P(LK.hair),hairStyle:P(HAIRSTYLES)[0],shirt:P(LK.shirt),pants:P(LK.pants),shoes:P(LK.shoes),hat:P(HATS)[0],hatColor:P(LK.hat),glasses:Math.random()<.7?'none':P(GLASSES)[0]};save();renderAvatarPanel()},
   promoToggle:()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'p'}))},
   ship:id=>{CO.addr=$('#addr').value;CO.ship=id;renderCheckout()},
   payer:id=>{CO.addr=$('#addr').value;CO.payer=id;renderCheckout()},
@@ -2373,6 +2436,7 @@ const ACT={
   endCall:()=>endCall(),
   callMute:()=>{if(VOICE.call){VOICE.call.muted=!VOICE.call.muted;renderCall()}},
   callCards:id=>{const c=VOICE.call;if(!c)return;c.min=true;c.adding=false;renderCall();if(id&&id.startsWith('b:')&&id.slice(2)!==c.name){const x=(c.extra||[]).find(x=>'b:'+x.name===id);if(x)return openTable(attendeeParty(x.bot),'show')}if(c.kind==='booth'){S.vtab[c.v.id]='chat';openTable(c.v,'show')}else openTable(c.party,'show')},
+  qc:s=>{const [fn,fid,a,card]=String(s).split('~');const f=document.querySelector(`form[data-form="${fn}"]`+(fid?`[data-id="${CSS.escape(fid)}"]`:''));if(!f)return toast('That offer moved on. Try again.');f.amt.value=a;if(card&&f.card)f.card.value=card;f.requestSubmit()},
   callMin:()=>{const c=VOICE.call;if(c){c.min=true;c.adding=false;renderCall()}},
   callExpand:()=>{const c=VOICE.call;if(c){c.min=false;c._autoMin=1;renderCall()}},
   callAdd:()=>{const c=VOICE.call;if(c){c.adding=true;renderCall()}},
@@ -2509,6 +2573,7 @@ document.addEventListener('change',e=>{const t=e.target;if(!ME)return;
     if(!t.checked&&slabMeshes[c.id])slabMeshes[c.id].visible=false;save();if(S.view==='inventory')renderInvSummary();if(S.view==='room')syncBooth(VBY.me);renderOffers()}
   if(t.dataset.pref==='offersOn'){ME.offersOn=t.checked;save();if(!t.checked){S.offers=[];renderOffers()}toast(t.checked?'Offers on':'Offers paused')}
   if(t.dataset.pref==='promo'){setPromo(t.value||null);toast(t.value?'Your card is floating over your head':'Promo card removed')}
+  if(t.dataset.look){ME.look=lookOf();ME.look[t.dataset.look]=t.value;save();renderAvatarPanel()}
   if(t.dataset.style){ME.style=styleOf();ME.style[t.dataset.style]=t.value.trim();save();renderDesign()}
   if(t.dataset.me){const v=t.value.trim();if(v){ME[t.dataset.me]=v;save();toast('Saved')}}
 });

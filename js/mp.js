@@ -88,7 +88,9 @@ async function doSave(){if(!MP.uid||!ME)return;const body=stripForSave();
   try{await NET.saveState(MP.uid,body);STORE='cloud';
     const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null}}));
     const lk=JSON.stringify(rows);if(lk!==MP.lastListings){MP.lastListings=lk;await NET.syncListings(MP.uid,rows)}
-    const pk=JSON.stringify([ME.name,ME.role,ME.table,ME.from,ME.color]);if(pk!==MP.lastProf){MP.lastProf=pk;await NET.saveProfile(MP.uid,{name:ME.name,role:ME.role,table_name:ME.table,city:ME.from,color:ME.color});MP.profiles[MP.uid]={...MP.profile,name:ME.name,role:ME.role,table_name:ME.table}}
+    const look={av:lookOf(),booth:styleOf()},pk=JSON.stringify([ME.name,ME.role,ME.table,ME.from,ME.color,look]);if(pk!==MP.lastProf){MP.lastProf=pk;const pr={name:ME.name,role:ME.role,table_name:ME.table,city:ME.from,color:ME.color};
+      if(!MP.noLook){try{await NET.saveProfile(MP.uid,{...pr,look})}catch(e){if(/look/i.test(String(e&&(e.message||e))))MP.noLook=true;else throw e}}if(MP.noLook)await NET.saveProfile(MP.uid,pr);
+      MP.profiles[MP.uid]={...MP.profile,...pr,look};if(MP.room)MP.room.track({look:look.av,bstyle:ME.role==='vendor'?look.booth:null,name:ME.name,role:ME.role})}
     MP.saveWarned=0}
   catch(e){STORE='device';if(!MP.saveWarned){MP.saveWarned=1;toast('Couldn’t save to the server: '+NET.friendly(e))}}
   updateSaveBadge(true)}
@@ -161,7 +163,7 @@ async function loadParties(uids){uids=[...new Set(uids)].filter(u=>u&&u!==MP.uid
 function realParty(uid,fallbackName){const id='u_'+uid,p=MP.profiles[uid]||{name:fallbackName||nameOf(uid),role:'collector'};let v=VBY[id];
   if(!v){v=V(id,p.name,'@'+(p.name||'collector').replace(/\s+/g,'').toLowerCase(),false,'open',p.color||'#3db5ff','','',.85,9999,[]);v.real=true;v.uid=uid;VBY[id]=v}
   const vendor=p.role==='vendor';v.person=p.name;v.name=vendor&&p.table_name?p.table_name:p.name;v.kind=vendor?undefined:'attendee';v.color=p.color||v.color;
-  v.spec=vendor?`Real vendor · ${p.name}`:'Real collector · showing you their cards';v.city=p.city||'';
+  v.spec=vendor?`Real vendor · ${p.name}`:'Real collector · showing you their cards';{const ps=MP.peers[uid]?.bstyle||p.look?.booth;if(vendor&&ps)v.style=ps}v.city=p.city||'';
   const keep=new Map((v.inv||[]).filter(c=>c.sold||c.held).map(c=>[c.id,c]));v.inv=(MP.listings[uid]||[]).map(l=>{const k=keep.get(l.card_id);return k&&!k.sold?k:listingCard(l)});
   const pe=MP.peers[uid];v.online=vendor?!!(pe&&pe.op):!!(pe||MP.online[uid]);return v}
 window.realParty=realParty;
@@ -199,24 +201,27 @@ window.buildBooth=function(v,x,z){_buildBooth(v,x,z);const b=booths[booths.lengt
 /* ================= live room: see each other ================= */
 function joinLobby(){MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:null},{sync:list=>{MP.online={};list.forEach(p=>{if(p&&p.uid&&p.uid!==MP.uid)MP.online[p.uid]=p})}})}
 function joinRoom(key){leaveRoom();MP.roomKey=key;
-  MP.room=NET.channel('room:'+key,{uid:MP.uid,name:ME.name,role:ME.role,color:ME.color,op:false},{sync:onSync,msg:onMsg,error:()=>toast('Live connection is having trouble. Retrying…')});
+  MP.room=NET.channel('room:'+key,{uid:MP.uid,name:ME.name,role:ME.role,color:ME.color,op:false,look:lookOf(),bstyle:ME.role==='vendor'?styleOf():null},{sync:onSync,msg:onMsg,error:()=>toast('Live connection is having trouble. Retrying…')});
   MP.lobby&&MP.lobby.track({show:key,name:ME.name});MP.unsub.push(MP.unbooth=NET.onBooths(key,()=>refreshBoothsLive()));updateWho()}
 function leaveRoom(){if(MP.room){MP.room.leave();MP.room=null}if(MP.unbooth){MP.unbooth();MP.unbooth=null}
   Object.values(MP.ra).forEach(r=>{try{scene&&scene.remove(r.av)}catch(e){}});MP.ra={};MP.peers={};MP.roomKey=null;MP.lobby&&MP.lobby.track({show:null});$('#whochip').hidden=true}
 function onSync(list){const now={};list.forEach(p=>{if(p&&p.uid&&p.uid!==MP.uid)now[p.uid]=p});
   Object.keys(MP.ra).forEach(u=>{if(!now[u]){try{scene.remove(MP.ra[u].av)}catch(e){}delete MP.ra[u]}});
+  Object.values(now).forEach(p=>{const r=MP.ra[p.uid];if(r&&p.look&&JSON.stringify(p.look)!==r.lk){const t=r.t,pos=r.av.position.clone(),ry=r.av.rotation.y;try{scene.remove(r.av)}catch(e){}delete MP.ra[p.uid];const n=ensureRA(p.uid,p);if(n){n.t=t;n.av.position.copy(pos);n.av.rotation.y=ry;n.av.visible=!!t;n.seen=performance.now()}}
+    const v=VBY['u_'+p.uid];if(v&&v.real&&p.bstyle&&JSON.stringify(p.bstyle)!==JSON.stringify(v.style||null)){v.style=p.bstyle;rebuildBooth(v)}});
   const was=MP.peers;MP.peers=now;Object.values(now).forEach(p=>{if(!was[p.uid]&&S.view==='room'){nlog('sys',`${p.name} walked in.`)}const v=VBY['u_'+p.uid];if(v){v.online=p.role==='vendor'?!!p.op:true;try{syncBooth(v)}catch(e){}}});
   Object.keys(was).forEach(u=>{if(!now[u]){nlog('sys',`${was[u].name} left the show.`);const v=VBY['u_'+u];if(v){v.online=false;try{syncBooth(v)}catch(e){}}if(VOICE.call&&VOICE.call.kind==='real'&&VOICE.call.members[u]){const nm=was[u].name;clearTimeout(MP.goneT[u]);MP.goneT[u]=setTimeout(()=>{if(!MP.peers[u])dropMember(u,`${nm} left the show, so they dropped off the call`)},9000)}}});
   loadParties(Object.keys(now).filter(u=>!MP.profiles[u]));updateWho()}
 MP.goneT={};
+function rebuildBooth(v){const D=showData;if(!D||!scene||S.view!=='room')return;const i=(D.vendors||[]).indexOf(v.id);if(i<0)return;removeBoothAt(i);const [x,z]=slotPos(i);buildBooth(v,x,z);try{syncBooth(v)}catch(e){}}
 function updateWho(){const n=Object.keys(MP.peers).length,el=$('#whochip');if(!el)return;el.hidden=S.view!=='room';el.textContent=n?`${n} real ${n===1?'person':'people'} here`:'Only you so far · invite friends'}
 ACT.whoList=()=>{const ps=Object.values(MP.peers);openModal(`<div class="sec"><span class="eyebrow">Real people in ${esc(showData?.name||'this show')}</span><h2>${ps.length?`${ps.length} here with you`:'Just you right now'}</h2>
   ${ps.length?ps.map(p=>`<div class="realrow"><div class="vava" style="background:${p.color||'#3db5ff'};width:34px;height:34px;font-size:13px">${initials(p.name)}</div><div class="who"><b>${esc(p.name)}</b><span>${p.role==='vendor'?(p.op?'Vendor · behind their table':'Vendor · walking the floor'):'Collector'}</span></div><button class="btn ghost sm" data-act="walkToPeer" data-id="${p.uid}">Walk there</button><button class="btn gold sm" data-act="tradeReal" data-id="${p.uid}">Their cards</button></div>`).join(''):'<p class="mute">Send friends the site link. Anyone with an account who enters this show shows up here, walking the same floor.</p>'}</div>`)};
 ACT.walkToPeer=uid=>{const r=MP.ra[uid];closeModal();if(!r)return;player.userData.path=[{x:r.av.position.x+1.2,z:r.av.position.z+1.2}]};
 function ensureRA(uid,info){let r=MP.ra[uid];if(r||!scene)return r;const p=info||MP.peers[uid]||{name:'Collector'};
-  const av=makeAvatar({shirt:new THREE.Color(p.color||'#3db5ff').getHex()});av.userData.name=p.name;av.userData.real=uid;
+  const lk=p.look||MP.profiles[uid]?.look?.av,av=makeAvatar(lk||{shirt:new THREE.Color(p.color||'#3db5ff').getHex()});av.userData.name=p.name;av.userData.real=uid;
   const tag=tagSprite(p.name+(p.role==='vendor'?' · vendor':''),'rgba(5,9,18,.82)','#ffffff');tag.position.y=2.6;tag.scale.multiplyScalar(.78);av.add(tag);
-  av.visible=false;scene.add(av);r=MP.ra[uid]={av,uid,name:p.name,t:null,sp:0,lean:0,lvl:0};return r}
+  av.visible=false;scene.add(av);r=MP.ra[uid]={av,uid,name:p.name,t:null,sp:0,lean:0,lvl:0,lk:JSON.stringify(lk||null)};return r}
 function onMsg(ev,d){if(!d||d.uid===MP.uid||d.from===MP.uid)return;
   if(ev==='pos'){const r=ensureRA(d.uid,MP.peers[d.uid]||{name:d.n,color:d.c,role:d.role});if(!r)return;const first=!r.t;r.t=d;if(first){r.av.position.set(d.x,d.y||0,d.z);r.av.rotation.y=d.r}r.av.visible=true;r.seen=performance.now()}
   else if(ev==='say'){const r=MP.ra[d.uid];if(r&&player&&r.av.position.distanceTo(player.position)<16){say(r.av,d.text,4200);nlog(d.n||r.name,d.text)}}
@@ -295,7 +300,7 @@ function buyerNote(r){MP.notes=MP.notes.filter(x=>x.id!==r.id);MP.notes.push(r);
   showNote()}
 function showNote(){const el=$('#dealNote'),r=MP.notes[0];if(!r){el.hidden=true;return}const names=r.cards.map(c=>c.name).join(', ');
   el.innerHTML=`<div class="av" style="background:${MP.profiles[r.seller]?.color||'#3db5ff'}">${initials(r.seller_name||'?')}</div><div style="min-width:0"><b>${r.kind==='pitch'?`${esc(r.seller_name)} offers you ${r.cards.length>1?r.cards.length+' cards':'a card'}`:`${esc(r.seller_name)} countered`}: ${money(+r.amount)}</b><span class="sub">${esc(names)}</span></div><button class="chbtn" data-act="rLater" data-id="${r.id}" aria-label="Later">×</button>
-   <div class="acts"><button class="btn gold sm" data-act="rAccept" data-id="${r.id}">Accept ${money(+r.amount)}</button><form data-form="rCounter" data-id="${r.id}" style="display:flex;gap:6px;flex:1 1 160px"><div class="amt sm" style="flex:1"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" aria-label="Counter amount" autocomplete="off"></div><button class="btn ghost sm">Counter</button></form><button class="btn ghost sm" data-act="rDecline" data-id="${r.id}">Decline</button></div>`;el.hidden=false}
+   <div class="acts"><button class="btn gold sm" data-act="rAccept" data-id="${r.id}">Accept ${money(+r.amount)}</button>${(()=>{const list=r.cards.reduce((t,c)=>t+(+c.price||0),0),k1=r.cards.length===1?`c:u_${r.seller}|${r.cards[0].id}`:`lot:u_${r.seller}`,mine=S.mine['r:'+r.id]||S.mine[k1];return mine&&mine<+r.amount?qcHTML('rCounter',r.id,list,+r.amount,mine):qoHTML('rCounter',r.id,+r.amount).replace('Quick offer','Quick counter')})()}<form data-form="rCounter" data-id="${r.id}" style="display:flex;gap:6px;flex:1 1 160px"><div class="amt sm" style="flex:1"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Custom" aria-label="Custom counter amount" autocomplete="off"></div><button class="btn ghost sm">Counter</button></form><button class="btn ghost sm" data-act="rDecline" data-id="${r.id}">Decline</button></div>`;el.hidden=false}
 ACT.rAccept=id=>{const r=MP.rows[id];if(!r)return;MP.notes=MP.notes.filter(x=>x.id!==id);showNote();setRow(id,{status:'accepted',by_user:MP.uid});toast(`Accepted. ${r.seller_name} confirms and the cards land in your binder.`)};
 ACT.rDecline=id=>{const r=MP.rows[id];MP.notes=MP.notes.filter(x=>x.id!==id);showNote();setRow(id,{status:'declined',by_user:MP.uid});if(r)toast(`Declined ${r.seller_name}’s ${r.kind==='pitch'?'offer':'counter'}`)};
 ACT.rLater=id=>{MP.notes=MP.notes.filter(x=>x.id!==id).concat(MP.notes.filter(x=>x.id===id));$('#dealNote').hidden=true};

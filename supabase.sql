@@ -8,6 +8,7 @@ create table if not exists public.profiles (
   table_name text,
   city text,
   color text,
+  look jsonb,
   updated_at timestamptz default now()
 );
 alter table public.profiles enable row level security;
@@ -135,3 +136,6 @@ drop policy if exists "photos upload own" on storage.objects;
 create policy "photos upload own" on storage.objects for insert to authenticated with check (bucket_id = 'photos' and (storage.foldername(name))[1] = auth.uid()::text);
 drop policy if exists "photos delete own" on storage.objects;
 create policy "photos delete own" on storage.objects for delete to authenticated using (bucket_id = 'photos' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Avatar + booth looks (added later; safe to re-run)
+alter table public.profiles add column if not exists look jsonb;
