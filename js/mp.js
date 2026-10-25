@@ -86,7 +86,7 @@ let saveT2=null;
 window.save=function(now){clearTimeout(saveT2);saveT2=setTimeout(doSave,now?0:700)};
 async function doSave(){if(!MP.uid||!ME)return;const body=stripForSave();
   try{await NET.saveState(MP.uid,body);STORE='cloud';
-    const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null}}));
+    const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null,hold:c.hold&&c.hold.until>Date.now()?{uid:c.hold.uid||null,name:c.hold.name||'',until:c.hold.until}:null}}));
     const lk=JSON.stringify(rows);if(lk!==MP.lastListings){MP.lastListings=lk;await NET.syncListings(MP.uid,rows)}
     const look={av:lookOf(),booth:styleOf()},pk=JSON.stringify([ME.name,ME.role,ME.table,ME.from,ME.color,look]);if(pk!==MP.lastProf){MP.lastProf=pk;const pr={name:ME.name,role:ME.role,table_name:ME.table,city:ME.from,color:ME.color};
       if(!MP.noLook){try{await NET.saveProfile(MP.uid,{...pr,look})}catch(e){if(/look/i.test(String(e&&(e.message||e))))MP.noLook=true;else throw e}}if(MP.noLook)await NET.saveProfile(MP.uid,pr);
@@ -260,6 +260,10 @@ window.respond=function(v,c,amt){if(!v.real)return _respond(v,c,amt);
 const _lotOffer=FORMS.lotOffer;
 FORMS.lotOffer=f=>{const v=VBY[f.dataset.id];if(!v||!v.real)return _lotOffer(f);const cs=pickCards(v),amt=Math.round(parseFloat(f.amt.value.replace(/[$,]/g,''))*100)/100;if(!(amt>0)||!cs.length)return toast('Enter an offer for the lot');
   newRow({kind:'offer',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:cs.map(cardRef),amount:amt}).then(r=>{if(!r)return;S.lot[v.id]={msg:`Lot offer of ${money(amt)} sent to ${v.person||v.name}. You’ll see their answer here.`};renderLot(v)})};
+const _vwHold=ACT.vwHold;ACT.vwHold=async()=>{const v=VBY[VW.vid],c=findCard(VW.vid,VW.cid);if(!v||!v.real)return _vwHold();if(!c||c.sold)return;
+  const r=await newRow({kind:'hold',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:[cardRef(c)],amount:+c.price});if(r)toast(`Asked ${v.person||v.name} to hold it for 15 minutes`)};
+ACT.ofHold=id=>{const o=S.offers.find(x=>x.id===id);if(!o||!o.real)return;const until=Date.now()+15*60000;o.cds.forEach(c=>c.hold={uid:o.real.buyer,name:o.real.buyer_name,until});save(true);try{syncBooth(VBY.me)}catch(e){}
+  setRow(o.real.id,{status:'accepted',by_user:MP.uid,note:String(until)});S.offers=S.offers.filter(x=>x!==o);renderOffers();toast(`Holding it for ${o.real.buyer_name} until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`)};
 const _doPitch=doPitch;
 window.doPitch=function(v,c,k){if(!v.real)return _doPitch(v,c,k);S.pitch[k]={msg:`Pitched to ${v.person||v.name} at ${money(c.price)}. Their answer pops up when they respond.`,wait:true};
   newRow({kind:'pitch',buyer:v.uid,seller:MP.uid,buyer_name:v.person||v.name,seller_name:ME.name,cards:[cardRef(c)],amount:c.price})};
@@ -275,7 +279,7 @@ window.placeOrder=ACT.placeOrder=async function(){if(!CO||CO.done)return;const {
 /* seller: fulfill an order or an accepted deal */
 function myCards(r){return r.cards.map(ref=>ME.inv.find(c=>c.id===ref.id&&!c.sold))}
 MP.done=new Set();
-function fulfill(r){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});
+function fulfill(r){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});if(cds.some(c=>c.hold&&c.hold.until>Date.now()&&c.hold.uid&&c.hold.uid!==r.buyer))return setRow(r.id,{status:'declined',note:'On hold for another buyer',by_user:MP.uid});
   const party=realParty(r.buyer,r.buyer_name),opts=shipFor(cds,+r.amount),ship=opts.find(o=>o.id===r.ship?.id)||opts.find(o=>o.id===(+r.amount>=500?'pri':'bmwt'))||opts[0],payer=r.ship?.payer||'buyer';
   const res=completeSale(party,cds,+r.amount,ship,payer);if(Array.isArray(party.inv))party.inv=party.inv.filter(c=>!cds.some(x=>x.id===c.id&&c.owner===undefined));
   S.offers=S.offers.filter(o=>o.id!=='r_'+r.id);renderOffers();rerenderOpen();refreshView();try{logSale(r.buyer_name,cds,+r.amount)}catch(e){}
@@ -283,6 +287,7 @@ function fulfill(r){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCa
   setRow(r.id,{status:'completed',by_user:MP.uid,ship:{id:ship.id,payer,cost:ship.cost,addr:r.ship?.addr||''}})}
 function dockAdd(r){const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});
   const party=realParty(r.buyer,r.buyer_name);S.offers=S.offers.filter(o=>o.id!=='r_'+r.id);
+  if(r.kind==='hold'){S.offers.unshift({id:'r_'+r.id,real:r,party,cds,cd:cds[0],amt:+r.amount,max:1e12,tries:0,kind:'hold',via:'Hold request'});S.offersOpen=true;renderOffers();return toast(`${r.buyer_name} asked you to hold your ${cds[0].name}`)}
   S.offers.unshift({id:'r_'+r.id,real:r,party,cds,cd:cds[0],amt:+r.amount,max:1e12,tries:0,via:r.kind==='pitch'?`${r.buyer_name} countered your pitch`:`From ${r.buyer_name} · real person`,msg:r.note||''});
   S.offersOpen=true;renderOffers();toast(`${r.buyer_name} offered ${money(+r.amount)} for ${cds.length>1?cds.length+' of your cards':'your '+cds[0].name}`)}
 function dockRemove(r){S.offers=S.offers.filter(o=>o.id!=='r_'+r.id);renderOffers()}
@@ -312,9 +317,12 @@ function processRow(r,initial){if(!r||!r.id||!MP.uid)return;const prev=MP.rows[r
   if(seller){if(r.status==='pending'&&r.kind==='order')return fulfill(r);
     if(r.status==='accepted'&&!mine)return fulfill(r);
     if(old)return;
-    if((r.status==='pending'&&r.kind==='offer')||(r.status==='countered'&&!mine))return dockAdd(r);
+    if((r.status==='pending'&&(r.kind==='offer'||r.kind==='hold'))||(r.status==='countered'&&!mine))return dockAdd(r);
     if(r.status==='declined'&&!mine){dockRemove(r);if(!initial)toast(`${r.buyer_name} passed on your ${r.kind==='pitch'?'pitch':'counter'}`);return}
     if(r.status==='cancelled'||r.status==='completed')return dockRemove(r)}
+  if(buyer&&r.kind==='hold'){if(initial||mine)return;const v=VBY['u_'+r.seller],until=+(r.note||0);
+    if(r.status==='accepted'){if(v)v.inv.forEach(c=>{if(r.cards.some(x=>x.id===c.id))c.hold={uid:MP.uid,name:ME.name,until}});if(v)chatTo(v,{f:'v',t:`${r.seller_name}: I’ll hold it for you until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}.`});toast(`${r.seller_name} is holding it for you until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`);rerenderOpen()}
+    else if(r.status==='declined')toast(`${r.seller_name} can’t hold that one right now`);return}
   if(buyer){if(r.status==='completed'&&!r.received)return receive(r);
     if(old)return;
     if((r.status==='countered'&&!mine)||(r.status==='pending'&&r.kind==='pitch'&&!mine))return buyerNote(r);
