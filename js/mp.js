@@ -86,7 +86,7 @@ let saveT2=null;
 window.save=function(now){clearTimeout(saveT2);saveT2=setTimeout(doSave,now?0:700)};
 async function doSave(){if(!MP.uid||!ME)return;const body=stripForSave();
   try{await NET.saveState(MP.uid,body);STORE='cloud';
-    const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null,hold:c.hold&&c.hold.until>Date.now()?{uid:c.hold.uid||null,name:c.hold.name||'',until:c.hold.until}:null}}));
+    const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null,base:c.base??null,hold:c.hold&&c.hold.until>Date.now()?{uid:c.hold.uid||null,name:c.hold.name||'',until:c.hold.until}:null}}));
     const lk=JSON.stringify(rows);if(lk!==MP.lastListings){MP.lastListings=lk;await NET.syncListings(MP.uid,rows)}
     const look={av:lookOf(),booth:styleOf()},pk=JSON.stringify([ME.name,ME.role,ME.table,ME.from,ME.color,look]);if(pk!==MP.lastProf){MP.lastProf=pk;const pr={name:ME.name,role:ME.role,table_name:ME.table,city:ME.from,color:ME.color};
       if(!MP.noLook){try{await NET.saveProfile(MP.uid,{...pr,look})}catch(e){if(/look/i.test(String(e&&(e.message||e))))MP.noLook=true;else throw e}}if(MP.noLook)await NET.saveProfile(MP.uid,pr);
@@ -156,7 +156,7 @@ const _gateOpen=gateOpen;
 window.gateOpen=function(){const D=showData;if(D&&D.db){if(D.hostId===MP.uid||!D.price)return true;const tk=tixOf(D.id);return !!tk?.checkedIn&&(tk.tier==='early'||Date.now()>=D.gateAt)}return _gateOpen()};
 
 /* ================= real people as tables / parties ================= */
-function listingCard(l){const c=decorate({...l.card,id:l.card_id,price:+l.price,mkt:+(l.card.mkt||l.price),cert:l.card.cert??null,sold:false});c.owner=l.owner;return c}
+function listingCard(l){const c=decorate({...l.card,id:l.card_id,price:+l.price,mkt:+(l.card.mkt||l.price),cert:l.card.cert??null,sold:false});if(+l.card.base>c.price)c.list=+l.card.base;delete c.base;c.owner=l.owner;return c}
 async function loadParties(uids){uids=[...new Set(uids)].filter(u=>u&&u!==MP.uid);if(!uids.length)return;
   try{Object.assign(MP.profiles,await NET.profiles(uids))}catch(e){}
   await Promise.all(uids.map(async u=>{try{MP.listings[u]=await NET.listings(u)}catch(e){}}))}
