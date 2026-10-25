@@ -500,6 +500,23 @@ table.t input{width:86px;padding:5px 7px;font-family:var(--f-mono);font-size:13p
 .vtimer{font-family:var(--f-mono);font-size:12px;color:var(--mute)}
 body.incall #vreq{top:calc(178px + env(safe-area-inset-top,0px))}
 body.incall #boothAlert{top:calc(178px + env(safe-area-inset-top,0px))}
+body.callmin #vreq,body.callmin #boothAlert{top:calc(58px + env(safe-area-inset-top,0px))}
+#callPanel.min{width:auto;padding:0;border:0;background:none;box-shadow:none;display:block;top:calc(8px + env(safe-area-inset-top,0px));overflow:visible}
+.cpill{display:flex;align-items:center;gap:8px;background:var(--go);color:#03210f;border:0;border-radius:999px;padding:4px 14px 4px 5px;font:inherit;font-weight:800;font-size:13.5px;box-shadow:0 8px 22px rgba(0,0,0,.55);cursor:pointer;white-space:nowrap}
+.cpill .ph{width:26px;height:26px;border-radius:50%;background:#03210f;display:grid;place-items:center;flex:none}
+.cpill .ph svg{width:14px;height:14px;fill:var(--go)}
+.cpill .avs{display:flex}
+.cpill .av{width:26px;height:26px;font-size:10.5px;border:2px solid var(--go);margin-left:-9px}
+.cpill .av:first-child{margin-left:0}
+.cpill .av.talking::after{inset:-4px;border-color:#fff;border-width:2px}
+.cpill .vtimer{color:#03210f;font-size:13px;font-weight:700}
+.cpill .cmu{font-size:11px;background:rgba(0,0,0,.18);border-radius:6px;padding:1px 6px}
+.cstack{display:flex}.cstack .av{margin-left:-14px;border:2px solid var(--panel)}.cstack .av:first-child{margin-left:0}
+.cmem{grid-column:1/-1;display:grid;gap:6px;max-height:38vh;overflow:auto}
+.cm{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--bg);border-radius:10px;padding:6px 8px}
+.cm .av{width:32px;height:32px;font-size:12px}.cm b{font-size:13.5px}.cm .sub{font-size:12px}
+.cmin{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.cmin svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4}
 #vnote{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:36;background:var(--ink);color:var(--bg);border-radius:16px;padding:14px 22px;box-shadow:0 16px 40px rgba(0,0,0,.6);text-align:center;pointer-events:none;max-width:calc(100vw - 32px)}
 #vnote small{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.6}
 #vnote b{display:block;font-family:var(--f-disp);font-size:24px;font-weight:900;font-style:italic;margin-top:2px}
@@ -1486,7 +1503,7 @@ function zoneCheck(){
   if(S.sat){near='stage';label='Open the Q&A'}
   else if(S.op){near='op';label='Manage booth';alt='Step out'}
   else if(b){near=b.v.id;label=b.v.mine?'Operate booth':`Visit ${b.v.name}`;if(b.v.mine)alt='Manage booth'}
-  else if(z!=='stage'&&window.mpNear&&(window._pr=mpNear(p))){const pr=window._pr;near='r:'+pr.uid;label=`Trade with ${pr.name}`;alt=VOICE.call?.uid===pr.uid?'':`Talk to ${pr.name}`}
+  else if(z!=='stage'&&window.mpNear&&(window._pr=mpNear(p))){const pr=window._pr;near='r:'+pr.uid;label=`Trade with ${pr.name}`;alt=VOICE.call?.kind==='real'?(VOICE.call.members[pr.uid]?'':`Add ${pr.name} to call`):`Talk to ${pr.name}`}
   else if(z!=='stage'&&(pb=bots.find(a=>a.position.distanceTo(p)<2.1))){near='p:'+bots.indexOf(pb);label=`Trade with ${pb.userData.name}`;alt=VOICE.call?.bot===pb?'':`Talk to ${pb.userData.name}`}
   else if(z==='stage'&&p.z<-23.5){near='stage';label=showData.stage?'Take a seat':'See the stage program'}
   else if(z==='vip1'||z==='vip2'){near=z;label='Join the room'}
@@ -1646,7 +1663,7 @@ function voiceFrame(now){if(VOICE.an&&(++VOICE.tick%3===0))VOICE.level=micLevel(
 function voiceUI(){const p=vprefs(),c=VOICE.call,lbl=c?(c.state==='live'?'On a call':'Calling…'):p.prox?(p.mode==='mute'?'Voice · muted':p.mode==='ptt'?'Voice · hold Q':'Voice · open mic'):'Voice · off';
   const b=$('#micBtn');if(b)b.textContent=lbl;const bm=$('#micBtnM');if(bm)bm.textContent=p.prox||c?'Voice ●':'Voice';
   const pt=$('#pttBtn');if(pt)pt.classList.toggle('show',S.view==='room'&&voiceLive()&&p.mode==='ptt');
-  document.body.classList.toggle('incall',!!c);if(S.side==='voice')renderVoicePanel($('#dBody'));proxEarshot()}
+  document.body.classList.toggle('incall',!!c&&!c.min);document.body.classList.toggle('callmin',!!c&&!!c.min);if(S.side==='voice')renderVoicePanel($('#dBody'));proxEarshot()}
 function proxEarshot(){const e=$('#earshot');if(!e||S.view!=='room'||!player)return;if(!vprefs().prox){return}const n=voiceNearby().length;e.textContent=`voice on · ${n} in range`}
 function voiceNearby(){const out=[];if(!player)return out;nearbyBots(10).forEach(b=>{if(b!==VOICE.call?.bot)out.push({av:b,name:b.userData.name,kind:'bot'})});
   booths.forEach(b=>{if(b.v.mine||!b.vendorAv.visible)return;const p=new THREE.Vector3();b.vendorAv.getWorldPosition(p);if(p.distanceTo(player.position)<10)out.push({av:b.vendorAv,name:b.v.name,kind:'vendor',v:b.v})});return out}
@@ -1657,17 +1674,43 @@ function proxTick(){if(S.view!=='room'||!player||!vprefs().prox||(VOICE.call&&VO
 setInterval(proxTick,5000);
 /* calls: Talk to ___ (peer) and booth calls */
 function clearReq(){if(VOICE.req){VOICE.req.userData.wait=1.5;VOICE.req=null}if(!VOICE.turnV||$('#vreq').querySelector('[data-act=reqYes]'))$('#vreq').hidden=true}
-function renderCall(){const c=VOICE.call,el=$('#callPanel');if(c&&c.state==='live'&&VOICE.req)clearReq();if(c?.state!==renderCall.last){renderCall.last=c?.state;setTimeout(refreshTvSide,0)}if(!c){el.hidden=true;el.innerHTML='';voiceUI();return}
-  const col=c.v?c.v.color:'#5a6a8a',sec=c.start?Math.floor((Date.now()-c.start)/1000):0,tm=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`,talking=c.capUntil>Date.now();
-  el.innerHTML=`<div class="av ${talking?'talking':''}" style="background:${col}">${initials(c.name)}</div><div style="min-width:0"><b>${c.state==='live'?(c.kind==='booth'?'Voice with '+esc(c.name):'Talking with '+esc(c.name)):(c.state==='connecting'?'Connecting to '+esc(c.name)+'…':'Calling '+esc(c.name)+'…')}</b><span class="sub">${c.state==='live'?`<span class="vtimer">${tm}</span> · ${c.kind==='booth'?'private booth call · chat stays open':'private · only you two hear this'}${c.muted?' · you’re muted':''}`:'Waiting for them to accept'}</span></div><button class="chbtn" data-act="endCall" aria-label="End call">×</button>
-   ${c.state==='live'?`<div class="cap">${c.cap?`<i>${esc(c.name.split(' ')[0])}</i>${esc(c.cap)}`:'<span class="mute">Connected. Talk whenever you’re ready.</span>'}</div><div class="acts"><button class="btn ${c.muted?'gold':'ghost'} sm" data-act="callMute">${c.muted?'Unmute':'Mute'}</button><button class="btn ghost sm" data-act="callCards">${c.kind==='booth'?'Open chat':'Their cards'}</button><button class="btn ghost sm" data-act="endCall" style="border-color:#ff6b74;color:#ff6b74">End</button></div>`:`<div class="acts"><button class="btn ghost sm" data-act="endCall">Cancel</button></div>`}`;
+const PHONE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>';
+function callPeople(c){if(!c)return[];const now=Date.now(),tk=n=>c.capUntil>now&&(c.capWho||c.name)===n;
+  const a=c.kind==='booth'?[{key:'v:'+c.v.id,name:c.v.name,color:c.v.color,state:'live',talking:tk(c.v.name),cards:true}]:[{key:'b:'+c.name,name:c.name,color:'#5a6a8a',bot:c.bot,state:c.state==='live'?'live':'ringing',talking:tk(c.name),cards:true}];
+  (c.extra||[]).forEach(x=>a.push({key:'b:'+x.name,name:x.name,color:'#5a6a8a',bot:x.bot,state:x.state,talking:tk(x.name),cards:true}));return a}
+function callCandidates(c){const inn=new Set(callPeople(c).map(p=>p.key));return player?nearbyBots(14).filter(b=>!inn.has('b:'+b.userData.name)).slice(0,6).map(b=>({key:'b:'+b.userData.name,name:b.userData.name,color:'#5a6a8a',sub:'Nearby'})):[]}
+function callTime(c){const sec=c.start?Math.floor((Date.now()-c.start)/1000):0;return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`}
+function avHTML(p,cls=''){return `<span class="av ${cls} ${p.talking?'talking':''}" data-pk="${esc(p.key)}" style="background:${p.color||'#5a6a8a'}">${initials(p.name)}</span>`}
+function renderCall(){const c=VOICE.call,el=$('#callPanel');if(c&&c.state==='live'&&VOICE.req)clearReq();if(c?.state!==renderCall.last){renderCall.last=c?.state;setTimeout(refreshTvSide,0)}if(!c){el.hidden=true;el.innerHTML='';el.classList.remove('min');voiceUI();return}
+  if(c.state==='live'&&!c._autoMin){c._autoMin=1;setTimeout(()=>{if(VOICE.call===c&&!c.adding&&!c.min){c.min=true;renderCall()}},3500)}
+  const ps=callPeople(c),live=ps.filter(p=>p.state==='live'),group=ps.length>1,tm=callTime(c);
+  el.classList.toggle('min',!!c.min);
+  if(c.min){el.innerHTML=`<button class="cpill" data-act="callExpand" aria-label="Show call controls"><span class="ph">${PHONE_SVG}</span><span class="avs">${ps.slice(0,3).map(p=>avHTML(p)).join('')}</span>${c.state==='live'?`<span class="vtimer">${tm}</span>`:c.state==='connecting'?'Connecting…':'Calling…'}${c.muted?'<span class="cmu">Muted</span>':''}</button>`;el.hidden=false;voiceUI();return}
+  const title=c.state!=='live'?(c.state==='connecting'?'Connecting to '+esc(c.name)+'…':'Calling '+esc(c.name)+'…'):group?`Call · ${live.length+1} people`:(c.kind==='booth'?'Voice with '+esc(c.name):'Talking with '+esc(c.name));
+  const sub=c.state==='live'?`<span class="vtimer">${tm}</span> · ${group?'private · only people in this call hear it':c.kind==='booth'?'private booth call · chat stays open':'private · only you two hear this'}${c.muted?' · you’re muted':''}`:'Waiting for them to accept';
+  const minBtn=`<button class="cmin" data-act="callMin" aria-label="Minimize call" title="Minimize"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>`;
+  let body;
+  if(c.adding){const cands=callCandidates(c);body=`<div class="cmem"><span class="eyebrow" style="font-size:11px">Add to this call</span>${cands.length?cands.map(x=>`<div class="cm">${avHTML(x)}<div style="min-width:0"><b>${esc(x.name)}</b><span class="sub" style="display:block">${esc(x.sub||'')}</span></div><button class="btn gold sm" data-act="callInvite" data-id="${esc(x.key)}">Add</button></div>`).join(''):'<p class="mute" style="font-size:13px">Nobody else can join right now. Walk near someone, or have a friend enter this show.</p>'}</div><div class="acts"><button class="btn ghost sm" data-act="callAddBack">Back</button></div>`}
+  else if(c.state!=='live'){body=`<div class="acts"><button class="btn ghost sm" data-act="endCall">Cancel</button></div>`}
+  else{const who=group?`<div class="cmem">${ps.map(p=>`<div class="cm">${avHTML(p)}<div style="min-width:0"><b>${esc(p.name)}</b><span class="sub" style="display:block" data-ps="${esc(p.key)}">${p.state==='live'?(p.talking?'Talking…':'In the call'):p.state==='ringing'?'Ringing…':'Connecting…'}</span></div>${p.cards?`<button class="btn ghost sm" data-act="callCards" data-id="${esc(p.key)}">Cards</button>`:''}</div>`).join('')}</div>`
+      :`<div class="cap">${c.cap?`<i>${esc((c.capWho||c.name).split(' ')[0])}</i>${esc(c.cap)}`:'<span class="mute">Connected. Talk whenever you’re ready.</span>'}</div>`;
+    body=who+`<div class="acts"><button class="btn ${c.muted?'gold':'ghost'} sm" data-act="callMute">${c.muted?'Unmute':'Mute'}</button><button class="btn ghost sm" data-act="callAdd">+ Add</button>${group?'':`<button class="btn ghost sm" data-act="callCards">${c.kind==='booth'?'Open chat':'Their cards'}</button>`}<button class="btn ghost sm" data-act="endCall" style="border-color:#ff6b74;color:#ff6b74">${group?'Leave':'End'}</button></div>`}
+  el.innerHTML=`<div class="cstack">${ps.slice(0,3).map(p=>avHTML(p)).join('')}</div><div style="min-width:0"><b>${title}</b><span class="sub">${sub}</span></div>${minBtn}${body}`;
   el.hidden=false;voiceUI()}
+function inviteBot(name){const c=VOICE.call,bot=botByName(name);if(!c||!bot)return;c.extra=c.extra||[];if(c.extra.some(x=>x.name===name)||name===c.name)return;if(callPeople(c).length>=5)return toast('Calls max out at 6 people');
+  const wait=(VOICE.cool[name]||0)-Date.now();if(wait>0)return toast(`${name} said not right now. Try again in ${Math.ceil(wait/1000)}s.`);
+  const x={name,bot,state:'ringing'};c.extra.push(x);c.adding=false;bot.userData.path=[];bot.userData.wait=12;renderCall();
+  setTimeout(()=>{if(VOICE.call!==c||!c.extra.includes(x))return;if(Math.random()<.7){x.state='live';bot.userData.wait=999;say(bot,'Hey, I’m in!',2400);setSpeaking(bot,2000);c.cap='Hey, I’m in!';c.capWho=name;c.capUntil=Date.now()+2200;toast(`${name} joined the call`)}
+    else{c.extra.splice(c.extra.indexOf(x),1);bot.userData.wait=2;VOICE.cool[name]=Date.now()+30000;say(bot,'Not right now',3000);toast(`${name}: Not right now`)}renderCall()},rnd(1400,2600))}
+document.addEventListener('pointerdown',e=>{const c=VOICE.call,el=$('#callPanel');if(!c||c.min||!el||el.hidden||el.contains(e.target))return;c.adding=false;c.min=true;renderCall()},true);
 setInterval(()=>{const c=VOICE.call;if(!c||c.state!=='live'||c.kind==='real')return;
   if(c.kind==='p2p'&&c.bot&&player&&c.bot.position.distanceTo(player.position)>15){endCall('You walked too far apart, so the call ended.');return}
-  if(Date.now()>(c.next||0)){c.next=Date.now()+rnd(5000,8000);c.cap=pick(c.kind==='booth'?BOOTHVOICE:P2PVOICE);c.capUntil=Date.now()+2600;const av=c.kind==='booth'?booths.find(b=>b.v===c.v)?.vendorAv:c.bot;if(av)setSpeaking(av,2600);if(c.kind==='booth'&&c.v)(S.chat[c.v.id]=S.chat[c.v.id]||[]).push({f:'sys',t:`${c.v.name} (voice): ${c.cap}`})}
+  if(c.extra&&player){const far=c.extra.filter(x=>x.state==='live'&&x.bot.position.distanceTo(player.position)>18);if(far.length){c.extra=c.extra.filter(x=>!far.includes(x));far.forEach(x=>{x.bot.userData.wait=1.5;toast(`${x.name} left the call`)});renderCall()}}
+  if(Date.now()>(c.next||0)){c.next=Date.now()+rnd(5000,8000);const ps=callPeople(c).filter(p=>p.state==='live'),p=pick(ps);c.capWho=p.name;c.cap=pick(c.kind==='booth'&&p.key.startsWith('v:')?BOOTHVOICE:P2PVOICE);c.capUntil=Date.now()+2600;const av=p.key.startsWith('v:')?booths.find(b=>b.v===c.v)?.vendorAv:p.bot;if(av)setSpeaking(av,2600);if(c.kind==='booth'&&c.v&&p.key.startsWith('v:'))(S.chat[c.v.id]=S.chat[c.v.id]||[]).push({f:'sys',t:`${c.v.name} (voice): ${c.cap}`});if(!c.min&&callPeople(c).length>1)renderCall()}
   callTickUI(c)},1000);
-function callTickUI(c){const el=$('#callPanel');if(!el||el.hidden)return;const sec=Math.floor((Date.now()-c.start)/1000),t=el.querySelector('.vtimer');if(t)t.textContent=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
-  const cap=el.querySelector('.cap');if(cap&&c.cap)cap.innerHTML=`<i>${esc(c.name.split(' ')[0])}</i>${esc(c.cap)}`;el.querySelector('.av')?.classList.toggle('talking',c.capUntil>Date.now())}
+function callTickUI(c){const el=$('#callPanel');if(!el||el.hidden)return;const t=el.querySelector('.vtimer');if(t&&c.start)t.textContent=callTime(c);
+  const cap=el.querySelector('.cap');if(cap&&c.cap)cap.innerHTML=`<i>${esc((c.capWho||c.name).split(' ')[0])}</i>${esc(c.cap)}`;
+  const ps=callPeople(c);ps.forEach(p=>{el.querySelectorAll(`[data-pk="${CSS.escape(p.key)}"]`).forEach(a=>a.classList.toggle('talking',!!p.talking));const st=el.querySelector(`[data-ps="${CSS.escape(p.key)}"]`);if(st&&p.state==='live')st.textContent=p.talking?'Talking…':'In the call'})}
 function refreshTvSide(){if(!$('#tv').hidden&&TV.v&&!TV.v.mine)renderVendor(TV.v,$('#tvSide'),TV.ctx)}
 function vNote(who,text){const el=$('#vnote');el.innerHTML=`<small>${esc(who)}</small><b>${esc(text)}</b>`;el.hidden=false;clearTimeout(vNote.t);vNote.t=setTimeout(()=>el.hidden=true,3200)}
 function botByName(n){return bots.find(b=>b.userData.name===n)}
@@ -1680,7 +1723,7 @@ function requestTalk(bot){if(!bot)return;const name=bot.userData.name;
     if(Math.random()<.68){c.state='live';c.start=Date.now();c.next=Date.now()+2200;bot.userData.wait=999;say(bot,'Sure, let’s talk!',2600);setSpeaking(bot,2200);c.cap='Sure, let’s talk!';c.capUntil=Date.now()+2200;renderCall()}
     else{VOICE.call=null;renderCall();bot.userData.wait=2;VOICE.cool[name]=Date.now()+30000;say(bot,'Not right now',3000);vNote(name,'Not right now')}},rnd(1400,2600))}
 function acceptTalk(bot,party){VOICE.call={kind:'p2p',state:'live',name:bot.userData.name,bot,party:party||attendeeParty(bot),start:Date.now(),next:Date.now()+1500};bot.userData.path=[];bot.userData.wait=999;bot.rotation.y=Math.atan2(player.position.x-bot.position.x,player.position.z-bot.position.z);renderCall();requestMic()}
-function endCall(msg){const c=VOICE.call;if(!c)return;if(c.bot){c.bot.userData.wait=1.5}VOICE.call=null;renderCall();if(msg)toast(msg);else toast(`Call with ${c.name} ended`)}
+function endCall(msg){const c=VOICE.call;if(!c)return;if(c.bot){c.bot.userData.wait=1.5}(c.extra||[]).forEach(x=>{if(x.bot)x.bot.userData.wait=1.5});VOICE.call=null;renderCall();if(msg)toast(msg);else toast(`Call with ${c.name} ended`)}
 /* someone asks you */
 function incomingTick(){if(S.view!=='room'||!player||VOICE.call||VOICE.req||!$('#vreq').hidden||!vprefs().requests||!$('#modal').hidden||Math.random()<.65)return;
   const n=nearbyBots(7).filter(b=>!(VOICE.cool['in:'+b.userData.name]>Date.now()));if(!n.length)return;const bot=pick(n),name=bot.userData.name;VOICE.req=bot;bot.userData.path=[];bot.userData.wait=16;bot.rotation.y=Math.atan2(player.position.x-bot.position.x,player.position.z-bot.position.z);
@@ -1698,7 +1741,7 @@ function renderVoicePanel(el){const p=vprefs(),c=VOICE.call;
    <div class="vrow" style="display:grid"><div><b>Your mic</b><p>${p.mode==='ptt'?'Hold Q (or the Hold to talk button on a phone) while you speak.':p.mode==='open'?'Your mic is live whenever voice is on. Background noise is filtered.':'Nobody hears you. You can still listen.'}</p></div><div class="seg" style="justify-self:start">${[['ptt','Push to talk'],['open','Open mic'],['mute','Muted']].map(([k,l])=>`<button data-act="vMode" data-id="${k}" aria-pressed="${p.mode===k}">${l}</button>`).join('')}</div>
     <div style="display:grid;gap:6px"><div class="vmeter" id="vmeter"><i></i></div><span class="mute" style="font-size:12px">${VOICE.stream?'Mic connected. Talk to see the level move.':VOICE.micErr?`Mic not available here (${esc(VOICE.micErr)}). Push-to-talk still works as a demo.`:'<button class="linkbtn" data-act="vTest">Test my mic</button>'}</span></div></div>
    <div class="vrow"><div><b>Talk requests</b><p>Let people near you ask to talk privately. You can always say “Not right now”.</p></div><button class="vtog" data-act="vReq" aria-pressed="${p.requests}" aria-label="Allow talk requests"></button></div>
-   <div class="vrow" style="display:grid"><div><b>How calls work</b><p>Walk up to someone and press F (or Talk) to ask them to talk. At a vendor’s line you can’t hear the vendor while you wait. When it’s your turn, you both pick voice, chat or both.</p></div>${c?`<button class="btn ghost sm" data-act="endCall" style="justify-self:start">End call with ${esc(c.name)}</button>`:''}</div></div>`}
+   <div class="vrow" style="display:grid"><div><b>How calls work</b><p>Walk up to someone and press F (or Talk) to ask them to talk. During a call, tap + Add to bring more people in. The call shrinks to a green pill at the top so you can keep using the app; tap it for Mute, Add and End. At a vendor’s line you can’t hear the vendor while you wait. When it’s your turn, you both pick voice, chat or both.</p></div>${c?`<button class="btn ghost sm" data-act="endCall" style="justify-self:start">End call with ${esc(c.name)}</button>`:''}</div></div>`}
 function interact2(){if(S.near?.startsWith('r:'))return talkReal(S.near.slice(2));if(S.near?.startsWith('p:'))return requestTalk(bots[+S.near.slice(2)]);if(S.near==='op')return leaveBooth();if(S.near==='me')return openTable(VBY.me,'show')}
 /* ---------- operating your own booth: stand behind the table, buyers come to you ---------- */
 function myBooth(){return booths.find(b=>b.v.mine)}
@@ -2328,7 +2371,12 @@ const ACT={
   talkTo:n=>requestTalk(botByName(n)),
   endCall:()=>endCall(),
   callMute:()=>{if(VOICE.call){VOICE.call.muted=!VOICE.call.muted;renderCall()}},
-  callCards:()=>{const c=VOICE.call;if(!c)return;if(c.kind==='booth'){S.vtab[c.v.id]='chat';openTable(c.v,'show')}else openTable(c.party,'show')},
+  callCards:id=>{const c=VOICE.call;if(!c)return;c.min=true;c.adding=false;renderCall();if(id&&id.startsWith('b:')&&id.slice(2)!==c.name){const x=(c.extra||[]).find(x=>'b:'+x.name===id);if(x)return openTable(attendeeParty(x.bot),'show')}if(c.kind==='booth'){S.vtab[c.v.id]='chat';openTable(c.v,'show')}else openTable(c.party,'show')},
+  callMin:()=>{const c=VOICE.call;if(c){c.min=true;c.adding=false;renderCall()}},
+  callExpand:()=>{const c=VOICE.call;if(c){c.min=false;c._autoMin=1;renderCall()}},
+  callAdd:()=>{const c=VOICE.call;if(c){c.adding=true;renderCall()}},
+  callAddBack:()=>{const c=VOICE.call;if(c){c.adding=false;renderCall()}},
+  callInvite:k=>{if(k&&k.startsWith('b:'))inviteBot(k.slice(2))},
   reqYes:()=>{const bot=VOICE.req;VOICE.req=null;$('#vreq').hidden=true;if(bot)acceptTalk(bot)},
   reqNo:()=>{const bot=VOICE.req;VOICE.req=null;$('#vreq').hidden=true;if(!bot)return;VOICE.cool['in:'+bot.userData.name]=Date.now()+60000;bot.userData.wait=1.5;say(bot,'No worries!',2400);toast(`You told ${bot.userData.name}: Not right now`)},
   turnVoice:()=>{const v=VOICE.turnV;$('#vreq').hidden=true;if(!v)return;startBoothVoice(v);S.vtab[v.id]='chat';openTable(v,'show')},

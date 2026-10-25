@@ -103,7 +103,7 @@
       async deletePhoto(path){localStorage.removeItem('L:ph:'+path)},
       channel(name,presence,h){const me=presence.uid,peers={};let state={...presence};
         const f=d=>{if(d.ch!==name||d.from===me)return;if(d.type==='pres'){peers[d.from]={st:d.st,t:Date.now()};push()}else if(d.type==='bye'){delete peers[d.from];push()}else if(d.type==='msg')h.msg&&h.msg(d.ev,d.p)};
-        const push=()=>{const now=Date.now();Object.keys(peers).forEach(k=>{if(now-peers[k].t>4000)delete peers[k]});h.sync&&h.sync([state,...Object.values(peers).map(p=>p.st)])};
+        const push=()=>{const now=Date.now();Object.keys(peers).forEach(k=>{if(now-peers[k].t>12000)delete peers[k]});h.sync&&h.sync([state,...Object.values(peers).map(p=>p.st)])};
         subs.add(f);const beat=()=>bc.postMessage({ch:name,type:'pres',from:me,st:state});beat();const iv=setInterval(()=>{beat();push()},1000);setTimeout(push,50);
         return {send(ev,p){bc.postMessage({ch:name,type:'msg',from:me,ev,p})},track(p){state={...state,...p};beat();push()},leave(){clearInterval(iv);subs.delete(f);bc.postMessage({ch:name,type:'bye',from:me})}}}
     }}

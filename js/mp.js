@@ -206,8 +206,9 @@ function leaveRoom(){if(MP.room){MP.room.leave();MP.room=null}if(MP.unbooth){MP.
 function onSync(list){const now={};list.forEach(p=>{if(p&&p.uid&&p.uid!==MP.uid)now[p.uid]=p});
   Object.keys(MP.ra).forEach(u=>{if(!now[u]){try{scene.remove(MP.ra[u].av)}catch(e){}delete MP.ra[u]}});
   const was=MP.peers;MP.peers=now;Object.values(now).forEach(p=>{if(!was[p.uid]&&S.view==='room'){nlog('sys',`${p.name} walked in.`)}const v=VBY['u_'+p.uid];if(v){v.online=p.role==='vendor'?!!p.op:true;try{syncBooth(v)}catch(e){}}});
-  Object.keys(was).forEach(u=>{if(!now[u]){nlog('sys',`${was[u].name} left the show.`);const v=VBY['u_'+u];if(v){v.online=false;try{syncBooth(v)}catch(e){}}if(VOICE.call&&VOICE.call.uid===u)endReal(true,'They left the show, so the call ended.')}});
+  Object.keys(was).forEach(u=>{if(!now[u]){nlog('sys',`${was[u].name} left the show.`);const v=VBY['u_'+u];if(v){v.online=false;try{syncBooth(v)}catch(e){}}if(VOICE.call&&VOICE.call.kind==='real'&&VOICE.call.members[u]){const nm=was[u].name;clearTimeout(MP.goneT[u]);MP.goneT[u]=setTimeout(()=>{if(!MP.peers[u])dropMember(u,`${nm} left the show, so they dropped off the call`)},9000)}}});
   loadParties(Object.keys(now).filter(u=>!MP.profiles[u]));updateWho()}
+MP.goneT={};
 function updateWho(){const n=Object.keys(MP.peers).length,el=$('#whochip');if(!el)return;el.hidden=S.view!=='room';el.textContent=n?`${n} real ${n===1?'person':'people'} here`:'Only you so far · invite friends'}
 ACT.whoList=()=>{const ps=Object.values(MP.peers);openModal(`<div class="sec"><span class="eyebrow">Real people in ${esc(showData?.name||'this show')}</span><h2>${ps.length?`${ps.length} here with you`:'Just you right now'}</h2>
   ${ps.length?ps.map(p=>`<div class="realrow"><div class="vava" style="background:${p.color||'#3db5ff'};width:34px;height:34px;font-size:13px">${initials(p.name)}</div><div class="who"><b>${esc(p.name)}</b><span>${p.role==='vendor'?(p.op?'Vendor · behind their table':'Vendor · walking the floor'):'Collector'}</span></div><button class="btn ghost sm" data-act="walkToPeer" data-id="${p.uid}">Walk there</button><button class="btn gold sm" data-act="tradeReal" data-id="${p.uid}">Their cards</button></div>`).join(''):'<p class="mute">Send friends the site link. Anyone with an account who enters this show shows up here, walking the same floor.</p>'}</div>`)};
@@ -226,7 +227,7 @@ function mpFrame(now){if(S.view!=='room'||!player||!MP.room)return;const dt=Math
   for(const r of Object.values(MP.ra)){if(!r.t)continue;const a=r.av,t=r.t,k=Math.min(1,dt*9);const dx=t.x-a.position.x,dz=t.z-a.position.z;
     if(Math.hypot(dx,dz)>8){a.position.set(t.x,t.y||0,t.z)}else{a.position.x+=dx*k;a.position.z+=dz*k;a.position.y+=((t.y||0)-a.position.y)*k}
     let dr=t.r-a.rotation.y;dr=Math.atan2(Math.sin(dr),Math.cos(dr));a.rotation.y+=dr*k;a.userData.leanT=t.l||0;walkAnim(a,t.sp||0,dt);
-    if(RTC.uid===r.uid&&RTC.level>.04)setSpeaking(a,180);
+    if(peerLevel(r.uid)>.04)setSpeaking(a,180);
     if(now-r.seen>6000)a.visible=false}
   if(now-MP.sendT>110){const p=player.position,ry=player.rotation.y,mv=Math.hypot(p.x-MP.last.x,p.z-MP.last.z),idle=now-MP.sendT>1000;
     if(mv>.02||Math.abs(ry-MP.last.r)>.04||idle){const sp=mv/((now-MP.sendT)/1000);MP.room.send('pos',{uid:MP.uid,n:ME.name,c:ME.color,role:ME.role,x:+p.x.toFixed(2),y:+p.y.toFixed(2),z:+p.z.toFixed(2),r:+ry.toFixed(3),sp:+Math.min(8,sp).toFixed(2),l:player.userData.leanT||0});MP.last={x:p.x,z:p.z,r:ry};MP.sendT=now}}
@@ -331,48 +332,83 @@ window.renderMarketBody=function(){_rmb();const host=$('#mkbody');if(!host||MP.m
       return `<div class="realrow"><div class="vava" style="background:${p.color||'#3db5ff'};width:38px;height:38px;font-size:14px">${initials(p.table_name||p.name)}</div><div class="who"><b>${esc(p.role==='vendor'&&p.table_name?p.table_name:p.name)}</b><span><span class="dot ${on?'on':''}"></span> ${on?'Online now':'Offline · offers wait for them'} · ${a.length} card${a.length>1?'s':''} · ${money(lo)}${hi>lo?'–'+money(hi):''}</span></div><button class="btn gold sm" data-act="visitReal" data-id="${u}">Visit</button></div>`}).join('')}</div>`:'<p class="mute" style="margin-bottom:18px">Nobody else has cards for sale yet. Mark cards “For sale” in Inventory and they show up here for everyone.</p>'}</div>`)}).catch(()=>{MP.mkLoading=false})};
 ACT.visitReal=uid=>openReal(uid,'market');
 
-/* ================= real voice calls (WebRTC, 1:1) ================= */
-const RTC=window.RTC={pc:null,uid:null,queue:[],audio:null,an:null,buf:null,level:0};
+/* ================= real voice calls (WebRTC mesh, up to 6 people) ================= */
+const RTC=window.RTC={peers:{},req:null};
+const ICE=[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}];
 function sendRoom(ev,p){if(MP.room)MP.room.send(ev,{...p,from:MP.uid})}
-window.talkReal=function(uid){const p=MP.peers[uid];if(!p)return toast('They’re not in this show right now');if(VOICE.call)return toast('End your current call first');
+function peerLevel(uid){return RTC.peers[uid]?.level||0}
+function realCall(){const c=VOICE.call;return c&&c.kind==='real'?c:null}
+function memberIds(c,all){return Object.keys(c.members).filter(u=>all||c.members[u].state!=='ringing')}
+function pName(uid){return MP.peers[uid]?.name||realCall()?.members[uid]?.name||'Someone'}
+function callLabel(c){const ids=Object.keys(c.members);if(!ids.length)return 'Call';const n=c.members[ids[0]].name;return ids.length>1?`${n} +${ids.length-1}`:n}
+const _callPeople=callPeople;window.callPeople=function(c){if(!c||c.kind!=='real')return _callPeople(c);
+  return Object.entries(c.members).map(([u,m])=>({key:'u:'+u,name:m.name,color:MP.peers[u]?.color||m.color||'#5a6a8a',state:m.state,talking:peerLevel(u)>.04,cards:true}))};
+const _callCands=callCandidates;window.callCandidates=function(c){if(!c||c.kind!=='real')return _callCands(c);
+  return Object.values(MP.peers).filter(p=>!c.members[p.uid]).map(p=>{const r=MP.ra[p.uid],d=r&&player?r.av.position.distanceTo(player.position):null;return {key:'u:'+p.uid,name:p.name,color:p.color,sub:(p.role==='vendor'?'Vendor':'Collector')+(d!=null&&r.av.visible?` · ${Math.round(d)} m away`:''),d:d??999}}).sort((a,b)=>a.d-b.d).slice(0,8)};
+function ringTimer(uid){setTimeout(()=>{const c=realCall();if(!c||!c.members[uid]||c.members[uid].state!=='ringing')return;sendRoom('talk',{t:'cancel',to:uid,call:c.id});const n=c.members[uid].name;delete c.members[uid];
+  if(!Object.keys(c.members).length){VOICE.call=null;renderCall();vNote(n,'No answer')}else{renderCall();toast(`No answer from ${n}`)}},25000)}
+window.talkReal=function(uid){const p=MP.peers[uid];if(!p)return toast('They’re not in this show right now');
+  const c0=VOICE.call;if(c0&&c0.kind==='real')return inviteReal(uid);if(c0)return toast('End your current call first');
   const wait=(VOICE.cool['u:'+uid]||0)-Date.now();if(wait>0)return vNote(p.name,'Not right now'),toast(`${p.name} said not right now. Try again in ${Math.ceil(wait/1000)}s.`);
-  VOICE.call={kind:'real',state:'ringing',uid,name:p.name};renderCall();requestMic();sendRoom('talk',{t:'req',to:uid,name:ME.name});
-  clearTimeout(RTC.ringT);RTC.ringT=setTimeout(()=>{if(VOICE.call&&VOICE.call.uid===uid&&VOICE.call.state==='ringing'){sendRoom('talk',{t:'cancel',to:uid});VOICE.call=null;renderCall();vNote(p.name,'No answer')}},25000)};
-function onTalk(d){if(d.to!==MP.uid)return;const from=d.from,name=d.name||MP.peers[from]?.name||'Someone';
-  if(d.t==='req'){if(VOICE.req&&!VOICE.call)clearReq();if(VOICE.call||!vprefs().requests)return sendRoom('talk',{t:'no',to:from,name:ME.name});
-    RTC.reqFrom=from;const el=$('#vreq');el.innerHTML=`<div class="av" style="background:${MP.peers[from]?.color||'#5a6a8a'}">${initials(name)}</div><div><b>${esc(name)} wants to talk</b><span class="sub">Real voice call · only you two hear it</span></div><span></span><div class="acts"><button class="btn gold sm" data-act="rtYes" data-id="${from}">Accept</button><button class="btn ghost sm" data-act="rtNo" data-id="${from}">Not right now</button></div>`;el.hidden=false;
-    clearTimeout(RTC.reqT);RTC.reqT=setTimeout(()=>{if(RTC.reqFrom===from){RTC.reqFrom=null;el.hidden=true}},24000)}
-  else if(d.t==='cancel'){if(RTC.reqFrom===from){RTC.reqFrom=null;$('#vreq').hidden=true}}
-  else if(d.t==='yes'){const c=VOICE.call;if(!c||c.uid!==from)return;clearTimeout(RTC.ringT);c.state='connecting';c.cap='Connecting…';renderCall();startRTC(true,from)}
-  else if(d.t==='no'){const c=VOICE.call;if(!c||c.uid!==from)return;clearTimeout(RTC.ringT);VOICE.call=null;renderCall();VOICE.cool['u:'+from]=Date.now()+30000;vNote(name,'Not right now')}
-  else if(d.t==='end'){if(VOICE.call&&VOICE.call.uid===from)endReal(false,`${name} ended the call`)}}
-ACT.rtYes=async uid=>{RTC.reqFrom=null;$('#vreq').hidden=true;const p=MP.peers[uid];if(!p)return;VOICE.call={kind:'real',state:'connecting',uid,name:p.name,cap:'Connecting…'};renderCall();await startRTC(false,uid);sendRoom('talk',{t:'yes',to:uid,name:ME.name})};
-ACT.rtNo=uid=>{RTC.reqFrom=null;$('#vreq').hidden=true;sendRoom('talk',{t:'no',to:uid,name:ME.name});toast(`You told ${MP.peers[uid]?.name||'them'}: Not right now`)};
-async function startRTC(caller,uid){closeRTC();RTC.uid=uid;RTC.queue=[];
-  const pc=RTC.pc=new RTCPeerConnection({iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']}]});
-  await requestMic();if(VOICE.stream)VOICE.stream.getAudioTracks().forEach(t=>{t.enabled=!(VOICE.call&&VOICE.call.muted);pc.addTrack(t,VOICE.stream)});else pc.addTransceiver('audio',{direction:'recvonly'});
-  pc.onicecandidate=e=>{if(e.candidate)sendRoom('rtc',{to:uid,cand:e.candidate.toJSON()})};
-  pc.ontrack=e=>{const st=e.streams[0]||new MediaStream([e.track]);if(!RTC.audio){RTC.audio=new Audio();RTC.audio.autoplay=true;RTC.audio.playsInline=true}RTC.audio.srcObject=st;RTC.audio.play().catch(()=>toast('Tap anywhere to hear them'));
-    try{const C=window.AudioContext||window.webkitAudioContext;RTC.ctx=RTC.ctx||new C();const src=RTC.ctx.createMediaStreamSource(st);RTC.an=RTC.ctx.createAnalyser();RTC.an.fftSize=512;RTC.buf=new Uint8Array(512);src.connect(RTC.an)}catch(err){}};
-  pc.onconnectionstatechange=()=>{const s=pc.connectionState,c=VOICE.call;if(!c||c.uid!==uid)return;
-    if(s==='connected'){c.state='live';c.start=c.start||Date.now();c.cap='Connected. Talk whenever you’re ready.';renderCall()}
-    else if(s==='failed'){endReal(true,'Voice couldn’t connect on this network. Use chat instead.')}};
-  if(caller){const off=await pc.createOffer();await pc.setLocalDescription(off);sendRoom('rtc',{to:uid,sdp:pc.localDescription.toJSON()})}}
-async function onRtc(d){if(d.to!==MP.uid||!RTC.pc||RTC.uid!==d.from)return;const pc=RTC.pc;
-  try{if(d.sdp){await pc.setRemoteDescription(d.sdp);if(d.sdp.type==='offer'){const ans=await pc.createAnswer();await pc.setLocalDescription(ans);sendRoom('rtc',{to:d.from,sdp:pc.localDescription.toJSON()})}
-      for(const c of RTC.queue)await pc.addIceCandidate(c).catch(()=>{});RTC.queue=[]}
-    if(d.cand){if(pc.remoteDescription)await pc.addIceCandidate(d.cand).catch(()=>{});else RTC.queue.push(d.cand)}}catch(e){console.error(e)}}
-function closeRTC(){try{RTC.pc&&RTC.pc.close()}catch(e){}RTC.pc=null;RTC.uid=null;RTC.an=null;if(RTC.audio)RTC.audio.srcObject=null}
-function endReal(silent,msg){const c=VOICE.call;if(c&&c.kind==='real'&&!silent)sendRoom('talk',{t:'end',to:c.uid,name:ME.name});closeRTC();VOICE.call=null;renderCall();if(msg)toast(msg)}
-const _endCall=endCall;window.endCall=function(msg){const c=VOICE.call;if(c&&c.kind==='real'){sendRoom('talk',{t:'end',to:c.uid,name:ME.name});closeRTC();VOICE.call=null;renderCall();return toast(msg||`Call with ${c.name} ended`)}return _endCall(msg)};
+  const id=Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+  VOICE.call={kind:'real',id,state:'ringing',uid,name:p.name,members:{[uid]:{name:p.name,color:p.color,state:'ringing'}}};renderCall();requestMic();
+  sendRoom('talk',{t:'req',to:uid,call:id,name:ME.name,with:[]});ringTimer(uid)};
+function inviteReal(uid){const c=realCall(),p=MP.peers[uid];if(!c||!p)return;if(c.members[uid])return toast(`${p.name} is already in the call`);
+  if(Object.keys(c.members).length>=5)return toast('Calls max out at 6 people');
+  const wait=(VOICE.cool['u:'+uid]||0)-Date.now();if(wait>0)return toast(`${p.name} said not right now. Try again in ${Math.ceil(wait/1000)}s.`);
+  c.members[uid]={name:p.name,color:p.color,state:'ringing'};c.adding=false;renderCall();toast(`Asking ${p.name} to join…`);
+  sendRoom('talk',{t:'req',to:uid,call:c.id,name:ME.name,with:memberIds(c).filter(u=>u!==uid).map(u=>({uid:u,name:c.members[u].name}))});ringTimer(uid)}
+const _callInvite=ACT.callInvite;ACT.callInvite=k=>{if(k&&k.startsWith('u:'))return inviteReal(k.slice(2));_callInvite(k)};
+function sendRoster(c){const ms=[{uid:MP.uid,name:ME.name}].concat(memberIds(c).map(u=>({uid:u,name:c.members[u].name})));memberIds(c).forEach(u=>sendRoom('talk',{t:'roster',to:u,call:c.id,members:ms}))}
+function ensurePeers(){const c=realCall();if(!c)return;memberIds(c).forEach(u=>{if(!RTC.peers[u])startPeer(u,MP.uid<u)})}
+function dropMember(uid,msg){const c=realCall();if(!c||!c.members[uid])return;const n=c.members[uid].name;delete c.members[uid];closePeer(uid);
+  if(!Object.keys(c.members).length){closeAll();VOICE.call=null;renderCall();toast(msg||`${n} ended the call`)}
+  else{if(!memberIds(c).some(u=>c.members[u].state==='live')&&c.state==='live')c.state='connecting';if(c.uid===uid){c.uid=Object.keys(c.members)[0];}c.name=callLabel(c);renderCall();toast(msg||`${n} left the call`)}}
+function onTalk(d){if(d.to!==MP.uid)return;const from=d.from,name=d.name||MP.peers[from]?.name||'Someone',c=realCall();
+  if(d.t==='req'){if(c&&c.id===d.call)return;if(VOICE.req&&!VOICE.call)clearReq();
+    if(VOICE.call||!vprefs().requests)return sendRoom('talk',{t:'no',to:from,call:d.call,name:ME.name,busy:!!VOICE.call});
+    RTC.req={from,call:d.call,name,with:d.with||[]};const others=(d.with||[]).map(x=>x.name),el=$('#vreq');
+    el.innerHTML=`<div class="av" style="background:${MP.peers[from]?.color||'#5a6a8a'}">${initials(name)}</div><div><b>${others.length?`${esc(name)} invited you to a call`:`${esc(name)} wants to talk`}</b><span class="sub">${others.length?`With ${esc(others.join(', '))} · real voice`:'Real voice call · only you two hear it'}</span></div><span></span><div class="acts"><button class="btn gold sm" data-act="rtYes" data-id="${from}">${others.length?'Join':'Accept'}</button><button class="btn ghost sm" data-act="rtNo" data-id="${from}">Not right now</button></div>`;el.hidden=false;
+    clearTimeout(RTC.reqT);RTC.reqT=setTimeout(()=>{if(RTC.req&&RTC.req.from===from){RTC.req=null;el.hidden=true}},24000)}
+  else if(d.t==='cancel'){if(RTC.req&&RTC.req.from===from&&RTC.req.call===d.call){RTC.req=null;$('#vreq').hidden=true}}
+  else if(d.t==='yes'){if(!c||c.id!==d.call||!c.members[from])return;c.members[from].state='connecting';if(c.state==='ringing'){c.state='connecting'}renderCall();sendRoster(c);ensurePeers()}
+  else if(d.t==='no'){if(!c||c.id!==d.call||!c.members[from]||c.members[from].state!=='ringing')return;VOICE.cool['u:'+from]=Date.now()+30000;delete c.members[from];
+    const txt=d.busy?'On another call':'Not right now';if(!Object.keys(c.members).length){VOICE.call=null;renderCall();vNote(name,txt)}else{renderCall();toast(`${name}: ${txt}`)}}
+  else if(d.t==='roster'){if(!c||c.id!==d.call)return;(d.members||[]).forEach(m=>{if(m.uid===MP.uid||c.members[m.uid])return;c.members[m.uid]={name:m.name,color:MP.peers[m.uid]?.color,state:'connecting'};if(c.state==='live')toast(`${m.name} joined the call`)});c.name=callLabel(c);renderCall();ensurePeers()}
+  else if(d.t==='end'||d.t==='leave'){if(c&&(!d.call||c.id===d.call))dropMember(from,Object.keys(c.members).length>1?`${name} left the call`:`${name} ended the call`)}}
+ACT.rtYes=async uid=>{const q=RTC.req;RTC.req=null;$('#vreq').hidden=true;const p=MP.peers[uid];if(!p||!q)return;
+  const ms={[uid]:{name:p.name,color:p.color,state:'connecting'}};q.with.forEach(x=>{if(x.uid!==MP.uid)ms[x.uid]={name:x.name,color:MP.peers[x.uid]?.color,state:'connecting'}});
+  VOICE.call={kind:'real',id:q.call,state:'connecting',uid,name:p.name,members:ms};VOICE.call.name=callLabel(VOICE.call);renderCall();await requestMic();sendRoom('talk',{t:'yes',to:uid,call:q.call,name:ME.name});ensurePeers()};
+ACT.rtNo=uid=>{const q=RTC.req;RTC.req=null;$('#vreq').hidden=true;sendRoom('talk',{t:'no',to:uid,call:q?.call,name:ME.name});toast(`You told ${MP.peers[uid]?.name||'them'}: Not right now`)};
+function startPeer(uid,caller){const c=realCall();if(!c)return null;closePeer(uid);
+  const pc=new RTCPeerConnection({iceServers:ICE}),P=RTC.peers[uid]={pc,uid,call:c.id,queue:[],level:0,chain:Promise.resolve()};
+  pc.onicecandidate=e=>{if(e.candidate)sendRoom('rtc',{to:uid,call:P.call,cand:e.candidate.toJSON()})};
+  pc.ontrack=e=>{const st=e.streams[0]||new MediaStream([e.track]);if(!P.audio){P.audio=new Audio();P.audio.autoplay=true;P.audio.playsInline=true}P.audio.srcObject=st;P.audio.play().catch(()=>toast('Tap anywhere to hear them'));
+    try{const C=window.AudioContext||window.webkitAudioContext;RTC.ctx=RTC.ctx||new C();const src=RTC.ctx.createMediaStreamSource(st);P.an=RTC.ctx.createAnalyser();P.an.fftSize=512;P.buf=new Uint8Array(512);src.connect(P.an)}catch(err){}};
+  pc.onconnectionstatechange=()=>{const s=pc.connectionState,c=realCall();if(!c||RTC.peers[uid]!==P||!c.members[uid])return;
+    if(s==='connected'){c.members[uid].state='live';if(c.state!=='live'){c.state='live';c.start=c.start||Date.now()}renderCall()}
+    else if(s==='failed'){dropMember(uid,`Voice couldn’t connect to ${c.members[uid].name} on this network. Use chat instead.`)}};
+  P.chain=P.chain.then(async()=>{await requestMic();if(VOICE.stream)VOICE.stream.getAudioTracks().forEach(t=>{t.enabled=!(realCall()&&realCall().muted);pc.addTrack(t,VOICE.stream)});else pc.addTransceiver('audio',{direction:'recvonly'});
+    if(caller){const off=await pc.createOffer();await pc.setLocalDescription(off);sendRoom('rtc',{to:uid,call:P.call,sdp:pc.localDescription.toJSON()})}}).catch(e=>console.error(e));
+  return P}
+function onRtc(d){if(d.to!==MP.uid)return;const c=realCall();if(!c||d.call!==c.id)return;let P=RTC.peers[d.from];
+  if(!P){if(!c.members[d.from])c.members[d.from]={name:pName(d.from),color:MP.peers[d.from]?.color,state:'connecting'};P=startPeer(d.from,false);if(!P)return}
+  P.chain=P.chain.then(async()=>{const pc=P.pc;if(d.sdp){await pc.setRemoteDescription(d.sdp);if(d.sdp.type==='offer'){const ans=await pc.createAnswer();await pc.setLocalDescription(ans);sendRoom('rtc',{to:d.from,call:P.call,sdp:pc.localDescription.toJSON()})}
+      for(const x of P.queue)await pc.addIceCandidate(x).catch(()=>{});P.queue=[]}
+    if(d.cand){if(pc.remoteDescription)await pc.addIceCandidate(d.cand).catch(()=>{});else P.queue.push(d.cand)}}).catch(e=>console.error(e))}
+function closePeer(uid){const P=RTC.peers[uid];if(!P)return;try{P.pc.close()}catch(e){}if(P.audio){P.audio.srcObject=null}delete RTC.peers[uid]}
+function closeAll(){Object.keys(RTC.peers).forEach(closePeer)}
+function endReal(silent,msg){const c=realCall();if(c&&!silent)Object.keys(c.members).forEach(u=>sendRoom('talk',{t:c.members[u].state==='ringing'?'cancel':'leave',to:u,call:c.id,name:ME.name}));closeAll();VOICE.call=null;renderCall();if(msg)toast(msg)}
+window.endReal=endReal;
+const _endCall=endCall;window.endCall=function(msg){const c=realCall();if(c){const g=Object.keys(c.members).length>1;return endReal(false,msg||(g?'You left the call':`Call with ${c.name} ended`))}return _endCall(msg)};
 ACT.endCall=()=>endCall();
-const _callMute=ACT.callMute;ACT.callMute=()=>{_callMute();const c=VOICE.call;if(c&&c.kind==='real'&&VOICE.stream)VOICE.stream.getAudioTracks().forEach(t=>t.enabled=!c.muted)};
-const _callCards=ACT.callCards;ACT.callCards=()=>{const c=VOICE.call;if(c&&c.kind==='real')return openReal(c.uid,'show');_callCards()};
+const _callMute=ACT.callMute;ACT.callMute=()=>{_callMute();const c=realCall();if(c&&VOICE.stream)VOICE.stream.getAudioTracks().forEach(t=>t.enabled=!c.muted)};
+const _callCards=ACT.callCards;ACT.callCards=id=>{const c=realCall();if(c){c.min=true;c.adding=false;renderCall();const u=id&&id.startsWith('u:')?id.slice(2):c.uid;return openReal(u,'show')}_callCards(id)};
 const _talkTo=ACT.talkTo;ACT.talkTo=n=>{const r=Object.values(MP.peers).find(p=>p.name===n);if(r)return talkReal(r.uid);_talkTo(n)};
 const _boothVoice=ACT.boothVoice;ACT.boothVoice=id=>{const v=VBY[id];if(v&&v.real)return talkReal(v.uid);_boothVoice(id)};
-setInterval(()=>{if(RTC.an){RTC.an.getByteTimeDomainData(RTC.buf);let s=0;for(let i=0;i<RTC.buf.length;i++){const x=(RTC.buf[i]-128)/128;s+=x*x}RTC.level=Math.sqrt(s/RTC.buf.length);const c=VOICE.call;if(c&&c.kind==='real'&&RTC.level>.04){c.capUntil=Date.now()+300;c.cap='Talking…'}}else RTC.level=0;
-  const c=VOICE.call;if(c&&c.kind==='real'&&c.state==='live')callTickUI(c)},150);
-document.addEventListener('pointerdown',()=>{if(RTC.audio&&RTC.audio.paused&&RTC.audio.srcObject)RTC.audio.play().catch(()=>{})},true);
+setInterval(()=>{for(const P of Object.values(RTC.peers)){if(P.an){P.an.getByteTimeDomainData(P.buf);let s=0;for(let i=0;i<P.buf.length;i++){const x=(P.buf[i]-128)/128;s+=x*x}P.level=Math.sqrt(s/P.buf.length)}else P.level=0}
+  const c=realCall();if(c&&c.state==='live')callTickUI(c)},150);
+document.addEventListener('pointerdown',()=>{for(const P of Object.values(RTC.peers)){if(P.audio&&P.audio.paused&&P.audio.srcObject)P.audio.play().catch(()=>{})}},true);
 
 /* ================= start ================= */
 (async()=>{$('#topbar').hidden=true;$('#app').innerHTML='<div class="auth"><p class="mute">Loading…</p></div>';
