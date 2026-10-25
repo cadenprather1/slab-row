@@ -1978,7 +1978,7 @@ function lineBoxHTML(v){const q=S.q[v.id]||{};return q.state==='waiting'
 /* ---------- trades: cards (plus cash) for cards ---------- */
 const tradeVal=c=>+(c.mkt||c.price||0);
 function tradeOf(v){return S.trade[v.id]=S.trade[v.id]||{get:[],give:[],cash:0}}
-function tradeParts(v){const T=tradeOf(v),theirs=v.inv.filter(c=>!c.sold&&!c.box&&!holdOther(c)),mine=ME.inv.filter(c=>!c.sold&&!c.pending);
+function tradeParts(v){const T=tradeOf(v),theirs=v.inv.filter(c=>!c.sold&&!c.box&&!holdOther(c)),mine=ME.inv.filter(c=>!c.sold&&(!c.pending||c.pendTrade===v.id));
   const getC=theirs.filter(c=>T.get.includes(c.id)),giveC=mine.filter(c=>T.give.includes(c.id));T.get=getC.map(c=>c.id);T.give=giveC.map(c=>c.id);
   const gv=+getC.reduce((t,c)=>t+c.price,0).toFixed(2),yv=+giveC.reduce((t,c)=>t+tradeVal(c),0).toFixed(2);return {T,theirs,mine,getC,giveC,gv,yv}}
 function tradeHTML(v){const {T,theirs,mine,getC,giveC,gv,yv}=tradeParts(v),c=+T.cash||0,yours=yv+Math.max(c,0),theirsV=gv+Math.max(-c,0),bal=+(yours-theirsV).toFixed(2);
@@ -1990,8 +1990,8 @@ function tradeHTML(v){const {T,theirs,mine,getC,giveC,gv,yv}=tradeParts(v),c=+T.
    <div class="tcash"><b>Cash</b><div class="seg">${[-50,-10,10,50].map(d=>`<button data-act="trCash" data-id="${v.id}|${d}">${d>0?'+':'−'}$${Math.abs(d)}</button>`).join('')}<button data-act="trEven" data-id="${v.id}">Even it up</button>${c?`<button data-act="trCash" data-id="${v.id}|0">No cash</button>`:''}</div>
     <span class="tcl">${c>0?`You add <b>${money(c)}</b>`:c<0?`${esc(v.name)} adds <b>${money(-c)}</b>`:'No cash in this trade'}</span></div>
    <div class="tsum ${!getC.length&&!giveC.length?'':bal>=0?'ok':'short'}">${!getC.length&&!giveC.length?'Pick cards on both sides to start.':`Your side ${money(yours)} · their side ${money(theirsV)} · ${Math.abs(bal)<1?'dead even':bal>0?`you’re ${money(bal)} over`:`you’re ${money(-bal)} short`}`}</div>
-   ${T.msg?`<div class="say">${T.typing?`<span class="mute">${esc(v.handle||v.name)} is looking it over…</span>`:esc(T.msg)}</div>`:''}${T.counter!=null&&!T.typing?`<button class="btn gold sm" data-act="trTake" data-id="${v.id}">${T.counter>0?`Add ${money(T.counter)} and trade`:T.counter<0?`Take ${money(-T.counter)} cash and trade`:'Trade straight up'}</button>`:''}
-   <button class="btn gold" data-act="trSend" data-id="${v.id}" ${getC.length&&(giveC.length||c>0)&&!T.typing?'':'disabled'}>Propose trade</button></div>`}
+   ${T.msg?`<div class="say">${T.typing?`<span class="mute">${esc(v.handle||v.name)} is looking it over…</span>`:esc(T.msg)}</div>`:''}${T.counter!=null&&!T.typing?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold sm" data-act="trTake" data-id="${v.id}">${T.counter>0?`Add ${money(T.counter)} and trade`:T.counter<0?`Take ${money(-T.counter)} cash and trade`:'Trade straight up'}</button>${T.counterRow?`<button class="btn ghost sm" data-act="trChange" data-id="${v.id}">Change it</button><button class="linkbtn" data-act="trCancel" data-id="${v.id}">Decline</button>`:''}</div>`:''}
+   ${T.pendingRow&&T.counter==null?`<div class="tsum">Waiting for ${esc(v.person||v.name)} to answer. <button class="linkbtn" data-act="trCancel" data-id="${v.id}">Cancel trade</button></div>`:`<button class="btn gold" data-act="trSend" data-id="${v.id}" ${getC.length&&(giveC.length||c>0)&&!T.typing?'':'disabled'}>${T.counterRow?'Send changed trade':'Propose trade'}</button>`}</div>`}
 function bookTrade(party,give,get,cash){/* give: my card objects; get: card objects or snapshots; cash>0 = I pay */
   const yv=give.reduce((t,c)=>t+tradeVal(c),0)||0,gv=get.reduce((t,c)=>t+(+c.price||0),0)||1,no='TR-'+(30400+Math.floor(Math.random()*9000)),ts=Date.now(),where=S.view==='room'&&showData?showData.name:'Marketplace';
   const recv=Math.max(-cash,0),paid=Math.max(cash,0),basisTot=Math.max(0,yv+cash);
@@ -2597,6 +2597,8 @@ const ACT={
   trEven:vid=>{const v=VBY[vid],{T,gv,yv}=tradeParts(v);const d=gv-yv;T.cash=d>0?Math.ceil(d/5)*5:-Math.floor(-d/5)*5;T.counter=null;renderVBody(v)},
   trSend:vid=>{const v=VBY[vid];tradeRespond(v)},
   trTake:vid=>{const v=VBY[vid],T=tradeOf(v);if(T.counter==null)return;T.cash=T.counter;const {getC,giveC}=tradeParts(v);doTrade(v,getC,giveC,T.cash,'Done deal.')},
+  trChange:vid=>{const v=VBY[vid],T=tradeOf(v);T.counter=null;T.msg='Change anything you like, then send it again.';renderVBody(v)},
+  trCancel:vid=>{const v=VBY[vid],T=tradeOf(v);T.counter=null;T.msg=null;renderVBody(v)},
   trNew:vid=>{const v=VBY[vid];S.trade[vid]={get:[],give:[],cash:0};renderVBody(v)},
   digBox:id=>openBox(id,0),
   digPrev:()=>{if(DIG){DIG.i--;renderBox()}},digNext:()=>{if(DIG){DIG.i++;renderBox()}},
