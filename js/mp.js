@@ -238,7 +238,7 @@ function mpFrame(now){if(S.view!=='room'||!player||!MP.room)return;const dt=Math
     if(mv>.02||Math.abs(ry-MP.last.r)>.04||idle){const sp=mv/((now-MP.sendT)/1000);MP.room.send('pos',{uid:MP.uid,n:ME.name,c:ME.color,role:ME.role,x:+p.x.toFixed(2),y:+p.y.toFixed(2),z:+p.z.toFixed(2),r:+ry.toFixed(3),sp:+Math.min(8,sp).toFixed(2),l:player.userData.leanT||0});MP.last={x:p.x,z:p.z,r:ry};MP.sendT=now}}
   if(now-(MP.boothT||0)>1000){MP.boothT=now;boothWatch()}}
 function boothWatch(){const b=typeof myBooth==='function'&&myBooth();if(!b||S.op)return;for(const r of Object.values(MP.ra)){const p=r.av.position,d=Math.hypot(p.x-b.x,p.z-(b.z+2));
-  if(d<2.4){r.atBooth=(r.atBooth||0)+1;if(r.atBooth===2&&!(MP.alerted[r.uid]>Date.now())){MP.alerted[r.uid]=Date.now()+60000;showBoothAlert(r.av)}}else r.atBooth=0}}
+  if(d<2.4){r.atBooth=(r.atBooth||0)+1;if(r.atBooth===2&&window.runVisitor)runVisitor(r.name);if(r.atBooth===2&&!(MP.alerted[r.uid]>Date.now())){MP.alerted[r.uid]=Date.now()+60000;showBoothAlert(r.av)}}else r.atBooth=0}}
 window.mpNear=p=>{for(const r of Object.values(MP.ra)){if(r.av.visible&&r.av.position.distanceTo(p)<2.2)return r}return null};
 const _vf=voiceFrame;window.voiceFrame=function(now){_vf(now);try{mpFrame(now)}catch(e){console.error(e)}};
 const _enterVenue=ACT.enterVenue;

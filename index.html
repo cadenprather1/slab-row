@@ -503,6 +503,16 @@ body.incall #boothAlert{top:calc(178px + env(safe-area-inset-top,0px))}
 body.callmin #vreq,body.callmin #boothAlert{top:calc(58px + env(safe-area-inset-top,0px))}
 #callPanel.min{width:auto;padding:0;border:0;background:none;box-shadow:none;display:block;top:calc(8px + env(safe-area-inset-top,0px));overflow:visible}
 body.tvopen #callPanel.min{left:auto;right:12px;transform:none;top:calc(62px + env(safe-area-inset-top,0px))}
+body:has(#modal:not([hidden])) #offers{display:none}
+.fres{display:grid;gap:10px}
+.fgrp{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px}
+.fgh{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}.fgh b{font-size:14px}.fgh .mute{font-size:12px}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:13px}.frow .nm{min-width:0}.frow .nm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.frow .nm span{color:var(--mute);font-size:12px}
+.frow .pr{font-family:var(--f-mono);font-weight:700;color:var(--gold)}
+.wchips{display:flex;flex-wrap:wrap;gap:6px}.wchip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 11px;font-size:12.5px}
+.wchip.hit{border-color:var(--go)}.wchip em{font-style:normal;color:var(--go);font-weight:700}.wchip button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:14px;padding:0 4px}
+.hbtn .bdg,.hint .bdg{display:inline-grid;place-items:center;min-width:17px;height:17px;border-radius:9px;background:var(--go);color:#03210f;font-size:10.5px;font-weight:800;margin-left:5px;padding:0 4px}
+.rep .kpis{margin:6px 0 4px}.rep table{width:100%;border-collapse:collapse;font-size:13px}.rep td,.rep th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}.rep th{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
 .qc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}
 .qcb{display:grid;gap:1px;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 9px;color:var(--ink);font:inherit;cursor:pointer;min-width:0}
 .qcb:hover,.qcb:focus-visible{border-color:var(--gold);outline:none}
@@ -696,9 +706,9 @@ textarea{width:100%;resize:vertical;min-height:62px}
   <div class="hud prompt" id="prompt" hidden></div>
   <div class="hud chatbox" id="chatbox" hidden><div class="chhead"><div class="t" data-act="chatHead"><span class="eyebrow">Nearby chat</span><span class="chunread" id="chunread" hidden></span><span class="mute eyebrow" id="earshot" style="margin-left:auto"></span></div><button class="chbtn" id="chminb" data-act="chatMin" aria-label="Minimize chat" title="Minimize">–</button><button class="chbtn" data-act="chatClose" aria-label="Close chat" title="Close (T to reopen)">×</button></div><div id="nlog"></div>
     <form data-form="prox"><input id="proxin" name="msg" placeholder="Talk to people near you" autocomplete="off"><button class="btn gold sm">Say</button></form></div>
-  <div class="hud hint" id="hint"><span id="lookHint">Click to look around</span><span>·</span><span><kbd>H</kbd> controls</span><button data-act="mine">My cards · I</button><button data-act="promoToggle">Promote · P</button><button class="vbtn" data-act="boothKey">Operate booth · O</button><button class="vbtn" data-act="manageKey">Manage booth · M</button><button data-act="voicePanel" id="micBtn">Voice · off</button><button data-act="toggleChat">Chat · T</button><button data-act="nav" data-id="shows">Leave show</button></div>
+  <div class="hud hint" id="hint"><span id="lookHint">Click to look around</span><span>·</span><span><kbd>H</kbd> controls</span><button data-act="find" id="findBtn">Find a card · J</button><button data-act="mine">My cards · I</button><button data-act="promoToggle">Promote · P</button><button class="vbtn" data-act="boothKey">Operate booth · O</button><button class="vbtn" data-act="manageKey">Manage booth · M</button><button data-act="voicePanel" id="micBtn">Voice · off</button><button data-act="toggleChat">Chat · T</button><button data-act="nav" data-id="shows">Leave show</button></div>
   <button id="pttBtn" aria-label="Hold to talk">HOLD<br>TO TALK</button>
-  <div class="mobilebar"><button class="hbtn vbtn" data-act="boothKey">My booth</button><button class="hbtn" data-act="voicePanel" id="micBtnM">Voice</button><button class="hbtn" data-act="mine">My cards</button><button class="hbtn" data-act="map">Map</button><button class="hbtn" data-act="toggleChat">Chat</button><button class="hbtn" data-act="agenda">Agenda</button><button class="hbtn" data-act="nav" data-id="shows">Leave</button></div>
+  <div class="mobilebar"><button class="hbtn vbtn" data-act="boothKey">My booth</button><button class="hbtn" data-act="voicePanel" id="micBtnM">Voice</button><button class="hbtn" data-act="find" id="findBtnM">Find</button><button class="hbtn" data-act="mine">My cards</button><button class="hbtn" data-act="map">Map</button><button class="hbtn" data-act="toggleChat">Chat</button><button class="hbtn" data-act="agenda">Agenda</button><button class="hbtn" data-act="nav" data-id="shows">Leave</button></div>
   <div class="hud controls" id="controls" hidden>
     <h3>Controls</h3>
     <div class="keys"><kbd>W A S D</kbd><span>Walk</span><kbd>Shift</kbd><span>Run</span><kbd>Space</kbd><span>Jump</span><kbd>Mouse</kbd><span>Look around (click the world first)</span><kbd>E</kbd><span>Interact · visit a table · sit</span><kbd>O</kbd><span>Operate your booth from anywhere (again to step out)</span><kbd>M</kbd><span>Manage your booth from anywhere</span><kbd>N</kbd><span>Map and walk-to</span><kbd>G</kbd><span>Agenda</span><kbd>C</kbd><span>Captions on/off</span><kbd>V</kbd><span>First / third person</span><kbd>I</kbd><span>My cards (prices, for sale)</span><kbd>P</kbd><span>Show or hide your promo card</span><kbd>T</kbd><span>Nearby chat</span><kbd>Q</kbd><span>Hold to talk (push-to-talk voice)</span><kbd>Esc</kbd><span>Free the mouse / close</span></div>
@@ -1427,11 +1437,11 @@ function buildWorld(){
   for(const k of sessKeys){S.qa[k]=k==='stage'?[{id:k+1,q:'What was your first card ever pulled?',by:'pcmike',v:24},{id:k+2,q:'Which 2024 rookie are you buying right now?',by:'rookie_rach',v:41},{id:k+3,q:'Do you sign through the mail?',by:'gradeday',v:9}]:[{id:k+1,q:'What’s your go-to grading company?',by:'slabhunter22',v:12},{id:k+2,q:'How do you price a bundle?',by:'raw2gem',v:7}];S.sessChat[k]=[]}
   $('#nlog').innerHTML='';nlog('sys','People within a few steps can hear you here.');
   timers.push(setInterval(gateTick,1000),setInterval(botChatter,3600),setInterval(sessionTick,2600),setInterval(captionTick,4400));
-  bindWorldInput();resizeWorld();renderNext();updatePromo();
+  bindWorldInput();resizeWorld();renderNext();updatePromo();startShowRun();setTimeout(wantCheck,3500);
   cancelAnimationFrame(raf);tick();
 }
 function enterVenue(){$('#splash').hidden=true;setTimeout(voiceUI,0);if(!matchMedia('(pointer:coarse)').matches)requestLock()}
-function leaveWorld(){
+function leaveWorld(){const rep=finishShowRun();if(rep)setTimeout(()=>showReport(rep),500);
   cancelAnimationFrame(raf);raf=null;timers.forEach(clearInterval);timers=[];keys.clear();exitLock();
   if(R){R.dispose();R.domElement.remove();R=null}scene=null;
   $('#world').hidden=true;$('#topbar').hidden=false;document.body.classList.remove('inworld');S.side=null;hideBoothAlert();S.op=null;document.body.classList.remove('isvendor');if(VOICE.call){VOICE.call=null;renderCall()}VOICE.req=null;$('#vreq').hidden=true;stopMic();$('#pttBtn').classList.remove('show');
@@ -1599,6 +1609,50 @@ function openMap(){
   const cv=$('#bigmap'),c=cv.getContext('2d'),k=9.6;c.fillStyle='#060a14';c.fillRect(0,0,cv.width,cv.height);c.save();c.translate(33*k,52*k);drawZones(c,k,true);
   c.fillStyle=ORANGE;c.beginPath();c.arc(player.position.x*k,player.position.z*k,9,0,7);c.fill();c.restore();
 }
+/* ---------- find a card on the floor + want list ---------- */
+const qTokens=q=>String(q||'').toLowerCase().replace(/[^a-z0-9.\s]/g,' ').split(/\s+/).filter(Boolean);
+function cardWords(c){return qTokens([c.year,c.set,c.name,c.grade,c.num,c.parallel].filter(Boolean).join(' '))}
+function cardMatches(c,q){const t=qTokens(q);if(!t.length)return false;const w=cardWords(c);return t.every(x=>w.some(y=>y===x||(x.length>=3&&y.startsWith(x))))}
+function floorHits(q){const out=[];if(S.view!=='room'||!player)return out;booths.forEach(b=>{const v=b.v;if(!v||v.mine)return;const cs=(v.inv||[]).filter(c=>!c.sold&&cardMatches(c,q));if(!cs.length)return;
+  const d=Math.round(Math.hypot(player.position.x-b.x,player.position.z-(b.z+2)));out.push({v,b,cs:cs.sort((a,c)=>a.price-c.price),d})});return out.sort((a,b)=>a.d-b.d)}
+const wantsOf=()=>(ME.wants=ME.wants||[]);
+function renderFind(body){body=body||$('#dBody');if(!body||S.side!=='find')return;const q=S.findQ||'',ws=wantsOf();
+  body.innerHTML=`<div class="sec" style="display:grid;gap:12px"><p class="mute" style="margin:0;font-size:13px">Search every table at this show. Try a player, a set, or a grade like “Okafor PSA 10”.</p>
+   <form data-form="findQ" class="row" style="display:flex;gap:8px"><div class="amt" style="flex:1"><input name="q" id="findq" value="${esc(q)}" placeholder="Player, set or grade" autocomplete="off" aria-label="Search the floor"></div><button class="btn gold sm">Search</button></form>
+   <div id="fres"></div>
+   <div style="display:grid;gap:8px;border-top:1px solid var(--line);padding-top:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:14px">Your want list</b>${q.trim()&&!ws.some(w=>w.toLowerCase()===q.trim().toLowerCase())?`<button class="btn ghost sm" data-act="wantAdd">+ Save “${esc(q.trim().slice(0,28))}”</button>`:''}</div>
+    <p class="mute" style="margin:0;font-size:12.5px">When you walk into a show, you get a ping for each one that’s on a table there.</p>
+    <div class="wchips">${ws.length?ws.map((w,i)=>{const n=floorHits(w).reduce((t,h)=>t+h.cs.length,0);return `<span class="wchip ${n?'hit':''}"><button style="color:var(--ink);padding:0" data-act="findSet" data-id="${esc(w)}">${esc(w)}${n?` · <em>${n} here</em>`:''}</button><button data-act="wantDel" data-id="${i}" aria-label="Remove ${esc(w)}">×</button></span>`}).join(''):'<span class="mute" style="font-size:12.5px">Nothing yet. Search for a card, then save it.</span>'}</div></div></div>`;
+  renderFindResults()}
+function renderFindResults(){const el=$('#fres');if(!el)return;const q=S.findQ||'';if(!qTokens(q).length){el.innerHTML='';return}const hits=floorHits(q),n=hits.reduce((t,h)=>t+h.cs.length,0);
+  el.innerHTML=`<div class="fres"><span class="eyebrow" style="font-size:11px">${n?`${n} card${n>1?'s':''} at ${hits.length} table${hits.length>1?'s':''}`:'Nobody at this show has that right now'}</span>${hits.map(h=>`<div class="fgrp"><div class="fgh"><div><b>${esc(h.v.name)}</b> <span class="mute">· ${h.d} m away${h.v.real?' · real vendor':''}</span></div><span style="display:flex;gap:6px"><button class="btn ghost sm" data-act="findWalk" data-id="${h.v.id}">Walk there</button><button class="btn gold sm" data-act="findOpen" data-id="${h.v.id}">Their table</button></span></div>
+    ${h.cs.slice(0,6).map(c=>`<div class="frow"><div class="nm"><b>${esc(c.name)}</b><span>${esc([c.year,c.set].filter(Boolean).join(' '))} · ${esc(c.grade)}</span></div><span class="pr">${money(c.price)}</span><button class="btn ghost sm" data-act="findView" data-id="${h.v.id}|${c.id}">View</button></div>`).join('')}${h.cs.length>6?`<span class="mute" style="font-size:12px">+${h.cs.length-6} more at this table</span>`:''}</div>`).join('')}</div>`}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='findq'){S.findQ=e.target.value;renderFindResults();clearTimeout(renderFind.t);renderFind.t=setTimeout(()=>{if(document.activeElement?.id!=='findq')return;const pos=e.target.selectionStart;renderFind();const i=$('#findq');if(i){i.focus();try{i.setSelectionRange(pos,pos)}catch(_){}}},700)}});
+S.wantSeen=new Set();
+function wantCheck(){if(S.view!=='room'||!player)return;const ws=wantsOf();let found=[];
+  ws.forEach(w=>floorHits(w).forEach(h=>h.cs.forEach(c=>{const k=w+'|'+h.v.id+'|'+c.id;if(S.wantSeen.has(k))return;S.wantSeen.add(k);found.push({w,h,c})})));
+  const total=ws.reduce((t,w)=>t+floorHits(w).reduce((a,h)=>a+h.cs.length,0),0);['#findBtn','#findBtnM'].forEach(sel=>{const b=$(sel);if(!b)return;b.querySelector('.bdg')?.remove();if(total)b.insertAdjacentHTML('beforeend',`<span class="bdg">${total}</span>`)});
+  if(!found.length)return;found.forEach(f=>nlog('sys',`Want list: ${f.c.name} ${f.c.grade} is at ${f.h.v.name} for ${money(f.c.price)}.`));
+  const f=found[0];toast(found.length>1?`${found.length} cards on your want list are here. Tap Find to see them.`:`Want list: ${f.c.name} ${f.c.grade} is at ${f.h.v.name} for ${money(f.c.price)}`);if(S.side==='find')renderFind()}
+/* ---------- end-of-show report ---------- */
+function startShowRun(){S.run={id:showData.id,name:showData.name,start:Date.now(),role:ME.role,stops:{},offers:{}};S.wantSeen=new Set()}
+function runVisitor(name,kind){if(!S.run||!name)return;(kind==='offer'?S.run.offers:S.run.stops)[name]=1;S.run.stops[name]=1}
+window.runVisitor=runVisitor;
+function finishShowRun(){const r=S.run;S.run=null;if(!r)return null;const end=Date.now(),L=ME.ledger||[],sells=L.filter(e=>e.side==='sell'&&e.ts>=r.start),buys=L.filter(e=>e.side==='buy'&&e.ts>=r.start);
+  const stops=Object.keys(r.stops),offers=Object.keys(r.offers).length;if(!sells.length&&!buys.length&&!(r.role==='vendor'&&(end-r.start>60000||stops.length)))return null;
+  const rep={id:'R'+end.toString(36),name:r.name,start:r.start,end,role:r.role,sells:sells.map(e=>({card:e.card,party:e.party,price:e.price,profit:e.profit,fee:e.fee,ship:e.ship})),buys:buys.map(e=>({card:e.card,party:e.party,price:e.price,total:e.total})),stops,offers};
+  ME.reports=[rep,...(ME.reports||[])].slice(0,20);save();return rep}
+function reportHTML(rep){const rev=rep.sells.reduce((t,e)=>t+(+e.price||0),0),pr=rep.sells.reduce((t,e)=>t+(+e.profit||0),0),fees=rep.sells.reduce((t,e)=>t+(+e.fee||0)+(+e.ship||0),0),spent=rep.buys.reduce((t,e)=>t+(+e.total||+e.price||0),0);
+  const mins=Math.max(1,Math.round((rep.end-rep.start)/60000)),best=rep.sells.slice().sort((a,b)=>b.price-a.price)[0],when=new Date(rep.start).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+  const cn=c=>esc([c.year,c.set,c.name,c.grade].filter(Boolean).join(' '));
+  return `<div class="sec rep"><span class="eyebrow">Show report</span><h2>${esc(rep.name)}</h2><p class="mute" style="margin:0">${when} · ${mins<60?mins+' min':Math.floor(mins/60)+' hr '+(mins%60)+' min'} · ${rep.role==='vendor'?'you had a table':'you walked the floor'}</p>
+   <div class="kpis">${rep.role==='vendor'||rep.sells.length?kpi('Sales',money(rev),`${rep.sells.length} card${rep.sells.length===1?'':'s'} sold`)+kpi('Profit',signed(pr),`after ${money(fees)} fees and shipping`,pr>=0?'pos':'neg'):''}${rep.role==='vendor'?kpi('Stopped by',rep.stops.length,`${rep.offers} made offers`):''}${rep.buys.length?kpi('You bought',money(spent),`${rep.buys.length} card${rep.buys.length===1?'':'s'}`):''}${best?kpi('Best sale',money(best.price),esc(best.card.name)):''}</div>
+   ${rep.sells.length?`<table><tr><th>Sold</th><th>To</th><th>Price</th><th>Profit</th></tr>${rep.sells.map(e=>`<tr><td>${cn(e.card)}</td><td>${esc(e.party||'')}</td><td class="mono">${money(e.price)}</td><td class="mono ${e.profit>=0?'pos':'neg'}">${signed(+e.profit||0)}</td></tr>`).join('')}</table>`:rep.role==='vendor'?'<p class="note">No sales this time. Tip: cards priced near comps and a note on your table get more stops.</p>':''}
+   ${rep.buys.length?`<table style="margin-top:10px"><tr><th>Your haul</th><th>From</th><th>Paid</th></tr>${rep.buys.map(e=>`<tr><td>${cn(e.card)}</td><td>${esc(e.party||'')}</td><td class="mono">${money(e.total||e.price)}</td></tr>`).join('')}</table>`:''}
+   ${rep.role==='vendor'&&rep.stops.length?`<p class="mute" style="font-size:12.5px;margin:10px 0 0"><b>Who stopped by:</b> ${esc(rep.stops.slice(0,30).join(', '))}${rep.stops.length>30?` and ${rep.stops.length-30} more`:''}</p>`:''}</div>`}
+function showReport(rep){if(rep)openModal(reportHTML(rep),true)}
+setInterval(()=>{if(S.view!=='room'||!S.run)return;const b=myBooth&&myBooth();if(b)bots.forEach(bt=>{const u=bt.userData;if(u.visiting===b&&u.arrived)runVisitor(u.name)});(S.offers||[]).forEach(o=>o.party&&runVisitor(o.party.name,'offer'))},2000);
+setInterval(wantCheck,8000);
 function walkTo(id){
   let ok;
   if(S.sat)standUp();
@@ -1806,6 +1860,7 @@ function openDrawer(kind,id){
   else if(kind==='agenda'){$('#dTitle').textContent='Agenda';renderAgenda(body)}
   else if(kind==='mine'){$('#dTitle').textContent='My cards';renderMine(body)}
   else if(kind==='voice'){$('#dTitle').textContent='Voice';renderVoicePanel(body)}
+  else if(kind==='find'){$('#dTitle').textContent='Find a card';renderFind(body)}
   else{const tk=tixOf(showData.id),wait=showData.price&&!gateOpen();$('#dTitle').textContent='Check-in';body.innerHTML=`<div class="sec"><h3 style="font-size:22px">You’re checked in</h3>${ticketHTML(showData)}${wait?`<p class="note" style="border-left:3px solid var(--orange)">Your wristband is on. General admission opens at ${clockStr(GA_OPEN)}. Want in now? Upgrade to early entry for ${money(showData.tiers.early.price-showData.tiers.general.price)}.</p><button class="btn gold sm" data-act="upgradeTicket" style="justify-self:start">Upgrade to early entry</button>`:showData.price?'<p class="note">Wristband on. The doors are open for you.</p>':''}<p class="mute" style="font-size:13px">${showData.vendors.length} tables tonight. Tables marked LINE take one buyer at a time, and your spot is held while you walk the floor. The Main Stage is straight through the Expo; VIP rooms are down the east corridor.</p><button class="btn gold sm" data-act="closeDrawer" style="justify-self:start">Head to the Expo</button></div>`}
 }
 function closeDrawer(){if(S.talkBot){S.talkBot.userData.wait=1.5;S.talkBot=null}const dbd=$('#dBody');delete dbd.dataset.vid;delete dbd.dataset.ctx;$('#world').classList.remove('dopen');S.side=null;S.sideV=null;$('#drawer').hidden=true;$('#dBody').innerHTML=''}
@@ -2339,6 +2394,7 @@ function renderDesk(){
   $('#app').innerHTML=`<div class="mkhead"><div class="intro" style="margin:0"><h1>My Desk</h1><p class="mute">What you’ve bought, what you’ve sold, and where you stand. You’re set up as a ${ME.role}.</p></div><span class="savebadge"></span></div>
   <div class="kpis">${kpi('Money spent',money(spent),`${buys.length} card${buys.length===1?'':'s'} bought, plus tickets${ME.premium?' and Pro':''}`)}${kpi('Sales',money(rev),`${sells.length} card${sells.length===1?'':'s'} sold`)}${kpi('Profit / loss',signed(profit),`after ${money(fees)} fees and ${money(shipP)} shipping`,profit>=0?'pos':'neg')}${kpi('Avg margin',sells.length&&rev?Math.round(profit/rev*100)+'%':'—','profit ÷ sale price')}${kpi('In hand',money(basis),`${own.length} cards at cost`)}${kpi('Unrealized',signed(mkt-basis),`comps ${money(mkt)} vs. what you paid`,mkt-basis>=0?'pos':'neg')}</div>
   ${packHTML()}
+  ${(ME.reports||[]).length?`<div class="panel"><div class="phead"><h2>Show reports</h2><span class="mute" style="font-size:12.5px">One for each show you sold or bought at</span></div><div class="tablewrap"><table class="ledger"><tr><th>Show</th><th>Date</th><th>Sold</th><th>Bought</th><th></th></tr>${ME.reports.map(r=>`<tr><td>${esc(r.name)}</td><td>${new Date(r.start).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</td><td class="mono">${r.sells.length?money(r.sells.reduce((t,e)=>t+(+e.price||0),0)):'—'}</td><td class="mono">${r.buys.length?money(r.buys.reduce((t,e)=>t+(+e.total||+e.price||0),0)):'—'}</td><td><button class="btn ghost sm" data-act="report" data-id="${r.id}">View</button></td></tr>`).join('')}</table></div></div>`:''}
   <div class="panel"><div class="phead"><h2>Running profit</h2><span class="mute" style="font-size:12.5px">One point per sale</span></div><div id="chartbox"></div></div>
   <div class="panel"><div class="phead"><h2>Ledger</h2><div class="toolbar">${[['all','All'],['buy','Bought'],['sell','Sold']].map(([k,l])=>`<button class="pill" data-act="ledgerF" data-id="${k}" aria-pressed="${S.ledgerF===k}">${l}</button>`).join('')}</div></div><div class="tablewrap" id="ledger"></div></div>
   <div class="panel"><div class="phead"><h2>Your details</h2></div><div class="addform"><label>Display name<input data-me="name" id="me-name" value="${esc(ME.name)}"></label><label>Ship-from address (city, state, ZIP)<input data-me="from" id="me-from" value="${esc(ME.from)}"></label><label>Table name (vendor mode)<input data-me="table" id="me-table" value="${esc(ME.table)}"></label></div><p class="note">Change your avatar and design your booth in <button class="linkbtn" data-act="nav" data-id="inventory">Inventory</button>.</p><label class="switch"><input type="checkbox" data-pref="offersOn" id="pref-offers" ${offersOn()?'checked':''}> Let dealers and collectors send me offers on my for-sale cards</label>${rolePicker()}</div>`;
@@ -2436,6 +2492,14 @@ const ACT={
   endCall:()=>endCall(),
   callMute:()=>{if(VOICE.call){VOICE.call.muted=!VOICE.call.muted;renderCall()}},
   callCards:id=>{const c=VOICE.call;if(!c)return;c.min=true;c.adding=false;renderCall();if(id&&id.startsWith('b:')&&id.slice(2)!==c.name){const x=(c.extra||[]).find(x=>'b:'+x.name===id);if(x)return openTable(attendeeParty(x.bot),'show')}if(c.kind==='booth'){S.vtab[c.v.id]='chat';openTable(c.v,'show')}else openTable(c.party,'show')},
+  find:()=>{if(S.view!=='room')return toast('Find works inside a show');S.side==='find'?closeDrawer():openDrawer('find');setTimeout(()=>$('#findq')?.focus(),60)},
+  findSet:q=>{S.findQ=q;renderFind()},
+  wantAdd:()=>{const q=(S.findQ||'').trim();if(!q)return;const ws=wantsOf();if(!ws.some(w=>w.toLowerCase()===q.toLowerCase()))ws.unshift(q.slice(0,60));ME.wants=ws.slice(0,30);save();renderFind();wantCheck();toast('Saved to your want list')},
+  wantDel:i=>{wantsOf().splice(+i,1);save();renderFind();wantCheck()},
+  findWalk:id=>{closeDrawer();walkTo(id);toast(`Walking to ${VBY[id]?.name||'their table'}`)},
+  findOpen:id=>{const v=VBY[id];if(v)openTable(v,'show')},
+  findView:p=>{const [vid,cid]=p.split('|');const v=VBY[vid];if(!v)return;S.vdetail[vid]=cid;openTable(v,'show');setTimeout(()=>openViewer(vid,cid),260)},
+  report:id=>showReport((ME.reports||[]).find(r=>r.id===id)),
   qc:s=>{const [fn,fid,a,card]=String(s).split('~');const f=document.querySelector(`form[data-form="${fn}"]`+(fid?`[data-id="${CSS.escape(fid)}"]`:''));if(!f)return toast('That offer moved on. Try again.');f.amt.value=a;if(card&&f.card)f.card.value=card;f.requestSubmit()},
   callMin:()=>{const c=VOICE.call;if(c){c.min=true;c.adding=false;renderCall()}},
   callExpand:()=>{const c=VOICE.call;if(c){c.min=false;c._autoMin=1;renderCall()}},
@@ -2511,6 +2575,7 @@ const FORMS={
   bundleAsk:f=>{const amt=parseFloat(f.amt.value.replace(/[$,]/g,''));if(!(amt>0))return toast('Enter a price for the bundle');startBundle(VBY[f.dataset.id],Math.round(amt*100)/100)},
   bundleCounter:f=>{const v=VBY[f.dataset.id],b=S.bundle[v.id],amt=parseFloat(f.amt.value.replace(/[$,]/g,''));if(!b)return;if(!(amt>0))return toast('Enter a number');const t=`Could you do ${money(amt)} for all ${b.ids.length}?`;(S.chat[v.id]=S.chat[v.id]||[]).push({f:'me',t});if(S.view==='room')say(player,t,3000);
     b.typing=true;renderVBody(v);setTimeout(()=>{b.typing=false;counterBundle(v,b,amt);renderVBody(v);vendorSpeak(v,b.msg)},800)},
+  findQ:f=>{S.findQ=f.q.value;renderFind()},
   vwOffer:f=>{const v=VBY[VW.vid],c=findCard(VW.vid,VW.cid),amt=Math.round(parseFloat(f.amt.value.replace(/[$,]/g,''))*100)/100;if(!c)return;if(!(amt>0))return toast('Enter an offer amount');
     const chat=S.chat[v.id]=S.chat[v.id]||[];S.offerCard[v.id]=c.id;const t=`${money(amt)} for the ${c.name} ${c.set}?`;chat.push({f:'me',t});VW.since=chat.length;if(S.view==='room')say(player,t,3000);f.amt.value='';respond(v,c,amt);renderLog(v);renderViewer()},
   pitchCounter:f=>{const k=f.dataset.id,[vid]=k.split('|'),amt=parseFloat(f.amt.value.replace(/[$,]/g,''));if(!(amt>0))return toast('Enter a number');const v=VBY[vid],p=S.pitch[k];if(!p)return;p.typing=true;renderVBody(v);setTimeout(()=>{p.typing=false;counterPitch(v,p,amt);renderVBody(v);vendorSpeak(v,p.msg)},800)},
@@ -2542,6 +2607,7 @@ document.addEventListener('keydown',e=>{
   if(k==='o'){ACT.boothKey();return}
   if(k==='m'){ACT.manageKey();return}
   if(k==='n'){ACT.map();return}
+  if(k==='j'){ACT.find();return}
   if(k==='g'){S.side==='agenda'?closeDrawer():openDrawer('agenda');return}
   if(k==='i'){S.side==='mine'?closeDrawer():openDrawer('mine');return}
   if(k==='p'){if(ME.promo){setPromo(null);toast('Promo card hidden (P to show)')}else{const id=(ME.promoLast&&ME.inv.find(c=>c.id===ME.promoLast&&!c.sold))?ME.promoLast:forSale()[0]?.id;if(id){setPromo(id);toast('Promo card showing (P to hide)')}else toast('Mark a card for sale first (I)')}return}
