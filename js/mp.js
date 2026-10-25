@@ -449,7 +449,7 @@ ACT.whoOnline=()=>{const ps=LIVE.list.slice().sort((a,b)=>(b.uid===MP.uid)-(a.ui
   openModal(`<div class="sec"><span class="eyebrow">Live right now</span><h2>${onlineText(ps.length)}</h2><p class="mute" style="margin:0 0 10px">Real signed-in people only. The crowd you see walking around at shows is extra.</p>${ps.map(p=>`<div class="realrow"><div class="vava" style="background:${MP.profiles[p.uid]?.color||p.color||'#3db5ff'};width:34px;height:34px;font-size:13px">${initials(p.name||'?')}</div><div class="who"><b>${esc(p.name||'Collector')}${p.uid===MP.uid?' (you)':''}</b><span>${esc(where(p))}</span></div>${p.show&&p.uid!==MP.uid&&SHOWS.find(x=>x.id===p.show)?`<button class="btn ghost sm" data-act="enter" data-id="${p.show}">Join them</button>`:''}</div>`).join('')}</div>`)};
 /* listen-only presence before sign-in, so the sign-in screen shows the real count */
 function watchLobby(){if(LIVE.watch||MP.lobby)return;try{LIVE.watch=NET.channel('lobby',null,{sync:lobbySync})}catch(e){}}
-window.joinLobby=function(){if(LIVE.watch){try{LIVE.watch.leave()}catch(e){}LIVE.watch=null}MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:null},{sync:lobbySync})};
+window.joinLobby=async function(){const w=LIVE.watch;LIVE.watch=null;if(w){try{await w.leave()}catch(e){}}MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:MP.roomKey||null},{sync:lobbySync})};
 /* activity feed: sign-ups, new shows, notable sales */
 function notable(amount,cards){amount=+amount||0;const tens=(cards||[]).some(c=>/\b10\b/.test(c.grade||''));return amount>=100||(tens&&amount>=40)||((cards||[]).length>=3&&amount>=150)}
 function cardLine(c){return [c.year,c.set,c.name,c.grade&&c.grade!=='Raw'?c.grade:''].filter(Boolean).join(' ')}

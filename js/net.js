@@ -63,7 +63,7 @@
         EVENTS.forEach(ev=>ch.on('broadcast',{event:ev},m=>h.msg&&h.msg(ev,m.payload)));
         let ready=false,state={...presence};
         ch.subscribe(st=>{if(st==='SUBSCRIBED'){ready=true;if(presence)ch.track(state)}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){h.error&&h.error(st)}});
-        return {send(ev,p){if(ready)ch.send({type:'broadcast',event:ev,payload:p})},track(p){if(!presence)return;state={...state,...p};if(ready)ch.track(state)},leave(){try{if(presence)ch.untrack()}catch(e){}sb.removeChannel(ch)}}}
+        return {send(ev,p){if(ready)ch.send({type:'broadcast',event:ev,payload:p})},track(p){if(!presence)return;state={...state,...p};if(ready)ch.track(state)},leave(){try{if(presence)ch.untrack()}catch(e){}return sb.removeChannel(ch)}}}
     }}
 
   /* ---------------- Local (tests / no server) ---------------- */
