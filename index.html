@@ -525,6 +525,10 @@ body:has(#modal:not([hidden])) #offers{display:none}
 .dig .digcard{display:grid;place-items:center;margin:12px 0}.dig .digcard .slab{transform:scale(1.15);transform-origin:center}
 .dig .diginfo{display:grid;gap:2px;text-align:center}.dig .diginfo b{font-size:18px}.dig .diginfo span{color:var(--mute);font-size:13px}.dig .diginfo .pr{color:var(--gold);font-size:20px;font-weight:800}
 .dig .digbar{display:flex;justify-content:space-between;align-items:center;margin:10px 0}.dig .digpile{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px}
+.tgive{display:grid;gap:3px;font-size:12.5px;background:var(--bg);border-radius:9px;padding:8px 10px;margin:6px 0}.tgive b{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--go)}
+.trade{display:grid;gap:10px}.trade .tcol{display:grid;gap:6px}.trade .th{display:flex;justify-content:space-between;align-items:baseline}.trade .th b{font-size:14px}
+.trade .tcash{display:grid;gap:6px}.trade .tcash .seg{display:flex;flex-wrap:wrap;gap:4px}.trade .tcash .seg button{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer}.trade .tcl{font-size:13px}
+.trade .tsum{font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 10px}.trade .tsum.ok{border-color:rgba(60,207,126,.5);color:var(--go)}.trade .tsum.short{border-color:rgba(255,154,60,.5);color:var(--orange)}
 .linecta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px}.linecta .mute{font-size:12px}.linecta .btn{margin-left:auto}.linecta .btn.gold{margin-left:0}
 .fres{display:grid;gap:10px}
 .fgrp{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px}
@@ -1928,7 +1932,7 @@ function renderVendor(v,el,ctx){
    ${noteOf(v)?`<p class="vnote"><b>Note</b>${esc(noteOf(v))}</p>`:''}${isAway(v)?`<p class="vnote" style="background:#ffd54a"><b>Be back soon</b>${esc(v.name)} is away. You can still look and leave offers.</p>`:''}
    <div class="vstats" id="vst-${v.id}"></div></div>
    <div id="vdeal-${v.id}"></div><div id="vlot-${v.id}"></div>
-   <div class="vtabs" role="tablist">${[['buy','Buy'],['sell','Sell to them'],['chat',v.kind==='attendee'?'Chat':'Talk']].map(([k,l])=>`<button role="tab" data-act="vtab" data-id="${v.id}|${k}" aria-selected="${tab===k}">${l}${k==='buy'?`<span class="n">${v.inv.filter(c=>!c.sold).length}</span>`:k==='sell'?`<span class="n">${owned().length}</span>`:''}</button>`).join('')}</div>
+   <div class="vtabs" role="tablist">${[['buy','Buy'],['sell','Sell to them'],['trade','Trade'],['chat',v.kind==='attendee'?'Chat':'Talk']].map(([k,l])=>`<button role="tab" data-act="vtab" data-id="${v.id}|${k}" aria-selected="${tab===k}">${l}${k==='buy'?`<span class="n">${v.inv.filter(c=>!c.sold).length}</span>`:k==='sell'?`<span class="n">${owned().length}</span>`:''}</button>`).join('')}</div>
    <div id="vbody-${v.id}"></div>`;
   renderVStats(v);renderVBody(v);
 }
@@ -1939,6 +1943,7 @@ function refreshParty(v){if(v.mine){const el=document.querySelector('[data-vid="
 function renderVBody(v){const el=$('#vbody-'+v.id);if(!el)return;const tab=S.vtab[v.id]||'buy';
   if(tab==='buy'){const d=S.vdetail[v.id],c=d&&v.inv.find(x=>x.id===d);el.innerHTML=`<div class="sec">${c?detailHTML(v,c):S.tv===v.id?tvIndexHTML(v):gridHTML(v)}</div>`;if(c)drawSpark(c)}
   else if(tab==='sell')el.innerHTML=`<div class="sec">${sellHTML(v)}</div>`;
+  else if(tab==='trade')el.innerHTML=`<div class="sec">${tradeHTML(v)}</div>`;
   else{el.innerHTML=`<div class="sec" id="talk-${v.id}"></div>`;renderTalk(v)}}
 function renderInv(v){if(VW&&VW.vid===v.id)setTimeout(()=>VW&&renderViewer(),0);if(S.tv===v.id){renderTvSurface();tvMeta()}if(v.mine)return refreshParty(v);renderVStats(v);if((S.vtab[v.id]||'buy')==='buy')renderVBody(v)}
 function gridHTML(v){const f=S.vfilter[v.id]||'all',sort=S.vsort[v.id]||'high';
@@ -1970,6 +1975,44 @@ function detailHTML(v,c){const talk=canTalk(v,ctxOf(v)),comps=compsOf(c),q=S.q[v
 function lineBoxHTML(v){const q=S.q[v.id]||{};return q.state==='waiting'
   ?`<div class="linebox"><div class="linepos"><span class="num">${q.pos}</span><span>ahead of you in line</span></div><p class="mute" style="font-size:13px">Keep walking the floor. Your spot is held and we’ll call you back when it’s your turn to buy or sell.</p><p class="mute" style="font-size:12.5px">You can’t hear ${esc(v.name)} while you wait. At your turn you both pick voice, chat or both.</p><button class="btn ghost sm" data-act="leaveLine" data-id="${v.id}">Leave line</button></div>`
   :`<div class="linebox"><p><b>${v.lineLen} people</b> waiting. ${esc(v.name)} deals with one person at a time, buying or selling. Buy now still works from the Buy tab.</p><button class="btn gold" data-act="joinLine" data-id="${v.id}">Get in line</button></div>`}
+/* ---------- trades: cards (plus cash) for cards ---------- */
+const tradeVal=c=>+(c.mkt||c.price||0);
+function tradeOf(v){return S.trade[v.id]=S.trade[v.id]||{get:[],give:[],cash:0}}
+function tradeParts(v){const T=tradeOf(v),theirs=v.inv.filter(c=>!c.sold&&!c.box&&!holdOther(c)),mine=ME.inv.filter(c=>!c.sold&&!c.pending);
+  const getC=theirs.filter(c=>T.get.includes(c.id)),giveC=mine.filter(c=>T.give.includes(c.id));T.get=getC.map(c=>c.id);T.give=giveC.map(c=>c.id);
+  const gv=+getC.reduce((t,c)=>t+c.price,0).toFixed(2),yv=+giveC.reduce((t,c)=>t+tradeVal(c),0).toFixed(2);return {T,theirs,mine,getC,giveC,gv,yv}}
+function tradeHTML(v){const {T,theirs,mine,getC,giveC,gv,yv}=tradeParts(v),c=+T.cash||0,yours=yv+Math.max(c,0),theirsV=gv+Math.max(-c,0),bal=+(yours-theirsV).toFixed(2);
+  const chip=(act,x,on,val)=>`<button class="ochip ${on?'on':''}" data-act="${act}" data-id="${v.id}|${x.id}" aria-pressed="${on}">${on?'✓ ':'+ '}${esc(x.name)} <span class="mute">${esc(x.grade)}</span> <span class="mono">${money(val)}</span></button>`;
+  if(T.done)return `<div class="trade"><div class="say">${esc(T.done)}</div><button class="btn ghost sm" data-act="trNew" data-id="${v.id}">Start another trade</button></div>`;
+  return `<div class="trade"><p class="note" style="margin:0">Swap cards with ${esc(v.name)}. Pick what you want from their table and what you’ll give from your binder, then even it up with cash.</p>
+   <div class="tcol"><div class="th"><b>You get</b><span class="mono">${money(gv)}</span></div><div class="chips">${theirs.length?theirs.slice(0,40).map(x=>chip('trGet',x,T.get.includes(x.id),x.price)).join(''):'<span class="mute">Nothing on their table right now.</span>'}</div></div>
+   <div class="tcol"><div class="th"><b>You give</b><span class="mono">${money(yv)} <span class="mute" style="font-weight:500">comps</span></span></div><div class="chips">${mine.length?mine.slice(0,40).map(x=>chip('trGive',x,T.give.includes(x.id),tradeVal(x))).join(''):'<span class="mute">Your binder is empty. Add cards in Inventory.</span>'}</div></div>
+   <div class="tcash"><b>Cash</b><div class="seg">${[-50,-10,10,50].map(d=>`<button data-act="trCash" data-id="${v.id}|${d}">${d>0?'+':'−'}$${Math.abs(d)}</button>`).join('')}<button data-act="trEven" data-id="${v.id}">Even it up</button>${c?`<button data-act="trCash" data-id="${v.id}|0">No cash</button>`:''}</div>
+    <span class="tcl">${c>0?`You add <b>${money(c)}</b>`:c<0?`${esc(v.name)} adds <b>${money(-c)}</b>`:'No cash in this trade'}</span></div>
+   <div class="tsum ${!getC.length&&!giveC.length?'':bal>=0?'ok':'short'}">${!getC.length&&!giveC.length?'Pick cards on both sides to start.':`Your side ${money(yours)} · their side ${money(theirsV)} · ${Math.abs(bal)<1?'dead even':bal>0?`you’re ${money(bal)} over`:`you’re ${money(-bal)} short`}`}</div>
+   ${T.msg?`<div class="say">${T.typing?`<span class="mute">${esc(v.handle||v.name)} is looking it over…</span>`:esc(T.msg)}</div>`:''}${T.counter!=null&&!T.typing?`<button class="btn gold sm" data-act="trTake" data-id="${v.id}">${T.counter>0?`Add ${money(T.counter)} and trade`:T.counter<0?`Take ${money(-T.counter)} cash and trade`:'Trade straight up'}</button>`:''}
+   <button class="btn gold" data-act="trSend" data-id="${v.id}" ${getC.length&&(giveC.length||c>0)&&!T.typing?'':'disabled'}>Propose trade</button></div>`}
+function bookTrade(party,give,get,cash){/* give: my card objects; get: card objects or snapshots; cash>0 = I pay */
+  const yv=give.reduce((t,c)=>t+tradeVal(c),0)||0,gv=get.reduce((t,c)=>t+(+c.price||0),0)||1,no='TR-'+(30400+Math.floor(Math.random()*9000)),ts=Date.now(),where=S.view==='room'&&showData?showData.name:'Marketplace';
+  const recv=Math.max(-cash,0),paid=Math.max(cash,0),basisTot=Math.max(0,yv+cash);
+  give.forEach((c,i)=>{c.sold=true;c.forSale=false;c.box=false;if(slabMeshes[c.id])slabMeshes[c.id].visible=false;const val=tradeVal(c),price=+(val+recv*(yv?val/yv:1/give.length)).toFixed(2);
+    const L={no,fromName:ME.name,fromCity:ME.from,toAddr:`${party.name}\n${party.city||''}`,svc:'USPS GROUND ADVANTAGE',l:'G',cost:5.25,payer:'buyer',trk:genTrk(),cardName:give.length>1?`${give.length} cards (trade)`:c.name,grade:give.length>1?'':c.grade};
+    ME.ledger.unshift({id:give.length>1?`${no}-${i+1}`:no,order:no,ts,shipped:false,side:'sell',trade:true,cardId:c.id,card:snap(c),party:party.name,price,fee:0,ship:0,cost:c.cost,net:price,profit:+(price-(c.cost||0)).toFixed(2),where,label:L})});
+  get.forEach((c,i)=>{const share=(+c.price||0)/gv,basis=+(basisTot*share).toFixed(2);ME.ledger.unshift({id:get.length>1?`${no}-G${i+1}`:no+'-G',order:no,ts,side:'buy',trade:true,card:snap(c),party:party.name,price:basis,ship:0,total:+(paid*share).toFixed(2),where});
+    const m=mkMine({...snap(c),cost:basis,price:+(c.list||c.price)||basis,mkt:+(c.mkt||c.price)||basis,forSale:false,from:party.name});if(c.img)m.img=JSON.parse(JSON.stringify(c.img));ME.inv.unshift(m)});
+  save(true);try{renderTabs()}catch(e){}return no}
+function tradeRespond(v){const {T,getC,giveC,gv,yv}=tradeParts(v),c=+T.cash||0;const rate=v.kind==='attendee'?.92:.78,need=.93;
+  const incoming=yv*rate+Math.max(c,0),outgoing=gv+Math.max(-c,0);T.typing=true;T.msg='…';T.counter=null;renderVBody(v);
+  setTimeout(()=>{T.typing=false;if(!getC.length){T.msg='Pick something from my table first.';return renderVBody(v)}
+    if(incoming>=outgoing*need){doTrade(v,getC,giveC,c,'Deal. Pleasure trading with you.');return}
+    let req=gv*need-yv*rate;req=req>0?Math.ceil(req/5)*5:-Math.floor((-req/need)/5)*5;
+    if(req-c>gv*.75){T.msg='That’s too far apart for me. Try adding more cards.';T.counter=null}
+    else{T.counter=req;T.msg=req>0?`I value your side at ${money(yv*rate)}. Add ${money(req)} cash and we have a trade.`:req<0?`I’d do it, and I’ll throw in ${money(-req)} cash.`:'Straight up works for me.'}
+    renderVBody(v);try{vendorSpeak&&vendorSpeak(v,T.msg)}catch(e){}},1300)}
+function doTrade(v,getC,giveC,cash,msg){const no=bookTrade(v,giveC,getC,cash);getC.forEach(c=>{c.sold=true;if(slabMeshes[c.id])slabMeshes[c.id].visible=false;if(CARO[c.id])CARO[c.id].visible=false});
+  if(Array.isArray(v.inv)&&!v.real)giveC.forEach(x=>v.inv.push(card(x.name,x.year,x.set,x.num,x.grade,round5(Math.max(tradeVal(x)*1.15,5)))));
+  S.trade[v.id]={get:[],give:[],cash:0,done:`${msg||'Trade done.'} You got ${getC.map(c=>c.name).join(', ')}${giveC.length?` for ${giveC.map(c=>c.name).join(', ')}`:''}${cash>0?` plus ${money(cash)} from you`:cash<0?` plus ${money(-cash)} cash to you`:''}. Order ${no} · your cards to ship are on your packing list.`};
+  (S.chat[v.id]=S.chat[v.id]||[]).push({f:'sys',t:`Trade ${no} done with ${v.name}.`});renderInv(v);refreshView&&refreshView();renderVBody(v);toast(`Trade done with ${v.name}`)}
 function sellHTML(v){
   if(!canTalk(v,ctxOf(v)))return lineBoxHTML(v);
   const mine=owned();
@@ -2277,7 +2320,7 @@ function confirmSale(){if(!SO||SO.done)return;if(SO.cds.some(c=>c.sold)){SO.done
    <button class="btn gold" data-act="closeModal" style="justify-self:start">${S.view==='room'?'Keep walking the floor':'Done'}</button></div>`);
 }
 /* accept every open offer at once: one order and label per buyer */
-function acceptAllModal(){exitLock();const os=S.offers.filter(o=>o.kind!=='hold');if(!os.length)return;
+function acceptAllModal(){exitLock();const os=S.offers.filter(o=>o.kind!=='hold'&&o.kind!=='trade');if(!os.length)return;
   S.allRows=os.map(o=>{const opts=shipFor(o.cds,o.amt);return {o,ship:opts.find(x=>x.id===(o.amt>=500?'pri':'bmwt'))||opts[0]}});
   const tot=+os.reduce((s,o)=>s+o.amt,0).toFixed(2),cards=os.reduce((s,o)=>s+o.cds.length,0),fee=+(tot*.08).toFixed(2),cost=+os.reduce((s,o)=>s+sumBy(o.cds,'cost'),0).toFixed(2),profit=tot-fee-cost;
   openModal(`<div class="sec"><span class="eyebrow">Accept all offers</span><h2>Sell ${cards} cards to ${os.length} buyer${os.length>1?'s':''}</h2><p class="mute" style="font-size:13px;margin:0">Each buyer gets one order and one label. Buyers pay shipping at the standard rate.</p></div>
@@ -2323,12 +2366,16 @@ function qcBtn(form,id,x,card){return `<button type="button" class="qcb ${x.cls|
 function qcHTML(form,id,list,theirs,mine,card){const q=quickCounters(theirs,mine,list);return q.length?`<span class="qcl">Quick counter</span><div class="qc" role="group" aria-label="Quick counters">${q.map(x=>qcBtn(form,id,x,card)).join('')}</div>`:''}
 function qoHTML(form,id,list,card){if(!(list>2))return '';const out=[],seen=new Set();[[.9,'firm'],[.85,'mid'],[.8,'close']].forEach(([k,cls])=>{const p=niceRound(list*k);if(p>0&&p<list&&!seen.has(p)){seen.add(p);out.push({p,cls,lab:Math.round(k*100)+'% of ask',pct:null})}});
   return out.length?`<span class="qcl">Quick offer</span><div class="qc" role="group" aria-label="Quick offers">${out.map(x=>qcBtn(form,id,x,card)).join('')}</div>`:''}
-S.mine={};
+S.mine={};S.trade={};
 document.addEventListener('submit',e=>{const f=e.target;if(!f||!f.dataset||!f.amt)return;const a=parseFloat(String(f.amt.value).replace(/[$,]/g,''));if(!(a>0))return;const fn=f.dataset.form,id=f.dataset.id;let k=null;
   if(fn==='ofCounter')k='of:'+id;else if(fn==='vwOffer'&&VW)k=`c:${VW.vid}|${VW.cid}`;else if(fn==='offer'&&f.card)k=`c:${id}|${f.card.value}`;else if(fn==='lotOffer')k='lot:'+id;else if(fn==='rCounter')k='r:'+id;else if(fn==='pitchCounter')k='pt:'+id;else if(fn==='bundleCounter'||fn==='bundleAsk')k='bd:'+id;if(k)S.mine[k]=a},true);
 function profitHTML(cds,amt,lead=''){cds=[].concat(cds);const opts=shipFor(cds,amt),sh=opts.find(x=>x.id===(amt>=500?'pri':'bmwt'))||opts[0],cost=sumBy(cds,'cost'),p=+(amt-amt*.08-cost).toFixed(2),ps=+(p-sh.cost).toFixed(2);
   return `${lead?`<span class="mute">${lead}</span>`:''}<span class="${p>=0?'pos':'neg'}">${p>=0?'Profit':'Loss'} <b>${signed(p)}</b></span><span class="mute">· <b class="${ps>=0?'pos':'neg'}">${signed(ps)}</b> if you pay ${money(sh.cost)} shipping</span>`}
-function ocardHTML(o){if(o.kind==='hold'){const c=o.cds[0];return `<div class="ocard"><div class="otop">${slabBtn(c,'me')}<div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">Hold request</span><b style="font-size:14.5px">${esc(o.party.name)} wants you to hold your ${esc(c.name)}</b><span class="who">For 15 minutes at ${money(c.price)} · nobody else can buy it while it’s held</span></div></div><div class="act"><button class="btn gold sm" data-act="ofHold" data-id="${o.id}">Hold it 15 min</button><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Not now</button></div></div>`}
+function ocardHTML(o){if(o.kind==='trade'){const give=o.give||[],cash=+o.amt||0,gv=o.cds.reduce((t,c)=>t+(+c.price||0),0),yv=give.reduce((t,c)=>t+(+c.mkt||+c.price||0),0),cost=o.cds.reduce((t,c)=>t+(+c.cost||0),0);
+  return `<div class="ocard"><div class="otop"><div class="bstack">${o.cds.slice(0,3).map(c=>slab(c)).join('')}</div><div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">Trade offer · ${esc(o.party.name)}</span><b style="font-size:14.5px">They want your ${esc(o.cds.map(c=>c.name).join(', '))}</b><span class="who">Your ask ${money(gv)} · you paid ${money(cost)}</span></div></div>
+   <div class="tgive"><b>You’d get</b>${give.map(c=>`<span>${esc(c.name)} <span class="mute">${esc(c.grade||'')}</span> <span class="mono">${money(+c.mkt||+c.price||0)} comps</span></span>`).join('')}${cash?`<span>${cash>0?'+ '+money(cash)+' cash from them':'You add '+money(-cash)+' cash'}</span>`:''}<span class="mute">Their side ${money(yv+Math.max(cash,0))} vs your ask ${money(gv+Math.max(-cash,0))}</span></div>
+   <div class="act"><button class="btn gold sm" data-act="ofTrade" data-id="${o.id}">Accept trade</button><form data-form="ofTradeCash" data-id="${o.id}" style="display:flex;gap:6px"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Cash" aria-label="Counter: cash they add" autocomplete="off"></div><button class="btn ghost sm">Counter</button></form><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Decline</button></div></div>`}
+  if(o.kind==='hold'){const c=o.cds[0];return `<div class="ocard"><div class="otop">${slabBtn(c,'me')}<div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">Hold request</span><b style="font-size:14.5px">${esc(o.party.name)} wants you to hold your ${esc(c.name)}</b><span class="who">For 15 minutes at ${money(c.price)} · nobody else can buy it while it’s held</span></div></div><div class="act"><button class="btn gold sm" data-act="ofHold" data-id="${o.id}">Hold it 15 min</button><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Not now</button></div></div>`}
   const m=o.cds.length>1,ask=sumBy(o.cds,'price'),paid=sumBy(o.cds,'cost'),low=sumBy(o.cds,'floor');
   const others=forSale().filter(c=>!o.cds.includes(c)&&!S.offers.some(x=>x!==o&&x.cds.includes(c)));
   return `<div class="ocard"><div class="otop">${m?`<div class="bstack">${o.cds.slice(0,3).map(c=>slab(c)).join('')}</div>`:slabBtn(o.cds[0],'me')}<div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">${esc(o.via)}${m?' · bundle':''}</span><b style="font-size:14.5px">${money(o.amt)} for ${m?`${o.cds.length} of your cards`:`your ${esc(o.cds[0].name)}`}</b><span class="who">${esc(o.party.name)} (${o.party.kind==='attendee'?'collector':'dealer'}) · ask ${money(ask)} · paid ${money(paid)}${o.amt<low?' · below your lowest':''}</span>${m?`<span class="who">${esc(o.cds.map(c=>c.name).join(', '))}</span>`:''}</div></div><div class="oprofit" id="opf-${o.id}">${profitHTML(o.cds,o.amt)}</div>${o.msg?`<div class="note">${esc(o.msg)}</div>`:''}${o.pricing||o.adding?'':`<div class="oqc">${qcHTML('ofCounter',o.id,ask,o.amt,S.mine['of:'+o.id]||ask)}</div>`}
@@ -2337,7 +2384,7 @@ function ocardHTML(o){if(o.kind==='hold'){const c=o.cds[0];return `<div class="o
 const offersOn=()=>ME.offersOn!==false;
 function renderOffers(){S.offers=S.offers.filter(o=>o.cds.every(c=>!c.sold&&c.forSale));const el=$('#offers'),n=S.offers.length;
   if(!n){el.innerHTML='';S.offersOpen=false;return}
-  el.innerHTML=`<button class="odock" data-act="toggleOffers" aria-expanded="${!!S.offersOpen}"><i></i><b class="ot">${n} offer${n>1?'s':''}<em class="ol"> on your cards</em></b><span>${S.offersOpen?'Hide':'Review'}</span></button>${S.offersOpen?`<div class="olist"><div class="ohead"><span class="eyebrow">Incoming offers</span><button class="linkbtn" data-act="offersOff">Pause new offers</button></div>${(()=>{const os=S.offers.filter(o=>o.kind!=='hold');return os.length>1?`<button class="btn gold sm oall" data-act="ofAcceptAll">Accept all ${os.length} · ${money(os.reduce((t,o)=>t+o.amt,0))} for ${os.reduce((t,o)=>t+o.cds.length,0)} cards</button>`:''})()}${S.offers.map(ocardHTML).join('')}</div>`:''}`}
+  el.innerHTML=`<button class="odock" data-act="toggleOffers" aria-expanded="${!!S.offersOpen}"><i></i><b class="ot">${n} offer${n>1?'s':''}<em class="ol"> on your cards</em></b><span>${S.offersOpen?'Hide':'Review'}</span></button>${S.offersOpen?`<div class="olist"><div class="ohead"><span class="eyebrow">Incoming offers</span><button class="linkbtn" data-act="offersOff">Pause new offers</button></div>${(()=>{const os=S.offers.filter(o=>o.kind!=='hold'&&o.kind!=='trade');return os.length>1?`<button class="btn gold sm oall" data-act="ofAcceptAll">Accept all ${os.length} · ${money(os.reduce((t,o)=>t+o.amt,0))} for ${os.reduce((t,o)=>t+o.cds.length,0)} cards</button>`:''})()}${S.offers.map(ocardHTML).join('')}</div>`:''}`}
 function offerTick(){
   if(!ME||!offersOn()||!forSale().length||S.offers.length>=2||!$('#modal').hidden||(S.view==='room'&&!$('#splash').hidden))return;
   if(S.view==='room'&&player){
@@ -2491,7 +2538,7 @@ function packHTML(){const all=ME.ledger.filter(e=>e.side==='sell');if(!all.lengt
   return `<div class="panel"><div class="phead"><h2>Orders to ship <span class="mute" style="font-size:14px;font-weight:600">${todo.length}</span></h2>${done.length?`<button class="btn ghost sm" data-act="showShipped">${S.showShipped?'Hide':'Show'} shipped (${done.length})</button>`:''}</div>
    ${todo.length?todo.map(row).join(''):'<p class="mute">All packed. Nice.</p>'}${S.showShipped?done.map(row).join(''):''}</div>`}
 function renderLedger(){const f=S.ledgerF,rows=ME.ledger.filter(e=>f==='all'||e.side===f||(f==='buy'&&e.side!=='sell')),el=$('#ledger');if(!el)return;
-  el.innerHTML=rows.length?`<table class="t"><thead><tr><th>Date</th><th></th><th>Card</th><th>With</th><th>Where</th><th class="n">Price</th><th class="n">Shipping</th><th class="n">Fee</th><th class="n">Paid for it</th><th class="n">Total / P&amp;L</th><th>Status</th></tr></thead><tbody>${rows.map(e=>`<tr><td class="mono" style="white-space:nowrap">${new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td><span class="chip ${e.side==='sell'?'gold':''}">${{sell:'Sold',buy:'Bought',ticket:'Ticket',pro:'Pro plan'}[e.side]}</span></td><td><b>${esc(e.card.name)}</b><div class="mute" style="font-size:12px">${[e.card.year,e.card.set,e.card.grade].filter(Boolean).map(esc).join(' · ')}</div></td><td>${esc(e.party)}</td><td class="mute">${esc(e.where)}</td><td class="n">${money(e.price)}</td><td class="n">${e.ship?money(e.ship):'—'}</td><td class="n">${e.fee?money(e.fee):'—'}</td><td class="n">${e.side==='sell'?money(e.cost):'—'}</td><td class="n ${e.side==='sell'?(e.profit>=0?'pos':'neg'):''}">${e.side==='sell'?signed(e.profit):'−'+money(e.total)}</td><td style="white-space:nowrap">${statusOf(e)}</td></tr>`).join('')}</tbody></table>`
+  el.innerHTML=rows.length?`<table class="t"><thead><tr><th>Date</th><th></th><th>Card</th><th>With</th><th>Where</th><th class="n">Price</th><th class="n">Shipping</th><th class="n">Fee</th><th class="n">Paid for it</th><th class="n">Total / P&amp;L</th><th>Status</th></tr></thead><tbody>${rows.map(e=>`<tr><td class="mono" style="white-space:nowrap">${new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td><span class="chip ${e.side==='sell'?'gold':''}">${e.trade?(e.side==='sell'?'Traded away':'Traded for'):{sell:'Sold',buy:'Bought',ticket:'Ticket',pro:'Pro plan'}[e.side]}</span></td><td><b>${esc(e.card.name)}</b><div class="mute" style="font-size:12px">${[e.card.year,e.card.set,e.card.grade].filter(Boolean).map(esc).join(' · ')}</div></td><td>${esc(e.party)}</td><td class="mute">${esc(e.where)}</td><td class="n">${money(e.price)}</td><td class="n">${e.ship?money(e.ship):'—'}</td><td class="n">${e.fee?money(e.fee):'—'}</td><td class="n">${e.side==='sell'?money(e.cost):'—'}</td><td class="n ${e.side==='sell'?(e.profit>=0?'pos':'neg'):''}">${e.side==='sell'?signed(e.profit):'−'+money(e.total)}</td><td style="white-space:nowrap">${statusOf(e)}</td></tr>`).join('')}</tbody></table>`
    :`<div class="empty"><p>No ${f==='all'?'transactions':f==='buy'?'purchases':'sales'} yet. Buy at a show or in the marketplace, or pitch a card to a dealer.</p></div>`}
 
 /* ================= modal ================= */
@@ -2544,6 +2591,13 @@ const ACT={
   startPro:()=>{ME.premium=true;ME.style=styleOf();ME.ledger.unshift({id:'P-'+Date.now().toString(36).toUpperCase(),ts:Date.now(),side:'pro',card:{name:'Slab Row Pro',year:'',set:'Monthly plan',num:'',grade:''},party:'Slab Row',price:14.99,ship:0,fee:0,total:14.99,where:'Subscription'});save();closeModal();renderTabs();refreshView();toast('Pro is on. Design your table below.')},
   cancelPro:()=>{ME.premium=false;save();refreshView();toast('Pro canceled. Your table goes back to the standard look.')},
   style:p=>{const [k,val]=p.split('|');ME.style=styleOf();ME.style[k]=['plant','lights','rug','biz'].includes(k)?!!val:val;save();renderDesign()},
+  trGet:p=>{const [vid,cid]=p.split('|'),v=VBY[vid],T=tradeOf(v);T.get=T.get.includes(cid)?T.get.filter(x=>x!==cid):[...T.get,cid];T.msg=null;T.counter=null;renderVBody(v)},
+  trGive:p=>{const [vid,cid]=p.split('|'),v=VBY[vid],T=tradeOf(v);T.give=T.give.includes(cid)?T.give.filter(x=>x!==cid):[...T.give,cid];T.msg=null;T.counter=null;renderVBody(v)},
+  trCash:p=>{const [vid,d]=p.split('|'),v=VBY[vid],T=tradeOf(v);T.cash=+d===0?0:(+T.cash||0)+(+d);T.counter=null;renderVBody(v)},
+  trEven:vid=>{const v=VBY[vid],{T,gv,yv}=tradeParts(v);const d=gv-yv;T.cash=d>0?Math.ceil(d/5)*5:-Math.floor(-d/5)*5;T.counter=null;renderVBody(v)},
+  trSend:vid=>{const v=VBY[vid];tradeRespond(v)},
+  trTake:vid=>{const v=VBY[vid],T=tradeOf(v);if(T.counter==null)return;T.cash=T.counter;const {getC,giveC}=tradeParts(v);doTrade(v,getC,giveC,T.cash,'Done deal.')},
+  trNew:vid=>{const v=VBY[vid];S.trade[vid]={get:[],give:[],cash:0};renderVBody(v)},
   digBox:id=>openBox(id,0),
   digPrev:()=>{if(DIG){DIG.i--;renderBox()}},digNext:()=>{if(DIG){DIG.i++;renderBox()}},
   digPull:()=>{if(!DIG)return;const v=VBY[DIG.vid],c=boxCards(v)[DIG.i];if(!c)return;const d=S.deal[v.id]=S.deal[v.id]||[];if(d.includes(c.id))S.deal[v.id]=d.filter(x=>x!==c.id);else{addToDeal(v,c);if(DIG.i<boxCards(v).length-1)DIG.i++}try{renderInv(v)}catch(e){}renderBox()},
@@ -2622,6 +2676,7 @@ const ACT={
   ofAccept:id=>{const o=S.offers.find(x=>x.id===id);if(!o)return;const h=o.cds.map(holdOf).find(x=>x&&x.uid!==o.party.uid&&x.name!==o.party.name);if(h)return toast(`That card is on hold for ${h.name} until ${hclock(h.until)}`);openSale(o.party,o.cds,o.amt,{offerId:id})},
   vwHold:()=>{const v=VBY[VW.vid],c=findCard(VW.vid,VW.cid);askHold(v,c)},
   ofHold:id=>toast('Hold requests come from real people'),
+  ofTrade:id=>toast('Trade offers come from real people'),
   ofAcceptAll:()=>acceptAllModal(),confirmAll,
   ofAdd:id=>{const o=S.offers.find(x=>x.id===id);if(!o)return;o.adding=!o.adding;o.addSel=[];renderOffers()},
   ofAddPick:p=>{const [id,cid]=p.split('|'),o=S.offers.find(x=>x.id===id);if(!o)return;o.addSel=o.addSel||[];const i=o.addSel.indexOf(cid);i<0?o.addSel.push(cid):o.addSel.splice(i,1);renderOffers()},

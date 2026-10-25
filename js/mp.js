@@ -262,8 +262,18 @@ FORMS.lotOffer=f=>{const v=VBY[f.dataset.id];if(!v||!v.real)return _lotOffer(f);
   newRow({kind:'offer',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:cs.map(cardRef),amount:amt}).then(r=>{if(!r)return;S.lot[v.id]={msg:`Lot offer of ${money(amt)} sent to ${v.person||v.name}. You’ll see their answer here.`};renderLot(v)})};
 const _vwHold=ACT.vwHold;ACT.vwHold=async()=>{const v=VBY[VW.vid],c=findCard(VW.vid,VW.cid);if(!v||!v.real)return _vwHold();if(!c||c.sold)return;
   const r=await newRow({kind:'hold',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:[cardRef(c)],amount:+c.price});if(r)toast(`Asked ${v.person||v.name} to hold it for 15 minutes`)};
+ACT.ofTrade=id=>{const o=S.offers.find(x=>x.id===id);if(!o||!o.real)return;if(o.cds.some(c=>!c||c.sold))return toast('One of those cards already sold');
+  /* seller perspective: I give o.cds, I get o.give, cash from them = +amount, so my cash = -amount */
+  bookTrade(o.party,o.cds,o.give,-(+o.real.amount||0));S.offers=S.offers.filter(x=>x!==o);renderOffers();try{syncBooth(VBY.me)}catch(e){}refreshView&&refreshView();
+  setRow(o.real.id,{status:'completed',by_user:MP.uid});toast(`Trade done with ${o.real.buyer_name}. Your cards to ship are on your packing list.`)};
+FORMS.ofTradeCash=f=>{const o=S.offers.find(x=>x.id===f.dataset.id);if(!o||!o.real)return;const v=parseFloat(String(f.amt.value).replace(/[$,]/g,''));if(!(v>=0||v<0))return toast('Enter a cash amount');setRow(o.real.id,{status:'countered',amount:v,by_user:MP.uid});S.offers=S.offers.filter(x=>x!==o);renderOffers();toast(`Countered: ${v>0?money(v)+' cash from them':v<0?money(-v)+' cash from you':'straight up'}`)};
 ACT.ofHold=id=>{const o=S.offers.find(x=>x.id===id);if(!o||!o.real)return;const until=Date.now()+15*60000;o.cds.forEach(c=>c.hold={uid:o.real.buyer,name:o.real.buyer_name,until});save(true);try{syncBooth(VBY.me)}catch(e){}
   setRow(o.real.id,{status:'accepted',by_user:MP.uid,note:String(until)});S.offers=S.offers.filter(x=>x!==o);renderOffers();toast(`Holding it for ${o.real.buyer_name} until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`)};
+const _trTake=ACT.trTake;ACT.trTake=vid=>{const v=VBY[vid];if(!v||!v.real)return _trTake(vid);const T=tradeOf(v);if(!T.counterRow)return;const id=T.counterRow;T.counterRow=null;T.msg='Accepted. Waiting for them to finish the trade…';T.counter=null;renderVBody(v);
+  NET.updateOffer(id,{status:'accepted',by_user:MP.uid}).then(r=>processRow(r)).catch(e=>toast('Couldn’t update that: '+NET.friendly(e)))};
+const _trSend=ACT.trSend;ACT.trSend=async vid=>{const v=VBY[vid];if(!v||!v.real)return _trSend(vid);const {T,getC,giveC}=tradeParts(v),c=+T.cash||0;if(!getC.length)return toast('Pick something from their table first');
+  const r=await newRow({kind:'trade',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:getC.map(cardRef),amount:c,ship:{give:giveC.map(x=>({...cardRef(x),grade:x.grade,cost:x.cost}))}});
+  if(!r)return;giveC.forEach(x=>x.pending=true);T.msg=`Trade sent to ${v.person||v.name}. Their answer pops up here and on your screen.`;T.counter=null;MP.trades=MP.trades||{};MP.trades[r.id]=vid;renderVBody(v);toast('Trade proposal sent')};
 const _doPitch=doPitch;
 window.doPitch=function(v,c,k){if(!v.real)return _doPitch(v,c,k);S.pitch[k]={msg:`Pitched to ${v.person||v.name} at ${money(c.price)}. Their answer pops up when they respond.`,wait:true};
   newRow({kind:'pitch',buyer:v.uid,seller:MP.uid,buyer_name:v.person||v.name,seller_name:ME.name,cards:[cardRef(c)],amount:c.price})};
@@ -287,6 +297,7 @@ function fulfill(r){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCa
   setRow(r.id,{status:'completed',by_user:MP.uid,ship:{id:ship.id,payer,cost:ship.cost,addr:r.ship?.addr||''}})}
 function dockAdd(r){const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});
   const party=realParty(r.buyer,r.buyer_name);S.offers=S.offers.filter(o=>o.id!=='r_'+r.id);
+  if(r.kind==='trade'){const give=(r.ship&&r.ship.give)||[];S.offers.unshift({id:'r_'+r.id,real:r,party,cds,cd:cds[0],amt:+r.amount,max:1e12,tries:0,kind:'trade',give,via:'Trade offer'});S.offersOpen=true;renderOffers();return toast(`${r.buyer_name} wants to trade for your ${cds.length>1?cds.length+' cards':cds[0].name}`)}
   if(r.kind==='hold'){S.offers.unshift({id:'r_'+r.id,real:r,party,cds,cd:cds[0],amt:+r.amount,max:1e12,tries:0,kind:'hold',via:'Hold request'});S.offersOpen=true;renderOffers();return toast(`${r.buyer_name} asked you to hold your ${cds[0].name}`)}
   S.offers.unshift({id:'r_'+r.id,real:r,party,cds,cd:cds[0],amt:+r.amount,max:1e12,tries:0,via:r.kind==='pitch'?`${r.buyer_name} countered your pitch`:`From ${r.buyer_name} · real person`,msg:r.note||''});
   S.offersOpen=true;renderOffers();toast(`${r.buyer_name} offered ${money(+r.amount)} for ${cds.length>1?cds.length+' of your cards':'your '+cds[0].name}`)}
@@ -315,11 +326,19 @@ FORMS.rCounter=f=>{const id=f.dataset.id,amt=Math.round(parseFloat(f.amt.value.r
 function processRow(r,initial){if(!r||!r.id||!MP.uid)return;const prev=MP.rows[r.id];if(prev&&prev.updated_at&&r.updated_at&&r.updated_at<prev.updated_at)return;if(prev&&['completed','declined','cancelled'].includes(prev.status)&&!['completed','declined','cancelled'].includes(r.status))return;MP.rows[r.id]=r;const key=r.id+'|'+r.status+'|'+r.amount+'|'+r.received;if(MP.seen.has(key))return;MP.seen.add(key);
   const seller=r.seller===MP.uid,buyer=r.buyer===MP.uid,mine=r.by_user===MP.uid,old=Date.now()-Date.parse(r.updated_at||r.created_at)>7*864e5;
   if(seller){if(r.status==='pending'&&r.kind==='order')return fulfill(r);
+    if(r.status==='accepted'&&!mine&&r.kind==='trade'){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});bookTrade(realParty(r.buyer,r.buyer_name),cds,(r.ship&&r.ship.give)||[],-(+r.amount||0));try{syncBooth(VBY.me)}catch(e){}refreshView&&refreshView();setRow(r.id,{status:'completed',by_user:MP.uid});return toast(`Trade done with ${r.buyer_name}`)}
     if(r.status==='accepted'&&!mine)return fulfill(r);
     if(old)return;
-    if((r.status==='pending'&&(r.kind==='offer'||r.kind==='hold'))||(r.status==='countered'&&!mine))return dockAdd(r);
+    if((r.status==='pending'&&(r.kind==='offer'||r.kind==='hold'||r.kind==='trade'))||(r.status==='countered'&&!mine))return dockAdd(r);
     if(r.status==='declined'&&!mine){dockRemove(r);if(!initial)toast(`${r.buyer_name} passed on your ${r.kind==='pitch'?'pitch':'counter'}`);return}
     if(r.status==='cancelled'||r.status==='completed')return dockRemove(r)}
+  if(buyer&&r.kind==='trade'){const v=VBY['u_'+r.seller];
+    if(r.status==='completed'&&!r.received){if(MP.got&&MP.got.has(r.id))return;(MP.got=MP.got||new Set()).add(r.id);const ids=((r.ship&&r.ship.give)||[]).map(x=>x.id),give=ME.inv.filter(c=>ids.includes(c.id)&&!c.sold);
+      bookTrade(v||{name:r.seller_name,city:''},give,r.cards,+r.amount);if(v){v.inv.forEach(c=>{if(r.cards.some(x=>x.id===c.id))c.sold=true});const T=tradeOf(v);T.done=`${r.seller_name} accepted. You got ${r.cards.map(c=>c.name).join(', ')}. Your cards to ship are on your packing list.`;T.msg=null;try{renderInv(v);renderVBody(v)}catch(e){}}
+      refreshView&&refreshView();toast(`${r.seller_name} accepted your trade`);NET.updateOffer(r.id,{received:true}).catch(()=>{});return}
+    if(r.status==='declined'&&!mine&&!initial){const ids=((r.ship&&r.ship.give)||[]).map(x=>x.id);ME.inv.forEach(c=>{if(ids.includes(c.id))c.pending=false});if(v){const T=tradeOf(v);T.msg=`${r.seller_name} passed on that trade${r.note?': '+r.note:''}.`;try{renderVBody(v)}catch(e){}}toast(`${r.seller_name} passed on your trade`)}
+    if(r.status==='countered'&&!mine&&!initial){if(v){const T=tradeOf(v);T.counter=+r.amount;T.msg=`${r.seller_name} would do it for ${+r.amount>0?money(+r.amount)+' cash from you':+r.amount<0?money(-r.amount)+' cash to you':'straight up'}.`;T.counterRow=r.id;try{renderVBody(v)}catch(e){}}toast(`${r.seller_name} countered your trade`)}
+    return}
   if(buyer&&r.kind==='hold'){if(initial||mine)return;const v=VBY['u_'+r.seller],until=+(r.note||0);
     if(r.status==='accepted'){if(v)v.inv.forEach(c=>{if(r.cards.some(x=>x.id===c.id))c.hold={uid:MP.uid,name:ME.name,until}});if(v)chatTo(v,{f:'v',t:`${r.seller_name}: I’ll hold it for you until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}.`});toast(`${r.seller_name} is holding it for you until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`);rerenderOpen()}
     else if(r.status==='declined')toast(`${r.seller_name} can’t hold that one right now`);return}
