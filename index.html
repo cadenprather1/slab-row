@@ -2151,7 +2151,7 @@ function renderCheckout(){
    <button class="btn gold" data-act="placeOrder">Place order · ${money(tot+shipBuyer)}</button><p class="mute" style="font-size:12px">Demo checkout. No card is charged.</p></div>`);
 }
 function genTrk(){return ('9400111899'+Array.from({length:12},()=>Math.floor(Math.random()*10)).join('')).replace(/(\d{4})(?=\d)/g,'$1 ')}
-function placeOrder(){
+function placeOrder(){if(!CO||CO.done)return;if(CO.cs.some(c=>c.sold)){CO.done=true;closeModal();return toast('Something in your order already sold')}CO.done=true;
   const {v,cs,tot,opts}=CO;const o=opts.find(x=>x.id===CO.ship);const addr=($('#addr')?.value||CO.addr).trim();const no='SR-'+(10400+Math.floor(Math.random()*9000));
   const shipPaid=CO.payer==='buyer'?o.cost:0,trk=genTrk();let left=shipPaid;
   cs.forEach((c,i)=>{const share=i===cs.length-1?+left.toFixed(2):Math.round(shipPaid*c.price/tot*100)/100;left-=share;const total=+(c.price+share).toFixed(2);
@@ -2199,7 +2199,7 @@ function completeSale(party,cds,price,ship,payer){cds=[].concat(cds);
   if(cds.some(c=>c.id===ME.promo))updatePromo();
   save();renderTabs();if(S.view==='room')syncBooth(VBY.me);return {L,profit,fee,shipCost,no};
 }
-function confirmSale(){
+function confirmSale(){if(!SO||SO.done)return;if(SO.cds.some(c=>c.sold)){SO.done=true;closeModal();return toast('That card already sold')}SO.done=true;
   const {party,cds,price,opts}=SO,o=opts.find(x=>x.id===SO.ship),r=completeSale(party,cds,price,o,SO.payer),n=cds.length;
   if(SO.pitchKey)delete S.pitch[SO.pitchKey];if(SO.bundleV)delete S.bundle[SO.bundleV];botDone(S.offers.find(x=>x.id===SO.offerId),n>1?'Pleasure! Can’t wait to get these.':'Pleasure doing business!');S.offers=S.offers.filter(x=>x.id!==SO.offerId);renderOffers();
   vendorSpeak(party,n>1?'Pleasure! Ship the stack over.':'Pleasure! Ship it over.');

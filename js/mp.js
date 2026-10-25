@@ -267,7 +267,7 @@ const _doBundle=doBundle;
 window.doBundle=function(v,cs,amt){if(!v.real)return _doBundle(v,cs,amt);S.bundle[v.id]={ids:cs.map(c=>c.id),wait:true,msg:`Bundle of ${cs.length} pitched to ${v.person||v.name} at ${money(amt)}. Their answer pops up when they respond.`};
   newRow({kind:'pitch',buyer:v.uid,seller:MP.uid,buyer_name:v.person||v.name,seller_name:ME.name,cards:cs.map(cardRef),amount:amt})};
 const _placeOrder=placeOrder;
-window.placeOrder=ACT.placeOrder=async function(){const {v,cs,tot,opts}=CO;if(!v.real)return _placeOrder();
+window.placeOrder=ACT.placeOrder=async function(){if(!CO||CO.done)return;const {v,cs,tot,opts}=CO;if(!v.real)return _placeOrder();CO.done=true;
   const o=opts.find(x=>x.id===CO.ship),addr=($('#addr')?.value||CO.addr).trim();
   const r=await newRow({kind:'order',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:cs.map(cardRef),amount:tot,ship:{id:o.id,payer:CO.payer,cost:o.cost,addr}});if(!r)return;
   cs.forEach(c=>{c.held=false;c.pending=true});S.deal[v.id]=[];try{renderInv(v)}catch(e){}
@@ -321,7 +321,7 @@ function processRow(r,initial){if(!r||!r.id||!MP.uid)return;const prev=MP.rows[r
     if(r.status==='declined'&&!mine&&!initial){const v=VBY['u_'+r.seller];if(v){v.inv.forEach(c=>{if(r.cards.some(x=>x.id===c.id))c.pending=false});chatTo(v,{f:'sys',t:`${r.seller_name} declined${r.note?': '+r.note:''}.`})}toast(`${r.seller_name} declined ${r.kind==='order'?'the order':'your offer'}${r.note?' ('+r.note+')':''}`)}}}
 /* seller answers to real offers from the offers dock */
 const _confirmSale=confirmSale;
-window.confirmSale=ACT.confirmSale=function(){const o=S.offers.find(x=>x.id===SO.offerId),real=o&&o.real,ship=SO.opts.find(x=>x.id===SO.ship),payer=SO.payer;_confirmSale();
+window.confirmSale=ACT.confirmSale=function(){if(!SO||SO.done)return;const o=S.offers.find(x=>x.id===SO.offerId),real=o&&o.real,ship=SO.opts.find(x=>x.id===SO.ship),payer=SO.payer;_confirmSale();
   if(real)setRow(real.id,{status:'completed',by_user:MP.uid,amount:SO.price,ship:{id:ship.id,payer,cost:ship.cost}})};
 const _confirmAll=confirmAll;
 window.confirmAll=ACT.confirmAll=function(){const rows=(S.allRows||[]).filter(r=>r.o.real).map(r=>({row:r.o.real,ship:r.ship,amt:r.o.amt}));_confirmAll();
@@ -480,7 +480,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState!==
 function authHook(){const p=$('.authcard .mute');if(p&&!$('#authOnl'))p.insertAdjacentHTML('afterend','<div id="authOnl" hidden><span class="onl onla"><i></i><span></span></span></div>');watchLobby();paintOnline();startFeed()}
 const _rs2=window.renderShows;window.renderShows=function(){_rs2();paintShowCounts();startFeed()};
 const _authForm=FORMS.authForm;FORMS.authForm=async f=>{const signup=authMode==='signup',name=(f.name?.value||'').trim();await _authForm(f);if(signup&&MP.uid)NET.addActivity('join',{name:ME?.name||name}).catch(()=>{})};
-const _cs2=window.confirmSale;window.confirmSale=ACT.confirmSale=function(){const o=S.offers.find(x=>x.id===SO.offerId),real=o&&o.real,price=SO.price,cds=o?o.cds.slice():[];_cs2();if(real)logSale(real.buyer_name,cds,price)};
+const _cs2=window.confirmSale;window.confirmSale=ACT.confirmSale=function(){if(!SO||SO.done)return;const o=S.offers.find(x=>x.id===SO.offerId),real=o&&o.real,price=SO.price,cds=o?o.cds.slice():[];_cs2();if(real)logSale(real.buyer_name,cds,price)};
 const _ca2=window.confirmAll;window.confirmAll=ACT.confirmAll=function(){const rows=(S.allRows||[]).filter(r=>r.o.real).map(r=>({b:r.o.real.buyer_name,cds:r.o.cds.slice(),amt:r.o.amt}));_ca2();rows.forEach(x=>logSale(x.b,x.cds,x.amt))};
 
 /* ================= start ================= */
