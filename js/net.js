@@ -49,18 +49,21 @@
         ch.on('postgres_changes',{event:'*',schema:'public',table:'offers',filter:`buyer=eq.${uid}`},p=>cb(p.new&&p.new.id?p.new:p.old));
         ch.on('postgres_changes',{event:'*',schema:'public',table:'offers',filter:`seller=eq.${uid}`},p=>cb(p.new&&p.new.id?p.new:p.old));
         ch.subscribe();return ()=>sb.removeChannel(ch)},
+      async activity(limit){return ok(await sb.from('activity').select('*').order('created_at',{ascending:false}).limit(limit||40))},
+      async addActivity(kind,data){ok(await sb.from('activity').insert({kind,data}))},
+      onActivity(cb){const ch=sb.channel('activity-feed');ch.on('postgres_changes',{event:'INSERT',schema:'public',table:'activity'},p=>p.new&&cb(p.new));ch.subscribe();return ()=>sb.removeChannel(ch)},
       onBooths(show,cb){const ch=sb.channel('booths-'+show);ch.on('postgres_changes',{event:'*',schema:'public',table:'booths',filter:`show_key=eq.${show}`},()=>cb());ch.subscribe();return ()=>sb.removeChannel(ch)},
       async uploadPhoto(uid,blob){const path=`${uid}/${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}.jpg`;
         const r=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg',cacheControl:'31536000',upsert:false});if(r.error)throw r.error;return path},
       photoURL(path){return sb.storage.from('photos').getPublicUrl(path).data.publicUrl},
       async deletePhoto(path){try{await sb.storage.from('photos').remove([path])}catch(e){}},
       channel(name,presence,h){
-        const ch=sb.channel(name,{config:{presence:{key:presence.uid},broadcast:{self:false,ack:false}}});
+        const ch=sb.channel(name,{config:{presence:{key:presence?presence.uid:''},broadcast:{self:false,ack:false}}});
         ch.on('presence',{event:'sync'},()=>{const st=ch.presenceState();h.sync&&h.sync(Object.values(st).map(a=>a[a.length-1]).filter(Boolean))});
         EVENTS.forEach(ev=>ch.on('broadcast',{event:ev},m=>h.msg&&h.msg(ev,m.payload)));
         let ready=false,state={...presence};
-        ch.subscribe(st=>{if(st==='SUBSCRIBED'){ready=true;ch.track(state)}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){h.error&&h.error(st)}});
-        return {send(ev,p){if(ready)ch.send({type:'broadcast',event:ev,payload:p})},track(p){state={...state,...p};if(ready)ch.track(state)},leave(){try{ch.untrack()}catch(e){}sb.removeChannel(ch)}}}
+        ch.subscribe(st=>{if(st==='SUBSCRIBED'){ready=true;if(presence)ch.track(state)}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){h.error&&h.error(st)}});
+        return {send(ev,p){if(ready)ch.send({type:'broadcast',event:ev,payload:p})},track(p){if(!presence)return;state={...state,...p};if(ready)ch.track(state)},leave(){try{if(presence)ch.untrack()}catch(e){}sb.removeChannel(ch)}}}
     }}
 
   /* ---------------- Local (tests / no server) ---------------- */
@@ -101,11 +104,14 @@
         const d=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob)});try{localStorage.setItem('L:ph:'+path,d)}catch(e){throw new Error('this browser is out of room for photos')}return path},
       photoURL(path){return localStorage.getItem('L:ph:'+path)||''},
       async deletePhoto(path){localStorage.removeItem('L:ph:'+path)},
-      channel(name,presence,h){const me=presence.uid,peers={};let state={...presence};
+      async activity(limit){return T('activity').slice(-(limit||40)).reverse()},
+      async addActivity(kind,data){const s=sess();const a=T('activity');const row={id:a.length+1,kind,actor:s&&s.uid,data,created_at:new Date().toISOString()};a.push(row);W('activity',a);dbEvent('activity',row)},
+      onActivity(cb){const f=d=>{if(d.type==='db'&&d.table==='activity')cb(d.row)};subs.add(f);return ()=>subs.delete(f)},
+      channel(name,presence,h){const me=presence?presence.uid:'w'+Math.random().toString(36).slice(2),peers={};let state=presence?{...presence}:null;
         const f=d=>{if(d.ch!==name||d.from===me)return;if(d.type==='pres'){peers[d.from]={st:d.st,t:Date.now()};push()}else if(d.type==='bye'){delete peers[d.from];push()}else if(d.type==='msg')h.msg&&h.msg(d.ev,d.p)};
-        const push=()=>{const now=Date.now();Object.keys(peers).forEach(k=>{if(now-peers[k].t>12000)delete peers[k]});h.sync&&h.sync([state,...Object.values(peers).map(p=>p.st)])};
-        subs.add(f);const beat=()=>bc.postMessage({ch:name,type:'pres',from:me,st:state});beat();const iv=setInterval(()=>{beat();push()},1000);setTimeout(push,50);
-        return {send(ev,p){bc.postMessage({ch:name,type:'msg',from:me,ev,p})},track(p){state={...state,...p};beat();push()},leave(){clearInterval(iv);subs.delete(f);bc.postMessage({ch:name,type:'bye',from:me})}}}
+        const push=()=>{const now=Date.now();Object.keys(peers).forEach(k=>{if(now-peers[k].t>12000)delete peers[k]});h.sync&&h.sync([...(state?[state]:[]),...Object.values(peers).map(p=>p.st)])};
+        subs.add(f);const beat=()=>{if(state)bc.postMessage({ch:name,type:'pres',from:me,st:state})};beat();const iv=setInterval(()=>{beat();push()},1000);setTimeout(push,50);
+        return {send(ev,p){bc.postMessage({ch:name,type:'msg',from:me,ev,p})},track(p){if(!state)return;state={...state,...p};beat();push()},leave(){clearInterval(iv);subs.delete(f);if(state)bc.postMessage({ch:name,type:'bye',from:me})}}}
     }}
 
   const wantLocal=/[?&]local\b/.test(location.search)||!cfg.supabaseUrl||!cfg.supabaseKey||!window.supabase;

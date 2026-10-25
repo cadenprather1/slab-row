@@ -139,3 +139,20 @@ create policy "photos delete own" on storage.objects for delete to authenticated
 
 -- Avatar + booth looks (added later; safe to re-run)
 alter table public.profiles add column if not exists look jsonb;
+
+-- Public activity feed for the home-screen pop-ups: sign-ups, new shows, notable sales (safe to re-run)
+create table if not exists public.activity (
+  id bigint generated always as identity primary key,
+  kind text not null,
+  actor uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  data jsonb not null default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+alter table public.activity enable row level security;
+drop policy if exists "activity read" on public.activity;
+create policy "activity read" on public.activity for select to anon, authenticated using (true);
+drop policy if exists "activity insert own" on public.activity;
+create policy "activity insert own" on public.activity for insert to authenticated with check (actor = auth.uid() and kind in ('join','show','sale'));
+do $$ begin
+  begin alter publication supabase_realtime add table public.activity; exception when duplicate_object then null; end;
+end $$;

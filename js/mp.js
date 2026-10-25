@@ -47,7 +47,7 @@ function renderAuth(err){S.view='auth';$('#topbar').hidden=true;
    <div class="autherr" id="autherr">${esc(err||'')}</div>
    <button class="btn gold" id="authgo">${authMode==='signup'?'Create account':'Sign in'}</button>
    <p class="demo">Demo mode: no real money ever moves. Everything else is live: shows, tables, offers, sales and voice calls between real people.</p></form></div>`;
-  setTimeout(()=>$('#app input')?.focus(),30)}
+  setTimeout(()=>$('#app input')?.focus(),30);try{authHook()}catch(e){console.error(e)}}
 FORMS.authForm=async f=>{const d=Object.fromEntries(new FormData(f)),err=$('#autherr'),b=$('#authgo');err.textContent='';
   if(!d.email||!d.pw)return err.textContent='Enter your email and password.';if(authMode==='signup'&&!(d.name||'').trim())return err.textContent='Pick a display name.';
   b.disabled=true;b.textContent=authMode==='signup'?'Creating…':'Signing in…';
@@ -148,7 +148,7 @@ FORMS.createShow=async f=>{const d=Object.fromEntries(new FormData(f));if(!(d.na
   const st=d.start?new Date(d.start):new Date(),en=new Date(st.getTime()+(+d.hours||3)*3600e3),num=x=>Math.max(0,parseFloat(String(x||'0').replace(/[$,]/g,''))||0);
   f.querySelector('button').disabled=true;
   try{const r=await NET.createShow({host:MP.uid,host_name:ME.name,name:d.name.trim(),tagline:(d.tag||'').trim(),starts_at:st.toISOString(),ends_at:en.toISOString(),general_price:num(d.gp),early_price:num(d.ep),crowd:!!d.crowd});
-    ME.tickets=ME.tickets||{};ME.tickets['s_'+r.id]={tier:'early',code:'HOST',checkedIn:true};save();closeModal();await refreshShows();renderShows();toast(`${r.name} is up. Share the site link and tell friends to look for it.`)}
+    ME.tickets=ME.tickets||{};ME.tickets['s_'+r.id]={tier:'early',code:'HOST',checkedIn:true};save();closeModal();NET.addActivity('show',{host:ME.name,name:r.name}).catch(()=>{});await refreshShows();renderShows();toast(`${r.name} is up. Share the site link and tell friends to look for it.`)}
   catch(e){f.querySelector('button').disabled=false;toast('Couldn’t create the show: '+NET.friendly(e))}};
 ACT.delShow=async(id,b)=>{if(!b.dataset.armed){b.dataset.armed=1;b.textContent='Confirm delete';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='Delete'}},3000);return}
   try{await NET.deleteShow(id);await refreshShows();renderShows();toast('Show deleted')}catch(e){toast('Couldn’t delete: '+NET.friendly(e))}};
@@ -199,7 +199,7 @@ const _buildBooth=buildBooth;
 window.buildBooth=function(v,x,z){_buildBooth(v,x,z);const b=booths[booths.length-1];if(b&&b.v.real){b.vendorAv.visible=false;if(b.served)b.served.visible=false}};
 
 /* ================= live room: see each other ================= */
-function joinLobby(){MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:null},{sync:list=>{MP.online={};list.forEach(p=>{if(p&&p.uid&&p.uid!==MP.uid)MP.online[p.uid]=p})}})}
+
 function joinRoom(key){leaveRoom();MP.roomKey=key;
   MP.room=NET.channel('room:'+key,{uid:MP.uid,name:ME.name,role:ME.role,color:ME.color,op:false,look:lookOf(),bstyle:ME.role==='vendor'?styleOf():null},{sync:onSync,msg:onMsg,error:()=>toast('Live connection is having trouble. Retrying…')});
   MP.lobby&&MP.lobby.track({show:key,name:ME.name});MP.unsub.push(MP.unbooth=NET.onBooths(key,()=>refreshBoothsLive()));updateWho()}
@@ -276,7 +276,7 @@ MP.done=new Set();
 function fulfill(r){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});
   const party=realParty(r.buyer,r.buyer_name),opts=shipFor(cds,+r.amount),ship=opts.find(o=>o.id===r.ship?.id)||opts.find(o=>o.id===(+r.amount>=500?'pri':'bmwt'))||opts[0],payer=r.ship?.payer||'buyer';
   const res=completeSale(party,cds,+r.amount,ship,payer);if(Array.isArray(party.inv))party.inv=party.inv.filter(c=>!cds.some(x=>x.id===c.id&&c.owner===undefined));
-  S.offers=S.offers.filter(o=>o.id!=='r_'+r.id);renderOffers();rerenderOpen();refreshView();
+  S.offers=S.offers.filter(o=>o.id!=='r_'+r.id);renderOffers();rerenderOpen();refreshView();try{logSale(r.buyer_name,cds,+r.amount)}catch(e){}
   toast(`Sold to ${r.buyer_name}: ${cds.length} card${cds.length>1?'s':''} for ${money(+r.amount)} · ${res.profit>=0?'profit':'loss'} ${signed(res.profit)}. It’s on your packing list.`);
   setRow(r.id,{status:'completed',by_user:MP.uid,ship:{id:ship.id,payer,cost:ship.cost,addr:r.ship?.addr||''}})}
 function dockAdd(r){const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});
@@ -415,6 +415,71 @@ const _boothVoice=ACT.boothVoice;ACT.boothVoice=id=>{const v=VBY[id];if(v&&v.rea
 setInterval(()=>{for(const P of Object.values(RTC.peers)){if(P.an){P.an.getByteTimeDomainData(P.buf);let s=0;for(let i=0;i<P.buf.length;i++){const x=(P.buf[i]-128)/128;s+=x*x}P.level=Math.sqrt(s/P.buf.length)}else P.level=0}
   const c=realCall();if(c&&c.state==='live')callTickUI(c)},150);
 document.addEventListener('pointerdown',()=>{for(const P of Object.values(RTC.peers)){if(P.audio&&P.audio.paused&&P.audio.srcObject)P.audio.play().catch(()=>{})}},true);
+
+
+/* ================= who's online + activity pop-ups ================= */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.onl{display:inline-flex;align-items:center;gap:7px;font-family:var(--f-body,Figtree),sans-serif;font-style:normal;text-transform:none;font-weight:700;font-size:13px;color:var(--ink);background:rgba(60,207,126,.1);border:1px solid rgba(60,207,126,.35);border-radius:999px;padding:4px 11px;cursor:pointer;white-space:nowrap;margin-left:6px}
+.onl i{width:8px;height:8px;border-radius:50%;background:var(--go);box-shadow:0 0 0 0 rgba(60,207,126,.6);animation:onlp 2s infinite;margin:0!important}
+@keyframes onlp{0%{box-shadow:0 0 0 0 rgba(60,207,126,.55)}70%{box-shadow:0 0 0 7px rgba(60,207,126,0)}100%{box-shadow:0 0 0 0 rgba(60,207,126,0)}}
+.onl.onla{margin:0;cursor:default}
+.onl[hidden],#authOnl[hidden]{display:none!important}
+.realn{display:inline-flex;align-items:center;gap:6px;color:var(--go)}.realn i{width:7px;height:7px;border-radius:50%;background:var(--go)}
+#feedPop{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;width:min(340px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55);padding:11px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;transform:translateY(16px);opacity:0;transition:transform .35s ease,opacity .35s ease;pointer-events:none}
+#feedPop.on{transform:none;opacity:1;pointer-events:auto}
+#feedPop .fa{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;flex:none}
+#feedPop b{display:block;font-size:13.5px;line-height:1.3}#feedPop .fs{font-size:12px;color:var(--mute);margin-top:2px;display:block}
+#feedPop .fs em{font-style:normal;color:var(--go);font-weight:700}
+#feedPop .slab{transform:scale(.8);transform-origin:center}
+body.hasdock #feedPop{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+</style>`);
+document.body.insertAdjacentHTML('beforeend','<div id="feedPop" role="status" aria-live="polite"></div>');
+const LIVE=window.LIVE={count:0,list:[],feed:[],shown:new Set(),q:[],t:null,watch:null};
+try{(JSON.parse(sessionStorage.getItem('sr:seen')||'[]')).forEach(x=>LIVE.shown.add(x))}catch(e){}
+function lobbySync(list){const by={};list.forEach(p=>{if(p&&p.uid)by[p.uid]=p});MP.online={};Object.values(by).forEach(p=>{if(p.uid!==MP.uid)MP.online[p.uid]=p});LIVE.list=Object.values(by);LIVE.count=LIVE.list.length;paintOnline()}
+function onlineText(n){return `${n.toLocaleString()} ${n===1?'user':'users'} online`}
+function paintOnline(){const n=LIVE.count;let c=$('#onl');const brand=$('#topbar .brand');if(!c&&brand){brand.insertAdjacentHTML('beforeend','<button class="onl" id="onl" data-act="whoOnline"><i></i><span></span></button>');c=$('#onl')}
+  if(c){c.hidden=!n;c.querySelector('span').textContent=onlineText(n)}const a=$('#authOnl');if(a){a.hidden=!n;a.querySelector('.onl>span').textContent=n?`${onlineText(n)} right now`:''}
+  if(S.view==='shows')paintShowCounts()}
+function inShow(key){return LIVE.list.filter(p=>p.show===key).length}
+function paintShowCounts(){document.querySelectorAll('.shows article').forEach(a=>{const b=a.querySelector('[data-id]');const s=b&&SHOWS.find(x=>x.id===b.dataset.id);if(!s)return;const n=inShow(s.id),f=a.querySelector('.facts');if(!f)return;let el=f.querySelector('.realn');
+    if(!n){el&&el.remove();return}if(!el){f.insertAdjacentHTML('beforeend','<span class="realn"><i></i><span></span></span>');el=f.querySelector('.realn')}el.lastChild.textContent=`${n} real ${n===1?'person':'people'} inside`});
+  const hb=$('.hostbar .mute');if(hb){const live=SHOWS.filter(s=>s.db&&s.live).length;hb.textContent=`${live} live show${live===1?'':'s'} made by people on Slab Row · ${onlineText(LIVE.count)}`}}
+ACT.whoOnline=()=>{const ps=LIVE.list.slice().sort((a,b)=>(b.uid===MP.uid)-(a.uid===MP.uid));const where=p=>{if(!p.show)return 'Browsing';const s=SHOWS.find(x=>x.id===p.show);return s?`At ${s.name}`:'At a show'};
+  openModal(`<div class="sec"><span class="eyebrow">Live right now</span><h2>${onlineText(ps.length)}</h2><p class="mute" style="margin:0 0 10px">Real signed-in people only. The crowd you see walking around at shows is extra.</p>${ps.map(p=>`<div class="realrow"><div class="vava" style="background:${MP.profiles[p.uid]?.color||p.color||'#3db5ff'};width:34px;height:34px;font-size:13px">${initials(p.name||'?')}</div><div class="who"><b>${esc(p.name||'Collector')}${p.uid===MP.uid?' (you)':''}</b><span>${esc(where(p))}</span></div>${p.show&&p.uid!==MP.uid&&SHOWS.find(x=>x.id===p.show)?`<button class="btn ghost sm" data-act="enter" data-id="${p.show}">Join them</button>`:''}</div>`).join('')}</div>`)};
+/* listen-only presence before sign-in, so the sign-in screen shows the real count */
+function watchLobby(){if(LIVE.watch||MP.lobby)return;try{LIVE.watch=NET.channel('lobby',null,{sync:lobbySync})}catch(e){}}
+window.joinLobby=function(){if(LIVE.watch){try{LIVE.watch.leave()}catch(e){}LIVE.watch=null}MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:null},{sync:lobbySync})};
+/* activity feed: sign-ups, new shows, notable sales */
+function notable(amount,cards){amount=+amount||0;const tens=(cards||[]).some(c=>/\b10\b/.test(c.grade||''));return amount>=100||(tens&&amount>=40)||((cards||[]).length>=3&&amount>=150)}
+function cardLine(c){return [c.year,c.set,c.name,c.grade&&c.grade!=='Raw'?c.grade:''].filter(Boolean).join(' ')}
+function logSale(buyer,cards,amount){if(!notable(amount,cards))return;const seller=ME.role==='vendor'&&ME.table?ME.table:ME.name;
+  NET.addActivity('sale',{buyer:buyer||'Someone',seller,amount:+amount,n:cards.length,cards:cards.slice(0,3).map(c=>({name:c.name,year:c.year||'',set:c.set||'',grade:c.grade||''})),show:S.view==='room'&&showData?showData.name:null}).catch(()=>{})}
+window.logSale=logSale;
+function ago(t){const s=Math.max(0,(Date.now()-Date.parse(t))/1000);return s<60?'just now':s<3600?`${Math.floor(s/60)} min ago`:s<86400?`${Math.floor(s/3600)} hr ago`:`${Math.floor(s/86400)} d ago`}
+function feedHTML(a){const d=a.data||{},col=a.kind==='sale'?'#3db5ff':a.kind==='show'?'#ff7a2f':'#3ccf7e';
+  if(a.kind==='sale'){const c=(d.cards||[])[0]||{},one=d.n===1;return `<div class="fa" style="background:${col}">$</div><div style="min-width:0"><b>${esc(d.buyer)} picked up ${one?esc(cardLine(c)):`${d.n} cards`}</b><span class="fs"><em>${money(d.amount)}</em> from ${esc(d.seller)}${d.show?` at ${esc(d.show)}`:''} · ${ago(a.created_at)}</span></div>`}
+  if(a.kind==='show')return `<div class="fa" style="background:${col}">${initials(d.host||'?')}</div><div style="min-width:0"><b>${esc(d.host)} is hosting ${esc(d.name)}</b><span class="fs">New show on Slab Row · ${ago(a.created_at)}</span></div>`;
+  return `<div class="fa" style="background:${col}">${initials(d.name||'?')}</div><div style="min-width:0"><b>${esc(d.name)} just joined Slab Row</b><span class="fs">New account · ${ago(a.created_at)}</span></div>`}
+function feedOK(a){if(!a||!a.data)return false;if(MP.uid&&a.actor===MP.uid)return false;if(a.kind==='sale')return notable(a.data.amount,a.data.cards);return a.kind==='join'||a.kind==='show'}
+function feedView(){return (S.view==='shows'||S.view==='auth')&&$('#modal').hidden&&document.visibilityState==='visible'}
+function feedNext(){clearTimeout(LIVE.t);if(!feedView()){LIVE.t=setTimeout(feedNext,4000);return}
+  const a=LIVE.q.shift()||LIVE.feed.find(x=>!LIVE.shown.has(x.kind+x.id));if(!a){LIVE.t=setTimeout(feedNext,15000);return}
+  LIVE.shown.add(a.kind+a.id);try{sessionStorage.setItem('sr:seen',JSON.stringify([...LIVE.shown].slice(-200)))}catch(e){}
+  const el=$('#feedPop');document.body.classList.toggle('hasdock',!!$('#offers .odock'));el.innerHTML=feedHTML(a)+'<button class="chbtn" data-act="feedX" aria-label="Dismiss">×</button>';el.classList.add('on');
+  LIVE.t=setTimeout(()=>{el.classList.remove('on');LIVE.t=setTimeout(feedNext,rnd(7000,12000))},6000)}
+ACT.feedX=()=>{$('#feedPop').classList.remove('on');clearTimeout(LIVE.t);LIVE.t=setTimeout(feedNext,15000)};
+async function startFeed(){if(LIVE.started)return;LIVE.started=true;
+  try{const rows=await NET.activity(40);const wk=Date.now()-7*864e5;LIVE.feed=rows.filter(a=>feedOK(a)&&Date.parse(a.created_at)>wk)}catch(e){LIVE.feed=[]}
+  try{NET.onActivity(a=>{if(!feedOK(a))return;LIVE.feed.unshift(a);LIVE.q.push(a);if(!$('#feedPop').classList.contains('on')){clearTimeout(LIVE.t);LIVE.t=setTimeout(feedNext,600)}})}catch(e){}
+  LIVE.t=setTimeout(feedNext,2500)}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')$('#feedPop')?.classList.remove('on')});
+/* hook into the app */
+function authHook(){const p=$('.authcard .mute');if(p&&!$('#authOnl'))p.insertAdjacentHTML('afterend','<div id="authOnl" hidden><span class="onl onla"><i></i><span></span></span></div>');watchLobby();paintOnline();startFeed()}
+const _rs2=window.renderShows;window.renderShows=function(){_rs2();paintShowCounts();startFeed()};
+const _authForm=FORMS.authForm;FORMS.authForm=async f=>{const signup=authMode==='signup',name=(f.name?.value||'').trim();await _authForm(f);if(signup&&MP.uid)NET.addActivity('join',{name:ME?.name||name}).catch(()=>{})};
+const _cs2=window.confirmSale;window.confirmSale=ACT.confirmSale=function(){const o=S.offers.find(x=>x.id===SO.offerId),real=o&&o.real,price=SO.price,cds=o?o.cds.slice():[];_cs2();if(real)logSale(real.buyer_name,cds,price)};
+const _ca2=window.confirmAll;window.confirmAll=ACT.confirmAll=function(){const rows=(S.allRows||[]).filter(r=>r.o.real).map(r=>({b:r.o.real.buyer_name,cds:r.o.cds.slice(),amt:r.o.amt}));_ca2();rows.forEach(x=>logSale(x.b,x.cds,x.amt))};
 
 /* ================= start ================= */
 (async()=>{$('#topbar').hidden=true;$('#app').innerHTML='<div class="auth"><p class="mute">Loading…</p></div>';
