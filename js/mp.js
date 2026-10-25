@@ -385,9 +385,10 @@ function startPeer(uid,caller){const c=realCall();if(!c)return null;closePeer(ui
   pc.onicecandidate=e=>{if(e.candidate)sendRoom('rtc',{to:uid,call:P.call,cand:e.candidate.toJSON()})};
   pc.ontrack=e=>{const st=e.streams[0]||new MediaStream([e.track]);if(!P.audio){P.audio=new Audio();P.audio.autoplay=true;P.audio.playsInline=true}P.audio.srcObject=st;P.audio.play().catch(()=>toast('Tap anywhere to hear them'));
     try{const C=window.AudioContext||window.webkitAudioContext;RTC.ctx=RTC.ctx||new C();const src=RTC.ctx.createMediaStreamSource(st);P.an=RTC.ctx.createAnalyser();P.an.fftSize=512;P.buf=new Uint8Array(512);src.connect(P.an)}catch(err){}};
-  pc.onconnectionstatechange=()=>{const s=pc.connectionState,c=realCall();if(!c||RTC.peers[uid]!==P||!c.members[uid])return;
-    if(s==='connected'){c.members[uid].state='live';if(c.state!=='live'){c.state='live';c.start=c.start||Date.now()}renderCall()}
-    else if(s==='failed'){dropMember(uid,`Voice couldn’t connect to ${c.members[uid].name} on this network. Use chat instead.`)}};
+  const onState=()=>{const s=pc.connectionState,ice=pc.iceConnectionState,c=realCall();if(!c||RTC.peers[uid]!==P||!c.members[uid])return;
+    if(s==='connected'||ice==='connected'||ice==='completed'){if(c.members[uid].state==='live')return;c.members[uid].state='live';if(c.state!=='live'){c.state='live';c.start=c.start||Date.now()}renderCall()}
+    else if(s==='failed'||ice==='failed'){dropMember(uid,`Voice couldn’t connect to ${c.members[uid].name} on this network. Use chat instead.`)}};
+  pc.onconnectionstatechange=onState;pc.oniceconnectionstatechange=onState;
   P.chain=P.chain.then(async()=>{await requestMic();if(VOICE.stream)VOICE.stream.getAudioTracks().forEach(t=>{t.enabled=!(realCall()&&realCall().muted);pc.addTrack(t,VOICE.stream)});else pc.addTransceiver('audio',{direction:'recvonly'});
     if(caller){const off=await pc.createOffer();await pc.setLocalDescription(off);sendRoom('rtc',{to:uid,call:P.call,sdp:pc.localDescription.toJSON()})}}).catch(e=>console.error(e));
   return P}
