@@ -86,7 +86,7 @@ let saveT2=null;
 window.save=function(now){clearTimeout(saveT2);saveT2=setTimeout(doSave,now?0:700)};
 async function doSave(){if(!MP.uid||!ME)return;const body=stripForSave();
   try{await NET.saveState(MP.uid,body);STORE='cloud';
-    const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null,base:c.base??null,hold:c.hold&&c.hold.until>Date.now()?{uid:c.hold.uid||null,name:c.hold.name||'',until:c.hold.until}:null}}));
+    const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null,base:c.base??null,box:!!c.box,hold:c.hold&&c.hold.until>Date.now()?{uid:c.hold.uid||null,name:c.hold.name||'',until:c.hold.until}:null}}));
     const lk=JSON.stringify(rows);if(lk!==MP.lastListings){MP.lastListings=lk;await NET.syncListings(MP.uid,rows)}
     const look={av:lookOf(),booth:styleOf()},pk=JSON.stringify([ME.name,ME.role,ME.table,ME.from,ME.color,look]);if(pk!==MP.lastProf){MP.lastProf=pk;const pr={name:ME.name,role:ME.role,table_name:ME.table,city:ME.from,color:ME.color};
       if(!MP.noLook){try{await NET.saveProfile(MP.uid,{...pr,look})}catch(e){if(/look/i.test(String(e&&(e.message||e))))MP.noLook=true;else throw e}}if(MP.noLook)await NET.saveProfile(MP.uid,pr);
