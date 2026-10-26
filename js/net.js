@@ -5,7 +5,7 @@
      BroadcastChannel standing in for realtime, so two tabs act as two people. */
 (function(){
   const cfg=window.SLABROW_CONFIG||{};
-  const EVENTS=['pos','say','talk','rtc','booth','spk','ping'];
+  const EVENTS=['pos','say','talk','rtc','booth','spk','ping','inv','q'];
   const iso=()=>new Date().toISOString();
   const rid=()=>(crypto.randomUUID?crypto.randomUUID():'x'+Date.now().toString(36)+Math.random().toString(36).slice(2));
   const friendly=e=>{const m=(e&&(e.message||e.error_description||e.msg))||String(e||'Something went wrong');

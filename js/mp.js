@@ -87,7 +87,7 @@ window.save=function(now){clearTimeout(saveT2);saveT2=setTimeout(doSave,now?0:70
 async function doSave(){if(!MP.uid||!ME)return;const body=stripForSave();
   try{await NET.saveState(MP.uid,body);STORE='cloud';
     const rows=ME.inv.filter(c=>!c.sold&&c.forSale).map(c=>({card_id:c.id,price:+c.price,card:{...snap(c),mkt:c.mkt||c.price,cert:c.cert||null,base:c.base??null,box:!!c.box,hold:c.hold&&c.hold.until>Date.now()?{uid:c.hold.uid||null,name:c.hold.name||'',until:c.hold.until}:null}}));
-    const lk=JSON.stringify(rows);if(lk!==MP.lastListings){MP.lastListings=lk;await NET.syncListings(MP.uid,rows)}
+    const lk=JSON.stringify(rows);if(lk!==MP.lastListings){MP.lastListings=lk;await NET.syncListings(MP.uid,rows);const pay={uid:MP.uid,rows:rows.map(r=>({owner:MP.uid,...r}))};try{MP.room&&MP.room.send('inv',pay)}catch(e){}try{MP.lobby&&MP.lobby.send('inv',pay)}catch(e){}}
     const look={av:lookOf(),booth:styleOf()},pk=JSON.stringify([ME.name,ME.role,ME.table,ME.from,ME.color,look]);if(pk!==MP.lastProf){MP.lastProf=pk;const pr={name:ME.name,role:ME.role,table_name:ME.table,city:ME.from,color:ME.color};
       if(!MP.noLook){try{await NET.saveProfile(MP.uid,{...pr,look})}catch(e){if(/look/i.test(String(e&&(e.message||e))))MP.noLook=true;else throw e}}if(MP.noLook)await NET.saveProfile(MP.uid,pr);
       MP.profiles[MP.uid]={...MP.profile,...pr,look};if(MP.room)MP.room.track({look:look.av,bstyle:ME.role==='vendor'?look.booth:null,name:ME.name,role:ME.role})}
@@ -163,11 +163,11 @@ async function loadParties(uids){uids=[...new Set(uids)].filter(u=>u&&u!==MP.uid
 function realParty(uid,fallbackName){const id='u_'+uid,p=MP.profiles[uid]||{name:fallbackName||nameOf(uid),role:'collector'};let v=VBY[id];
   if(!v){v=V(id,p.name,'@'+(p.name||'collector').replace(/\s+/g,'').toLowerCase(),false,'open',p.color||'#3db5ff','','',.85,9999,[]);v.real=true;v.uid=uid;VBY[id]=v}
   const vendor=p.role==='vendor';v.person=p.name;v.name=vendor&&p.table_name?p.table_name:p.name;v.kind=vendor?undefined:'attendee';v.color=p.color||v.color;
-  v.spec=vendor?`Real vendor · ${p.name}`:'Real collector · showing you their cards';{const ps=MP.peers[uid]?.bstyle||p.look?.booth;if(vendor&&ps)v.style=ps}v.city=p.city||'';
-  const keep=new Map((v.inv||[]).filter(c=>c.sold||c.held).map(c=>[c.id,c]));v.inv=(MP.listings[uid]||[]).map(l=>{const k=keep.get(l.card_id);return k&&!k.sold?k:listingCard(l)});
+  v.spec=vendor?`Real vendor · ${p.name}`:'Real collector · showing you their cards';v.mode=S.view==='room'?'queue':'open';if(v.lineLen==null)v.lineLen=0;{const ps=MP.peers[uid]?.bstyle||p.look?.booth;if(vendor&&ps)v.style=ps}v.city=p.city||'';
+  const prevInv=v.inv||[],keep=new Map(prevInv.filter(c=>c.sold||c.held).map(c=>[c.id,c]));const ls=MP.listings[uid]||[],ids=new Set(ls.map(l=>l.card_id));v.inv=ls.map(l=>{const k=keep.get(l.card_id);if(k&&!k.sold){k.price=+l.price;return k}return listingCard(l)});prevInv.forEach(c=>{if(!ids.has(c.id)&&!c.box){c.sold=true;v.inv.push(c)}});
   const pe=MP.peers[uid];v.online=vendor?!!(pe&&pe.op):!!(pe||MP.online[uid]);return v}
 window.realParty=realParty;
-async function openReal(uid,ctx){await loadParties([uid]);const v=realParty(uid);openTable(v,ctx||'show')}
+async function openReal(uid,ctx){await loadParties([uid]);const v=realParty(uid);if(S.view==='room')sendRoom('q',{t:'ask',to:uid});openTable(v,ctx||'show')}
 ACT.tradeReal=uid=>openReal(uid,'show');
 
 /* ================= booths at a show ================= */
@@ -210,7 +210,7 @@ function onSync(list){const now={};list.forEach(p=>{if(p&&p.uid&&p.uid!==MP.uid)
   Object.values(now).forEach(p=>{const r=MP.ra[p.uid];if(r&&p.look&&JSON.stringify(p.look)!==r.lk){const t=r.t,pos=r.av.position.clone(),ry=r.av.rotation.y;try{scene.remove(r.av)}catch(e){}delete MP.ra[p.uid];const n=ensureRA(p.uid,p);if(n){n.t=t;n.av.position.copy(pos);n.av.rotation.y=ry;n.av.visible=!!t;n.seen=performance.now()}}
     const v=VBY['u_'+p.uid];if(v&&v.real&&p.bstyle&&JSON.stringify(p.bstyle)!==JSON.stringify(v.style||null)){v.style=p.bstyle;rebuildBooth(v)}});
   const was=MP.peers;MP.peers=now;Object.values(now).forEach(p=>{if(!was[p.uid]&&S.view==='room'){nlog('sys',`${p.name} walked in.`)}const v=VBY['u_'+p.uid];if(v){v.online=p.role==='vendor'?!!p.op:true;try{syncBooth(v)}catch(e){}}});
-  Object.keys(was).forEach(u=>{if(!now[u]){nlog('sys',`${was[u].name} left the show.`);const v=VBY['u_'+u];if(v){v.online=false;try{syncBooth(v)}catch(e){}}if(VOICE.call&&VOICE.call.kind==='real'&&VOICE.call.members[u]){const nm=was[u].name;clearTimeout(MP.goneT[u]);MP.goneT[u]=setTimeout(()=>{if(!MP.peers[u])dropMember(u,`${nm} left the show, so they dropped off the call`)},9000)}}});
+  Object.keys(was).forEach(u=>{if(!now[u]){try{LINE.queue=LINE.queue.filter(q=>q.uid!==u);if(LINE.serving===u)lineEnd('left');const hv=VBY['u_'+u];if(hv&&S.q[hv.id]?.real){delete S.q[hv.id];closeDealsWith(u,'They left the show')}}catch(e){}nlog('sys',`${was[u].name} left the show.`);const v=VBY['u_'+u];if(v){v.online=false;try{syncBooth(v)}catch(e){}}if(VOICE.call&&VOICE.call.kind==='real'&&VOICE.call.members[u]){const nm=was[u].name;clearTimeout(MP.goneT[u]);MP.goneT[u]=setTimeout(()=>{if(!MP.peers[u])dropMember(u,`${nm} left the show, so they dropped off the call`)},9000)}}});
   loadParties(Object.keys(now).filter(u=>!MP.profiles[u]));updateWho()}
 MP.goneT={};
 function rebuildBooth(v){const D=showData;if(!D||!scene||S.view!=='room')return;const i=(D.vendors||[]).indexOf(v.id);if(i<0)return;removeBoothAt(i);const [x,z]=slotPos(i);buildBooth(v,x,z);try{syncBooth(v)}catch(e){}}
@@ -224,7 +224,14 @@ function ensureRA(uid,info){let r=MP.ra[uid];if(r||!scene)return r;const p=info|
   const lk=p.look||MP.profiles[uid]?.look?.av,av=makeAvatar(lk||{shirt:new THREE.Color(p.color||'#3db5ff').getHex()});av.userData.name=p.name;av.userData.real=uid;
   const tag=tagSprite(p.name+(p.role==='vendor'?' · vendor':''),'rgba(5,9,18,.82)','#ffffff');tag.position.y=2.6;tag.scale.multiplyScalar(.78);av.add(tag);
   av.visible=false;scene.add(av);r=MP.ra[uid]={av,uid,name:p.name,t:null,sp:0,lean:0,lvl:0,lk:JSON.stringify(lk||null)};return r}
-function onMsg(ev,d){if(!d||d.uid===MP.uid||d.from===MP.uid)return;
+function liveInv(d){if(!d||!d.uid||d.uid===MP.uid||!Array.isArray(d.rows))return;MP.listings[d.uid]=d.rows;const v=VBY['u_'+d.uid];if(!v){if(S.view==='market')try{renderMarketBody()}catch(e){}return}
+  const before=new Map(v.inv.filter(c=>!c.sold).map(c=>[c.id,c.price])),mine=new Set(S.deal[v.id]||[]);realParty(d.uid);const after=new Map(v.inv.filter(c=>!c.sold).map(c=>[c.id,c.price]));
+  const gone=[...before.keys()].filter(id=>!after.has(id)),added=[...after.keys()].filter(id=>!before.has(id));
+  gone.forEach(id=>{if(mine.has(id)){const c=v.inv.find(x=>x.id===id);toast(`${c?c.name:'A card in your deal'} just sold`)}});
+  if(VW&&VW.vid===v.id&&gone.includes(VW.cid))toast('That card just sold');
+  try{if(added.length||gone.length){const b=booths.find(b=>b.v===v);if(b&&S.view==='room'){if(added.length)rebuildBooth(v);else{gone.forEach(id=>{if(slabMeshes[id])slabMeshes[id].visible=false;if(CARO[id])CARO[id].visible=false});syncBooth(v)}}}}catch(e){}
+  try{renderInv(v)}catch(e){}if(S.view==='market')try{renderMarketBody()}catch(e){}}
+function onMsg(ev,d){if(!d||d.uid===MP.uid||d.from===MP.uid)return;if(ev==='inv')return liveInv(d);if(ev==='q')return onQ(d);
   if(ev==='pos'){const r=ensureRA(d.uid,MP.peers[d.uid]||{name:d.n,color:d.c,role:d.role});if(!r)return;const first=!r.t;r.t=d;if(first){r.av.position.set(d.x,d.y||0,d.z);r.av.rotation.y=d.r}r.av.visible=true;r.seen=performance.now()}
   else if(ev==='say'){const r=MP.ra[d.uid];if(r&&player&&r.av.position.distanceTo(player.position)<16){say(r.av,d.text,4200);nlog(d.n||r.name,d.text)}}
   else if(ev==='talk')onTalk(d);
@@ -266,7 +273,7 @@ ACT.ofTrade=id=>{const o=S.offers.find(x=>x.id===id);if(!o||!o.real)return;if(o.
   /* seller perspective: I give o.cds, I get o.give, cash from them = +amount, so my cash = -amount */
   bookTrade(o.party,o.cds,o.give,-(+o.real.amount||0));S.offers=S.offers.filter(x=>x!==o);renderOffers();try{syncBooth(VBY.me)}catch(e){}refreshView&&refreshView();
   setRow(o.real.id,{status:'completed',by_user:MP.uid});toast(`Trade done with ${o.real.buyer_name}. Your cards to ship are on your packing list.`)};
-FORMS.ofTradeCash=f=>{const o=S.offers.find(x=>x.id===f.dataset.id);if(!o||!o.real)return;const v=parseFloat(String(f.amt.value).replace(/[$,]/g,''));if(!(v>=0||v<0))return toast('Enter a cash amount');setRow(o.real.id,{status:'countered',amount:v,by_user:MP.uid});S.offers=S.offers.filter(x=>x!==o);renderOffers();toast(`Countered: ${v>0?money(v)+' cash from them':v<0?money(-v)+' cash from you':'straight up'}`)};
+FORMS.ofTradeCash=f=>{const o=S.offers.find(x=>x.id===f.dataset.id);if(!o||!o.real)return;const dir=f.dir?f.dir.value:'them',a=Math.abs(parseFloat(String(f.amt.value).replace(/[$,]/g,''))||0);if(dir!=='even'&&!a)return toast('Enter a cash amount');const v=dir==='even'?0:dir==='me'?-a:a;setRow(o.real.id,{status:'countered',amount:v,by_user:MP.uid});S.offers=S.offers.filter(x=>x!==o);renderOffers();toast(`Countered: ${v>0?money(v)+' cash from them':v<0?money(-v)+' cash from you':'straight up'}`)};
 ACT.ofHold=id=>{const o=S.offers.find(x=>x.id===id);if(!o||!o.real)return;const until=Date.now()+15*60000;o.cds.forEach(c=>c.hold={uid:o.real.buyer,name:o.real.buyer_name,until});save(true);try{syncBooth(VBY.me)}catch(e){}
   setRow(o.real.id,{status:'accepted',by_user:MP.uid,note:String(until)});S.offers=S.offers.filter(x=>x!==o);renderOffers();toast(`Holding it for ${o.real.buyer_name} until ${new Date(until).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`)};
 const _trTake=ACT.trTake;ACT.trTake=vid=>{const v=VBY[vid];if(!v||!v.real)return _trTake(vid);const T=tradeOf(v);if(!T.counterRow)return;const id=T.counterRow;T.counterRow=null;T.pendingRow=id;T.msg='Accepted. Waiting for them to finish the trade…';T.counter=null;renderVBody(v);
@@ -275,15 +282,15 @@ async function cancelTradeRow(v,quiet){const T=tradeOf(v),id=T.pendingRow||T.cou
   try{await NET.updateOffer(id,{status:'cancelled',by_user:MP.uid})}catch(e){}if(!quiet)toast('Trade cancelled')}
 const _trCancel=ACT.trCancel;ACT.trCancel=async vid=>{const v=VBY[vid];if(!v||!v.real)return _trCancel(vid);await cancelTradeRow(v);const T=tradeOf(v);T.msg=null;renderVBody(v)};
 ACT.openTrade=vid=>{const v=VBY[vid];if(!v)return;S.vtab[vid]='trade';if(v.real)openReal(v.uid,'show');else openTable(v,'show')};
-const _trSend=ACT.trSend;ACT.trSend=async vid=>{const v=VBY[vid];if(!v||!v.real)return _trSend(vid);{const T0=tradeOf(v);if(T0.pendingRow||T0.counterRow)await cancelTradeRow(v,true)}
+const _trSend=ACT.trSend;ACT.trSend=async vid=>{const v=VBY[vid];if(!v||!v.real)return _trSend(vid);if(needTurn(v))return toast(`Get in ${v.person||v.name}’s line to deal first`);{const T0=tradeOf(v);if(T0.pendingRow||T0.counterRow)await cancelTradeRow(v,true)}
   const {T,getC,giveC}=tradeParts(v),c=+T.cash||0;if(!getC.length)return toast('Pick something from their table first');
   const r=await newRow({kind:'trade',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:getC.map(cardRef),amount:c,ship:{give:giveC.map(x=>({...cardRef(x),grade:x.grade,cost:x.cost}))}});
   if(!r)return;giveC.forEach(x=>{x.pending=true;x.pendTrade=v.id});T.pendingRow=r.id;T.msg=`Trade sent to ${v.person||v.name}. Their answer pops up here and on your screen.`;T.counter=null;MP.trades=MP.trades||{};MP.trades[r.id]=vid;renderVBody(v);toast('Trade proposal sent')};
 const _doPitch=doPitch;
-window.doPitch=function(v,c,k){if(!v.real)return _doPitch(v,c,k);S.pitch[k]={msg:`Pitched to ${v.person||v.name} at ${money(c.price)}. Their answer pops up when they respond.`,wait:true};
+window.doPitch=function(v,c,k){if(!v.real)return _doPitch(v,c,k);if(needTurn(v))return toast(`Get in ${v.person||v.name}’s line to deal first`);S.pitch[k]={msg:`Pitched to ${v.person||v.name} at ${money(c.price)}. Their answer pops up when they respond.`,wait:true};
   newRow({kind:'pitch',buyer:v.uid,seller:MP.uid,buyer_name:v.person||v.name,seller_name:ME.name,cards:[cardRef(c)],amount:c.price})};
 const _doBundle=doBundle;
-window.doBundle=function(v,cs,amt){if(!v.real)return _doBundle(v,cs,amt);S.bundle[v.id]={ids:cs.map(c=>c.id),wait:true,msg:`Bundle of ${cs.length} pitched to ${v.person||v.name} at ${money(amt)}. Their answer pops up when they respond.`};
+window.doBundle=function(v,cs,amt){if(!v.real)return _doBundle(v,cs,amt);if(needTurn(v))return toast(`Get in ${v.person||v.name}’s line to deal first`);S.bundle[v.id]={ids:cs.map(c=>c.id),wait:true,msg:`Bundle of ${cs.length} pitched to ${v.person||v.name} at ${money(amt)}. Their answer pops up when they respond.`};
   newRow({kind:'pitch',buyer:v.uid,seller:MP.uid,buyer_name:v.person||v.name,seller_name:ME.name,cards:cs.map(cardRef),amount:amt})};
 const _placeOrder=placeOrder;
 window.placeOrder=ACT.placeOrder=async function(){if(!CO||CO.done)return;const {v,cs,tot,opts}=CO;if(!v.real)return _placeOrder();CO.done=true;
@@ -328,7 +335,9 @@ ACT.rAccept=id=>{const r=MP.rows[id];if(!r)return;MP.notes=MP.notes.filter(x=>x.
 ACT.rDecline=id=>{const r=MP.rows[id];MP.notes=MP.notes.filter(x=>x.id!==id);showNote();setRow(id,{status:'declined',by_user:MP.uid});if(r)toast(`Declined ${r.seller_name}’s ${r.kind==='pitch'?'offer':'counter'}`)};
 ACT.rLater=id=>{MP.notes=MP.notes.filter(x=>x.id!==id).concat(MP.notes.filter(x=>x.id===id));$('#dealNote').hidden=true};
 FORMS.rCounter=f=>{const id=f.dataset.id,amt=Math.round(parseFloat(f.amt.value.replace(/[$,]/g,''))*100)/100;if(!(amt>0))return toast('Enter a number');MP.notes=MP.notes.filter(x=>x.id!==id);showNote();setRow(id,{status:'countered',amount:amt,by_user:MP.uid});toast(`Counter of ${money(amt)} sent`)};
-function processRow(r,initial){if(!r||!r.id||!MP.uid)return;const prev=MP.rows[r.id];if(prev&&prev.updated_at&&r.updated_at&&r.updated_at<prev.updated_at)return;if(prev&&['completed','declined','cancelled'].includes(prev.status)&&!['completed','declined','cancelled'].includes(r.status))return;MP.rows[r.id]=r;const key=r.id+'|'+r.status+'|'+r.amount+'|'+r.received;if(MP.seen.has(key))return;MP.seen.add(key);
+function processRow(r,initial){if(!r||!r.id||!MP.uid)return;const prev=MP.rows[r.id];if(prev&&prev.updated_at&&r.updated_at&&r.updated_at<prev.updated_at)return;if(prev&&['completed','declined','cancelled'].includes(prev.status)&&!['completed','declined','cancelled'].includes(r.status))return;MP.rows[r.id]=r;try{if(LINE.serving&&(r.buyer===LINE.serving||r.seller===LINE.serving))LINE.last=Date.now()}catch(e){}
+  if(r.status==='cancelled'){MP.notes=MP.notes.filter(x=>x.id!==r.id);try{showNote()}catch(e){}if(r.buyer===MP.uid&&r.kind==='trade'){const ids=((r.ship&&r.ship.give)||[]).map(x=>x.id);ME.inv.forEach(c=>{if(ids.includes(c.id)){c.pending=false;delete c.pendTrade}})}if(r.buyer===MP.uid&&r.by_user!==MP.uid&&!initial){const v=VBY['u_'+r.seller];if(v){(r.cards||[]).forEach(x=>{const c=v.inv.find(y=>y.id===x.id);if(c)c.pending=false})}}}
+  const key=r.id+'|'+r.status+'|'+r.amount+'|'+r.received;if(MP.seen.has(key))return;MP.seen.add(key);
   const seller=r.seller===MP.uid,buyer=r.buyer===MP.uid,mine=r.by_user===MP.uid,old=Date.now()-Date.parse(r.updated_at||r.created_at)>7*864e5;
   if(seller){if(r.status==='pending'&&r.kind==='order')return fulfill(r);
     if(r.status==='accepted'&&!mine&&r.kind==='trade'){if(MP.done.has(r.id))return;MP.done.add(r.id);const cds=myCards(r);if(cds.some(c=>!c))return setRow(r.id,{status:'declined',note:'Already sold',by_user:MP.uid});bookTrade(realParty(r.buyer,r.buyer_name),cds,(r.ship&&r.ship.give)||[],-(+r.amount||0));try{syncBooth(VBY.me)}catch(e){}refreshView&&refreshView();setRow(r.id,{status:'completed',by_user:MP.uid});return toast(`Trade done with ${r.buyer_name}`)}
@@ -451,6 +460,61 @@ setInterval(()=>{for(const P of Object.values(RTC.peers)){if(P.an){P.an.getByteT
 document.addEventListener('pointerdown',()=>{for(const P of Object.values(RTC.peers)){if(P.audio&&P.audio.paused&&P.audio.srcObject)P.audio.play().catch(()=>{})}},true);
 
 
+/* ================= deal line: one person at a time at real tables ================= */
+const LINE=MP.line={serving:null,sname:'',since:0,last:0,queue:[],paused:false};MP.lines={};
+const IDLE_MS=4*60000;
+function hostOpen(){return ME.role!=='vendor'||!!S.op}
+function lineState(){return {t:'state',host:MP.uid,serving:LINE.serving,sname:LINE.sname,queue:LINE.queue.map(q=>({uid:q.uid,name:q.name})),open:hostOpen()&&!LINE.paused}}
+function lineSend(){if(MP.room)sendRoom('q',lineState());try{renderOffers()}catch(e){}}
+function lineNext(){if(!LINE.serving&&LINE.queue.length&&hostOpen()&&!LINE.paused){const n=LINE.queue.shift();LINE.serving=n.uid;LINE.sname=n.name;LINE.since=LINE.last=Date.now();toast(`Now serving ${n.name}`);try{runVisitor&&runVisitor(n.name)}catch(e){}}lineSend()}
+function openRowsWith(uid,mineOnly){return Object.values(MP.rows).filter(r=>((r.buyer===uid&&r.seller===MP.uid)||(r.seller===uid&&r.buyer===MP.uid))&&['pending','countered'].includes(r.status)&&r.kind!=='order'&&(!mineOnly||r.by_user===MP.uid))}
+async function closeDealsWith(uid,note){const open=openRowsWith(uid);for(const r of open){try{const u=await NET.updateOffer(r.id,{status:'cancelled',note:note||'Deal closed',by_user:MP.uid});processRow(u)}catch(e){}}return open.length}
+async function lineEnd(reason){const u=LINE.serving;if(!u)return;const nm=LINE.sname;LINE.serving=null;LINE.sname='';await closeDealsWith(u,'Deal closed');sendRoom('q',{t:'ended',to:u,host:MP.uid,reason:reason||''});if(reason==='idle')toast(`${nm}’s turn timed out`);lineNext()}
+function onQ(d){if(!d)return;
+  if(d.t==='state'){const host=d.host;if(!host||host===MP.uid)return;MP.lines[host]=d;const v=VBY['u_'+host];if(!v)return;const was=S.q[v.id];
+    v.lineLen=(d.queue||[]).length+(d.serving?1:0);v.lineOpen=d.open;
+    if(d.serving===MP.uid){S.q[v.id]={state:'turn',real:true};if(!was||was.state!=='turn')realTurnPrompt(v)}
+    else{const i=(d.queue||[]).findIndex(q=>q.uid===MP.uid);if(i>=0)S.q[v.id]={state:'waiting',pos:i+1,real:true};else if(was&&was.real&&!(was.state==='waiting'&&Date.now()-(was.at||0)<4000))delete S.q[v.id]}
+    try{refreshParty(v);syncBooth(v);if(TV.v===v)tvMeta()}catch(e){}return}
+  if(d.to!==MP.uid)return;const from=d.from;
+  if(d.t==='join'){if(LINE.serving===from||LINE.queue.some(q=>q.uid===from))return lineSend();LINE.queue.push({uid:from,name:d.name||MP.peers[from]?.name||'Someone',at:Date.now()});toast(`${d.name||'Someone'} got in your line`);return lineNext()}
+  if(d.t==='leave'){LINE.queue=LINE.queue.filter(q=>q.uid!==from);if(LINE.serving===from)return lineEnd('left');return lineSend()}
+  if(d.t==='done'){if(LINE.serving===from)return lineEnd('done');return}
+  if(d.t==='ask')return lineSend();
+  if(d.t==='act'){if(LINE.serving===from)LINE.last=Date.now();return}
+  if(d.t==='ended'){const v=VBY['u_'+d.host];if(!v)return;delete S.q[v.id];const T=S.trade&&S.trade[v.id];if(T){T.pendingRow=null;T.counterRow=null;T.counter=null}
+    ME.inv.forEach(c=>{if(c.pendTrade===v.id){c.pending=false;delete c.pendTrade}});
+    toast(d.reason==='idle'?`Your turn at ${v.name} ended after a few quiet minutes`:d.reason==='host'?`${v.person||v.name} ended your turn`:d.reason==='left'?`You left ${v.name}’s line`:`Thanks for stopping by ${v.name}`);try{refreshParty(v);syncBooth(v)}catch(e){}}}
+function realTurnPrompt(v){vNote(v.person||v.name,'You’re up');const el=$('#vreq');if(!el)return;
+  el.innerHTML=`<div class="av" style="background:${v.color}">${initials(v.name)}</div><div><b>You’re up at ${esc(v.name)}</b><span class="sub">Make offers, lots or trades now. Close the deal or tap Done when you’re finished.</span></div><button class="chbtn" data-act="vreqX" aria-label="Close">×</button><div class="acts"><button class="btn gold sm" data-act="goDeal" data-id="${v.uid}">Go to their table</button></div>`;el.hidden=false;clearTimeout(realTurnPrompt.t);realTurnPrompt.t=setTimeout(()=>{el.hidden=true},12000)}
+ACT.vreqX=()=>{$('#vreq').hidden=true};
+ACT.goDeal=uid=>{$('#vreq').hidden=true;openReal(uid,'show')};
+setInterval(()=>{if(S.view!=='room'||!MP.room)return;if(LINE.serving&&Date.now()-LINE.last>IDLE_MS)return lineEnd('idle');if(!LINE.serving&&LINE.queue.length&&hostOpen())return lineNext();if(LINE.serving||LINE.queue.length)lineSend()},8000);
+/* gate dealing at real tables to your turn; buy now always works */
+const _canTalk=canTalk;window.canTalk=function(v,ctx){if(v&&v.real)return ctx==='market'||S.q[v.id]?.state==='turn';return _canTalk(v,ctx)};
+const needTurn=v=>v&&v.real&&S.view==='room'&&S.q[v.id]?.state!=='turn';
+const _joinLine=ACT.joinLine;ACT.joinLine=id=>{const v=VBY[id];if(!v||!v.real)return _joinLine(id);sendRoom('q',{t:'join',to:v.uid,name:ME.name});S.q[id]={state:'waiting',pos:(v.lineLen||0)+1,real:true,at:Date.now()};refreshParty(v);toast(`You’re in ${v.person||v.name}’s line`)};
+const _leaveLine=ACT.leaveLine;ACT.leaveLine=id=>{const v=VBY[id];if(!v||!v.real)return _leaveLine(id);sendRoom('q',{t:'leave',to:v.uid});delete S.q[id];refreshParty(v)};
+async function finishDeal(v,thenFn){const open=openRowsWith(v.uid,true);
+  if(!open.length){thenFn&&thenFn();return}
+  openModal(`<div class="sec"><span class="eyebrow">Open deal</span><h2>Finish your deal with ${esc(v.person||v.name)} first</h2><p class="mute">You have ${open.length} open ${open.length>1?'offers':'offer'} with them. Close ${open.length>1?'them':'it'} out so nothing gets accepted later when you’re not expecting it.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="dealWithdraw" data-id="${v.id}">Withdraw and leave</button><button class="btn ghost" data-act="closeModal">Keep dealing</button></div></div>`);MP.afterWithdraw=thenFn}
+ACT.dealWithdraw=async id=>{const v=VBY[id];closeModal();if(!v)return;for(const r of openRowsWith(v.uid,true)){try{const u=await NET.updateOffer(r.id,{status:'cancelled',note:'Withdrawn',by_user:MP.uid});processRow(u)}catch(e){}}const T=S.trade&&S.trade[v.id];if(T){T.pendingRow=null;T.counterRow=null;T.counter=null;T.msg=null}
+  ME.inv.forEach(c=>{if(c.pendTrade===v.id){c.pending=false;delete c.pendTrade}});toast('Offers withdrawn');const f=MP.afterWithdraw;MP.afterWithdraw=null;f&&f()};
+const _doneTurn=ACT.doneTurn;ACT.doneTurn=id=>{const v=VBY[id];if(!v||!v.real)return _doneTurn(id);finishDeal(v,()=>{sendRoom('q',{t:'done',to:v.uid});delete S.q[id];refreshParty(v);toast(`Thanks for stopping by ${v.name}`)})};
+const _closeTable=closeTable;window.closeTable=function(){const v=TV.v;if(v&&v.real&&S.view==='room'&&!MP.skipOpen){const open=openRowsWith(v.uid,true);if(open.length)return finishDeal(v,()=>{MP.skipOpen=true;try{window.closeTable()}finally{MP.skipOpen=false}})}
+  if(v&&v.real&&S.q[v.id]?.state==='turn'){sendRoom('q',{t:'done',to:v.uid});delete S.q[v.id];toast(`You stepped away from ${v.name}, so your turn ended`)}return _closeTable()};
+ACT.closeTable=()=>window.closeTable();
+/* host: end turn, pause */
+ACT.lineEndTurn=()=>lineEnd('host');ACT.linePause=()=>{LINE.paused=!LINE.paused;if(!LINE.paused)lineNext();else lineSend();toast(LINE.paused?'Line paused. Nobody new gets called up.':'Line open')};
+const _renderOffers2=renderOffers;window.renderOffers=function(){_renderOffers2();const el=$('#offers');if(!el||S.view!=='room')return;if(!(LINE.serving||LINE.queue.length||LINE.paused))return;
+  const mins=LINE.serving?Math.floor((Date.now()-LINE.since)/60000):0;
+  el.insertAdjacentHTML('afterbegin',`<div class="linebar">${LINE.serving?`<span><i></i>Now serving <b>${esc(LINE.sname)}</b> · ${mins} min</span>`:`<span>${LINE.paused?'Line paused':'Nobody up right now'}</span>`}<span class="mute">${LINE.queue.length} waiting${!hostOpen()?' · step behind your table to call the next person':''}</span><span class="acts">${LINE.serving?'<button class="btn ghost sm" data-act="lineEndTurn">End turn</button>':''}<button class="btn ghost sm" data-act="linePause">${LINE.paused?'Resume line':'Pause line'}</button></span></div>`)};
+document.head.insertAdjacentHTML('beforeend',`<style>.linebar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;background:var(--panel);border:1px solid var(--go);border-radius:12px;padding:8px 11px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.45)}.linebar i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--go);margin-right:6px}.linebar .acts{display:flex;gap:6px;margin-left:auto}</style>`);
+
+const _op2=window.operateBooth;window.operateBooth=function(){const r=_op2.apply(this,arguments);setTimeout(lineNext,300);return r};
+const _lb2=window.leaveBooth;window.leaveBooth=function(){const r=_lb2.apply(this,arguments);setTimeout(lineSend,300);return r};
+
 /* ================= who's online + activity pop-ups ================= */
 document.head.insertAdjacentHTML('beforeend',`<style>
 .onl{display:inline-flex;align-items:center;gap:7px;font-family:var(--f-body,Figtree),sans-serif;font-style:normal;text-transform:none;font-weight:700;font-size:13px;color:var(--ink);background:rgba(60,207,126,.1);border:1px solid rgba(60,207,126,.35);border-radius:999px;padding:4px 11px;cursor:pointer;white-space:nowrap;margin-left:6px}
@@ -483,7 +547,7 @@ ACT.whoOnline=()=>{const ps=LIVE.list.slice().sort((a,b)=>(b.uid===MP.uid)-(a.ui
   openModal(`<div class="sec"><span class="eyebrow">Live right now</span><h2>${onlineText(ps.length)}</h2><p class="mute" style="margin:0 0 10px">Real signed-in people only. The crowd you see walking around at shows is extra.</p>${ps.map(p=>`<div class="realrow"><div class="vava" style="background:${MP.profiles[p.uid]?.color||p.color||'#3db5ff'};width:34px;height:34px;font-size:13px">${initials(p.name||'?')}</div><div class="who"><b>${esc(p.name||'Collector')}${p.uid===MP.uid?' (you)':''}</b><span>${esc(where(p))}</span></div>${p.show&&p.uid!==MP.uid&&SHOWS.find(x=>x.id===p.show)?`<button class="btn ghost sm" data-act="enter" data-id="${p.show}">Join them</button>`:''}</div>`).join('')}</div>`)};
 /* listen-only presence before sign-in, so the sign-in screen shows the real count */
 function watchLobby(){if(LIVE.watch||MP.lobby)return;try{LIVE.watch=NET.channel('lobby',null,{sync:lobbySync})}catch(e){}}
-window.joinLobby=async function(){const w=LIVE.watch;LIVE.watch=null;if(w){try{await w.leave()}catch(e){}}MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:MP.roomKey||null},{sync:lobbySync})};
+window.joinLobby=async function(){const w=LIVE.watch;LIVE.watch=null;if(w){try{await w.leave()}catch(e){}}MP.lobby=NET.channel('lobby',{uid:MP.uid,name:ME.name,show:MP.roomKey||null},{sync:lobbySync,msg:(ev,d)=>{if(ev==='inv'&&d&&d.uid!==MP.uid)liveInv(d)}})};
 /* activity feed: sign-ups, new shows, notable sales */
 function notable(amount,cards){amount=+amount||0;const tens=(cards||[]).some(c=>/\b10\b/.test(c.grade||''));return amount>=100||(tens&&amount>=40)||((cards||[]).length>=3&&amount>=150)}
 function cardLine(c){return [c.year,c.set,c.name,c.grade&&c.grade!=='Raw'?c.grade:''].filter(Boolean).join(' ')}
