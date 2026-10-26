@@ -495,14 +495,14 @@ const _canTalk=canTalk;window.canTalk=function(v,ctx){if(v&&v.real)return ctx===
 const needTurn=v=>v&&v.real&&S.view==='room'&&S.q[v.id]?.state!=='turn';
 const _joinLine=ACT.joinLine;ACT.joinLine=id=>{const v=VBY[id];if(!v||!v.real)return _joinLine(id);sendRoom('q',{t:'join',to:v.uid,name:ME.name});S.q[id]={state:'waiting',pos:(v.lineLen||0)+1,real:true,at:Date.now()};refreshParty(v);toast(`You’re in ${v.person||v.name}’s line`)};
 const _leaveLine=ACT.leaveLine;ACT.leaveLine=id=>{const v=VBY[id];if(!v||!v.real)return _leaveLine(id);sendRoom('q',{t:'leave',to:v.uid});delete S.q[id];refreshParty(v)};
-async function finishDeal(v,thenFn){const open=openRowsWith(v.uid,true);
+async function finishDeal(v,thenFn){const open=openRowsWith(v.uid);
   if(!open.length){thenFn&&thenFn();return}
-  openModal(`<div class="sec"><span class="eyebrow">Open deal</span><h2>Finish your deal with ${esc(v.person||v.name)} first</h2><p class="mute">You have ${open.length} open ${open.length>1?'offers':'offer'} with them. Close ${open.length>1?'them':'it'} out so nothing gets accepted later when you’re not expecting it.</p>
-   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="dealWithdraw" data-id="${v.id}">Withdraw and leave</button><button class="btn ghost" data-act="closeModal">Keep dealing</button></div></div>`);MP.afterWithdraw=thenFn}
-ACT.dealWithdraw=async id=>{const v=VBY[id];closeModal();if(!v)return;for(const r of openRowsWith(v.uid,true)){try{const u=await NET.updateOffer(r.id,{status:'cancelled',note:'Withdrawn',by_user:MP.uid});processRow(u)}catch(e){}}const T=S.trade&&S.trade[v.id];if(T){T.pendingRow=null;T.counterRow=null;T.counter=null;T.msg=null}
+  openModal(`<div class="sec"><span class="eyebrow">Open deal</span><h2>Finish your deal with ${esc(v.person||v.name)} first</h2><p class="mute">You have ${open.length} open ${open.length>1?'deals':'deal'} with them${open.some(r=>r.by_user!==MP.uid)?', including one waiting on your answer':''}. Close ${open.length>1?'them':'it'} out so nothing gets accepted later when nobody’s expecting it.</p>
+   <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="dealWithdraw" data-id="${v.id}">${open.some(r=>r.by_user!==MP.uid)?'Decline and leave':'Withdraw and leave'}</button><button class="btn ghost" data-act="closeModal">Keep dealing</button></div></div>`);MP.afterWithdraw=thenFn}
+ACT.dealWithdraw=async id=>{const v=VBY[id];closeModal();if(!v)return;for(const r of openRowsWith(v.uid)){try{const u=await NET.updateOffer(r.id,{status:'cancelled',note:'Withdrawn',by_user:MP.uid});processRow(u)}catch(e){}}const T=S.trade&&S.trade[v.id];if(T){T.pendingRow=null;T.counterRow=null;T.counter=null;T.msg=null}
   ME.inv.forEach(c=>{if(c.pendTrade===v.id){c.pending=false;delete c.pendTrade}});toast('Offers withdrawn');const f=MP.afterWithdraw;MP.afterWithdraw=null;f&&f()};
 const _doneTurn=ACT.doneTurn;ACT.doneTurn=id=>{const v=VBY[id];if(!v||!v.real)return _doneTurn(id);finishDeal(v,()=>{sendRoom('q',{t:'done',to:v.uid});delete S.q[id];refreshParty(v);toast(`Thanks for stopping by ${v.name}`)})};
-const _closeTable=closeTable;window.closeTable=function(){const v=TV.v;if(v&&v.real&&S.view==='room'&&!MP.skipOpen){const open=openRowsWith(v.uid,true);if(open.length)return finishDeal(v,()=>{MP.skipOpen=true;try{window.closeTable()}finally{MP.skipOpen=false}})}
+const _closeTable=closeTable;window.closeTable=function(){const v=TV.v;if(v&&v.real&&S.view==='room'&&!MP.skipOpen){const open=openRowsWith(v.uid);if(open.length)return finishDeal(v,()=>{MP.skipOpen=true;try{window.closeTable()}finally{MP.skipOpen=false}})}
   if(v&&v.real&&S.q[v.id]?.state==='turn'){sendRoom('q',{t:'done',to:v.uid});delete S.q[v.id];toast(`You stepped away from ${v.name}, so your turn ended`)}return _closeTable()};
 ACT.closeTable=()=>window.closeTable();
 /* host: end turn, pause */
