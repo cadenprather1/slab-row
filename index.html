@@ -393,15 +393,25 @@ table.t input{width:86px;padding:5px 7px;font-family:var(--f-mono);font-size:13p
 .tv-surf{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 .tv-hint .m{display:none}
 .tv-hint{transition:opacity .6s}.tv-hint.gone{opacity:0}
-.tvgrab{display:none}
+.tvgrab{display:flex;position:absolute;right:10px;bottom:10px;z-index:6;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:7px 13px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.tvgrab i{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:6px solid currentColor;transform:rotate(180deg)}
+#tv.collapsed .tvgrab i{transform:none}
+#tv.collapsed{grid-template-columns:minmax(0,1fr)!important}#tv.collapsed .tv-side{display:none!important}
+.tv-acts{position:absolute;left:10px;bottom:10px;right:130px;z-index:6;display:flex;gap:6px;flex-wrap:wrap}
+.tva{background:rgba(10,15,28,.92);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 15px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.tva.gold{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.tv-linepill{position:absolute;right:10px;top:10px;z-index:6}
+.tvl{background:rgba(10,15,28,.92);border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:7px 13px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}.tvl.turn{border-color:var(--go);color:var(--go)}
+.tv-sheet{position:absolute;z-index:25;left:0;right:0;bottom:0;max-height:78vh;max-height:78dvh;background:var(--panel);border-radius:20px 20px 0 0;border-top:1px solid var(--line);box-shadow:0 -20px 50px rgba(0,0,0,.55);display:grid;grid-template-rows:auto minmax(0,1fr);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tv-sheet[hidden]{display:none}
+.tvsh-h{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 8px}.tvsh-h b{font-family:var(--f-disp);font-weight:800;font-size:19px}
+.tvsh-b{overflow:auto;padding:0 4px 12px}
+@media (min-width:821px){.tv-sheet{left:auto;top:0;width:400px;max-height:none;border-radius:0;border-top:0;border-left:1px solid var(--line)}}
 @media (max-width:820px){
   .tv-hint .d{display:none}.tv-hint .m{display:inline}.tv-hint{bottom:8px;font-size:10.5px}
-  .tv-side{height:46vh;height:46dvh;max-height:none!important;transition:height .25s}
-  #tv.tall .tv-side{height:78vh;height:78dvh}
+  .tv-side{height:auto;max-height:34vh!important;max-height:34dvh!important}
   .tv-stage{position:relative}
-  .tvgrab{display:flex;position:absolute;right:10px;bottom:8px;z-index:6;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:5px 11px;font-weight:700;font-size:12px}
-  .tvgrab i{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:6px solid currentColor}
-  #tv.tall .tvgrab i{transform:rotate(180deg)}
+  .tva{padding:8px 13px;font-size:13px}
   .tv-bar .tv-zoom .hbtn{padding:6px 10px}
   .tv-title span{font-size:11px}
 }
@@ -530,6 +540,13 @@ body:has(#modal:not([hidden])) #offers{display:none}
 .trade{display:grid;gap:10px}.trade .tcol{display:grid;gap:6px}.trade .th{display:flex;justify-content:space-between;align-items:baseline}.trade .th b{font-size:14px}
 .trade .tcash{display:grid;gap:6px}.trade .tcash .seg{display:flex;flex-wrap:wrap;gap:4px}.trade .tcash .seg button{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer}.trade .tcl{font-size:13px}
 .trade .tsum{font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:8px 10px}.trade .tsum.ok{border-color:rgba(60,207,126,.5);color:var(--go)}.trade .tsum.short{border-color:rgba(255,154,60,.5);color:var(--orange)}
+.rh .rhname{font-family:var(--f-disp);font-weight:800;font-size:26px;line-height:1.1;margin-top:4px}
+.rh .rhprice{font-family:var(--f-mono);font-weight:800;font-size:36px;line-height:1.1;margin-top:2px}.rh .rhprice s{font-size:16px;color:var(--mute);font-weight:600}
+.rh .rhvs{font-weight:700;font-size:14px;color:var(--gold)}.rh .rhvs.good{color:var(--go)}.rh .rhvs.high{color:var(--orange)}.rh .rhvs span{color:var(--mute);font-weight:500;margin-left:4px}
+.rhspark{width:100%;height:64px;display:block;margin-top:8px}.rhsparkl{display:flex;justify-content:space-between;font-size:11px;color:var(--mute)}
+.vwact.rh{display:grid;gap:8px}.vw:not(.wide) .vwact.rh{position:sticky;bottom:0;z-index:3;box-shadow:0 -10px 24px rgba(3,5,10,.85)}.rhbuy{width:100%;padding:14px;font-size:17px;font-weight:800;border-radius:12px}.rhoff{width:100%;padding:12px;font-size:15px;border-radius:12px}
+.rhlinks{display:flex;gap:6px;justify-content:center;align-items:center;font-size:13px;color:var(--mute);flex-wrap:wrap}
+.rhdet{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.rhdet summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--mute);list-style:none}.rhdet summary::before{content:'▸ '}.rhdet[open] summary::before{content:'▾ '}.rhdet .specs{margin:8px 0}
 .linecta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px}.linecta .mute{font-size:12px}.linecta .btn{margin-left:auto}.linecta .btn.gold{margin-left:0}
 .fres{display:grid;gap:10px}
 .fgrp{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px}
@@ -754,8 +771,9 @@ textarea{width:100%;resize:vertical;min-height:62px}
 
 <div id="tv" hidden>
   <div class="tv-bar"><button class="hbtn" data-act="closeTable">← Back</button><div class="tv-title"><b id="tvName"></b><span id="tvMeta"></span></div><div class="tv-zoom"><button class="hbtn" data-act="tvZoom" data-id="out" aria-label="Zoom out">−</button><button class="hbtn" data-act="tvZoom" data-id="fit">Fit</button><button class="hbtn" data-act="tvZoom" data-id="in" aria-label="Zoom in">+</button></div></div>
-  <div class="tv-stage" id="tvStage"><div class="tv-surf" id="tvSurf"></div><div class="tv-hint"><span class="d">Scroll or pinch to zoom · drag to move · tap a card · double-click to zoom in</span><span class="m">Pinch to zoom · drag to move · tap a card</span></div><button class="tvgrab" data-act="tvSheet" aria-label="Expand card panel"><i></i><span>More</span></button></div>
+  <div class="tv-stage" id="tvStage"><div class="tv-surf" id="tvSurf"></div><div class="tv-hint"><span class="d">Scroll or pinch to zoom · drag to move · tap a card · double-click to zoom in</span><span class="m">Pinch to zoom · drag to move · tap a card</span></div><div class="tv-acts" id="tvActs"></div><div class="tv-linepill" id="tvLine"></div><button class="tvgrab" data-act="tvSheet" aria-label="Hide booth info"><i></i><span>Less</span></button></div>
   <aside class="tv-side" id="tvSide"></aside>
+  <div class="tv-sheet" id="tvSh" hidden role="dialog" aria-modal="false"><div class="tvsh-h"><b id="tvShT"></b><button class="chbtn" data-act="tvShClose" aria-label="Close">×</button></div><div class="tvsh-b" id="tvShB"></div></div>
 </div>
 <div id="modal" hidden></div>
 <div id="viewer" hidden></div>
@@ -975,7 +993,7 @@ function openViewer(vid,cid,idx){exitLock();VW={vid,cid,idx:idx==null||idx===''?
 function vwCard(){if(!VW)return null;const {vid,cid}=VW;return vid==='me'?ME.inv.find(c=>c.id===cid):(VBY[vid]?.inv||[]).find(c=>c.id===cid)}
 function renderViewer(){const c=vwCard(),el=$('#viewer');if(!c){closeViewer();return}const xs=extras(c),id='vw-'+c.id,big=VW.idx!=null&&xs[VW.idx];
   const wide=innerWidth>=860,v=VW.vid==='me'?VBY.me:VBY[VW.vid],thumbs=(VW.more||big)&&xs.length;
-  const room=wide?innerHeight-130-(thumbs?110:0):innerHeight-(VW.vid==='me'?300:440)-(thumbs?110:0);
+  const room=wide?innerHeight-130-(thumbs?110:0):Math.min(innerHeight-(VW.vid==='me'?300:440),VW.vid==='me'?9999:innerHeight*.36)-(thumbs?110:0);
   const xBtn=`<button class="x" data-act="closeViewer" aria-label="Close">×</button>`;
   let card;
   if(big)card=`<div class="vwcard vwimg" style="cursor:default">${xBtn}<img src="${big}" alt="Photo ${VW.idx+1} of ${xs.length}" style="max-height:${Math.max(240,room)}px"></div><div class="phctl"><button class="btn ghost sm" data-act="vwBack">← Back to the card</button><span class="mute" style="font-size:12.5px">Photo ${VW.idx+1} of ${xs.length}</span></div>`;
@@ -986,7 +1004,7 @@ function renderViewer(){const c=vwCard(),el=$('#viewer');if(!c){closeViewer();re
     else{const k=Math.max(1,Math.min(2.6,room/246,(wide?innerWidth-460:innerWidth-40)/150));stage=`<div class="vwstage" style="width:${Math.round(150*k)}px;height:${Math.round(246*k)}px"><div style="transform:scale(${k.toFixed(3)});transform-origin:0 0;width:150px">${flipHTML(c,id)}</div></div>`}
     card=`<div class="vwcard" data-act="flip" data-id="${id}" title="Tap the card to flip it">${xBtn}${stage}</div><div class="phctl"><button class="btn ghost sm" data-act="flip" data-id="${id}">↻ Flip</button>${xs.length?`<button class="btn ghost sm" data-act="vwMore" aria-expanded="${!!VW.more}">${VW.more?'Hide':'More'} photos (${xs.length})</button>`:''}</div>`}
   const th=thumbs?`<div class="thumbs">${xs.map((u,i)=>`<button data-act="vwPick" data-id="${i}" aria-current="${VW.idx===i}" aria-label="Photo ${i+1}"><img src="${u}" alt=""></button>`).join('')}</div>`:'';
-  const right=`${vwInfoHTML(c)}${VW.vid==='me'?`<div class="phctl" style="justify-content:flex-start"><button class="btn ghost" data-act="photos" data-id="${c.id}">Edit photos</button></div>`:vwActionsHTML(v,c)}${compsHTML(c)}${v&&noteOf(v)?`<div class="vwnote"><b>Note from ${esc(v.name)}</b>${esc(noteOf(v))}</div>`:''}`;
+  const right=`${vwInfoHTML(c)}${VW.vid==='me'?`<div class="phctl" style="justify-content:flex-start"><button class="btn ghost" data-act="photos" data-id="${c.id}">Edit photos</button></div>`:vwActionsHTML(v,c)}<details class="rhdet"><summary>Details</summary><dl class="specs">${c.cert?`<dt>Cert</dt><dd class="mono">${esc(c.cert)}</dd>`:''}<dt>Seller</dt><dd>${esc(VW.vid==='me'?(ME.table||'My Table'):(v&&v.name)||'')}</dd>${v&&v.city?`<dt>Ships from</dt><dd>${esc(v.city)}</dd>`:''}</dl>${compsHTML(c)}</details>${v&&noteOf(v)?`<div class="vwnote"><b>Note from ${esc(v.name)}</b>${esc(noteOf(v))}</div>`:''}`;
   el.innerHTML=`<div class="vw ${wide?'wide':''}" role="dialog" aria-modal="true" aria-label="${esc(c.name)}"><div class="vwleft">${card}${th}</div><div class="vwright">${right}</div></div>`;
   el.hidden=false}
 document.addEventListener('click',e=>{if(e.target.id==='viewer'){closeViewer();relockAfterClick()}});
@@ -994,16 +1012,21 @@ function vwActionsHTML(v,c){if(!v)return '';if(c.sold)return `<div class="vwact"
   const inDeal=(S.deal[v.id]||[]).includes(c.id),lot=S.pick[v.id]||[],inLot=lot.includes(c.id),talk=canTalk(v,ctxOf(v)),q=S.q[v.id];
   const reply=VW.since!=null?(S.chat[v.id]||[]).slice(VW.since).filter(m=>m.f!=='me').pop():null;
   if(holdOther(c))return `<div class="vwact"><div class="heldbar">On hold for ${esc(holdOf(c).name||'another buyer')} until ${hclock(holdOf(c).until)}. Check back after that.</div></div>`;
-  return `<div class="vwact">${holdMine(c)?`<div class="heldbar mine">Held for you · ${minsLeft(holdOf(c))} min left (until ${hclock(holdOf(c).until)})</div>`:''}<div class="row">${inDeal?`<button class="btn gold" data-act="vwBuy">Buy · deal is ${money(dealTotal(v))}</button>`:`<button class="btn gold" data-act="vwDeal">Add to deal · ${money(c.price)}</button>`}<button class="btn ghost" data-act="vwLot" aria-pressed="${inLot}">${inLot?'✓ In your lot':'Add to lot'}</button></div>
-
-   ${talk?`<form class="row" data-form="vwOffer"><div class="amt" style="flex:1"><span class="mute">$</span><input name="amt" id="vwamt" inputmode="decimal" placeholder="Your offer" autocomplete="off" aria-label="Offer amount"></div><button class="btn ghost">Offer</button></form>${reply&&reply.counter&&!reply.used?'':qoHTML('vwOffer','',c.price)}`
-    :`<p class="mute" style="font-size:12.5px;margin:0">${esc(v.name)} takes offers one person at a time. ${q?.state==='waiting'?`You’re #${q.pos} in line.`:`<button class="linkbtn" data-act="vwLine">Get in line</button> to make an offer. Buying works any time.`}</p>`}
+  const dn=dealCards(v).length;
+  return `<div class="vwact rh">${holdMine(c)?`<div class="heldbar mine">Held for you · ${minsLeft(holdOf(c))} min left</div>`:''}
+   <button class="btn gold rhbuy" data-act="vwBuyNow">Buy · ${money(c.price)}</button>
+   ${talk?(VW.offer||reply?`<form class="row" data-form="vwOffer"><div class="amt" style="flex:1"><span class="mute">$</span><input name="amt" id="vwamt" inputmode="decimal" placeholder="Your offer" autocomplete="off" aria-label="Offer amount"></div><button class="btn ghost">Send offer</button></form>${reply&&reply.counter&&!reply.used?'':qoHTML('vwOffer','',c.price)}`:`<button class="btn ghost rhoff" data-act="vwOfferOpen">Make an offer</button>`)
+    :q?.state==='waiting'?`<button class="btn ghost rhoff" disabled>You’re #${q.pos} in line to make offers</button>`:`<button class="btn ghost rhoff" data-act="vwLine">Get in line to make an offer</button>`}
    ${reply?`<div class="say"><span>${esc(reply.t)}</span>${reply.counter&&!reply.used?`<button class="btn gold sm" data-act="acceptCounter" data-id="${v.id}|${reply.counter.c}|${reply.counter.a}">Accept ${money(reply.counter.a)}</button>`:''}${reply.btn?`<button class="btn gold sm" data-act="${reply.btn.act}" data-id="${reply.btn.id}">${esc(reply.btn.label)}</button>`:''}</div>${reply.counter&&!reply.used&&talk&&S.mine[`c:${v.id}|${reply.counter.c}`]&&reply.counter.c===c.id?qcHTML('vwOffer','',c.price,reply.counter.a,S.mine[`c:${v.id}|${reply.counter.c}`]):''}`:''}
-   ${inLot&&lot.length>1?`<p class="mute" style="font-size:12px;margin:0">${lot.length} cards in your lot. Make one offer on all of them from the panel on the right.</p>`:''}</div>`}
-function vwInfoHTML(c){const g=c.grade.split(' ')[0],col=GCOL[g]||['#3a4255','#e8edf6'],seller=VW.vid==='me'?(ME.table||'My Table'):VBY[VW.vid]?.name;
-  return `<div class="vwinfo"><div class="vwlbl"><b style="background:${col[0]};color:${col[1]}">${esc(c.grade)}</b><span>${esc([c.year,c.set,c.num].filter(Boolean).join(' · '))}</span></div>
-   <div class="vwrow"><span class="nm">${esc(c.name)}</span><span class="pr">${c.list&&c.price<c.list?`<s>${money(c.list)}</s>`:''}${money(c.price)}</span></div>
-   <div class="vwmeta">${[c.cert&&VW.vid!=='me'?`Cert <span class="mono">${esc(c.cert)}</span>`:'',seller?`Sold by ${esc(seller)}`:'',c.sold?'Sold':''].filter(Boolean).join(' · ')}</div></div>`}
+   <div class="rhlinks"><button class="linkbtn" data-act="vwDeal">${inDeal?'✓ In your deal':'Add to deal'}</button><span>·</span><button class="linkbtn" data-act="vwLot" aria-pressed="${inLot}">${inLot?'✓ In your lot':'Add to lot'}</button>${dn?`<span>·</span><button class="linkbtn" data-act="vwBuy">Check out deal (${dn})</button>`:''}</div></div>`}
+function sparkHTML(c){const d=compsOf(c).slice().reverse(),k=compsInfo(c),lo=Math.min(...d,c.price),hi=Math.max(...d,c.price),W=300,H=64,y=x=>H-8-(x-lo)/(hi-lo||1)*(H-16);const pts=d.map((x,i)=>`${(4+i*(W-8)/(d.length-1)).toFixed(1)},${y(x).toFixed(1)}`).join(' '),col=k.vs<=-3?'var(--go)':k.vs>=3?'var(--orange)':'var(--gold)';
+  return `<svg class="rhspark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Recent sales, dashed line is the asking price"><line x1="0" x2="${W}" y1="${y(c.price)}" y2="${y(c.price)}" stroke="var(--mute)" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/><polyline fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="${pts}"/></svg><div class="rhsparkl"><span>Last ${d.length} sales</span><span>- - asking</span></div>`}
+function vwInfoHTML(c){const g=c.grade.split(' ')[0],col=GCOL[g]||['#3a4255','#e8edf6'],seller=VW.vid==='me'?(ME.table||'My Table'):VBY[VW.vid]?.name,k=compsInfo(c);
+  return `<div class="vwinfo rh"><div class="vwlbl"><b style="background:${col[0]};color:${col[1]}">${esc(c.grade)}</b><span>${esc([c.year,c.set,c.num].filter(Boolean).join(' · '))}</span></div>
+   <div class="rhname">${esc(c.name)}</div><div class="rhprice">${money(c.price)}${c.list&&c.price<c.list?` <s>${money(c.list)}</s>`:''}</div>
+   ${c.sold?'<div class="rhvs">Sold</div>':`<div class="rhvs ${k.vs<=-3?'good':k.vs>=3?'high':''}">${k.vs<0?`▼ ${-k.vs}% below`:k.vs>0?`▲ ${k.vs}% above`:'Right at'} recent sales <span>avg ${money(k.avg)}</span></div>`}
+   ${sparkHTML(c)}
+</div>`}
 function closeViewer(){VW=null;document.querySelectorAll('#tvSurf .tcard.sel').forEach(b=>b.classList.remove('sel'));const el=$('#viewer');el.hidden=true;el.innerHTML=''}
 /* photo editor for one of your cards */
 function phRefresh(cid){if(S.phEdit===cid&&!$('#modal').hidden&&$('#modal .phgrid'))renderPhotos();if(S.view==='inventory'&&$('#invtable'))renderInvTable()}
@@ -1932,12 +1955,22 @@ function renderVendor(v,el,ctx){
    ${S.view==='room'&&!v.mine?(v.kind==='attendee'?`<div style="display:flex;gap:8px;margin-top:8px">${VOICE.call?.name===v.name?`<button class="btn ghost sm" data-act="endCall">End call with ${esc(v.name)}</button>`:`<button class="btn gold sm" data-act="talkTo" data-id="${esc(v.name)}">Talk to ${esc(v.name)}</button>`}</div>`:canTalk(v,'show')&&v.online?`<div style="display:flex;gap:8px;margin-top:8px">${VOICE.call?.v===v?`<button class="btn ghost sm" data-act="endCall">End voice with ${esc(v.name)}</button>`:`<button class="btn ghost sm" data-act="boothVoice" data-id="${v.id}">Start voice</button>`}</div>`:''):''}
    ${noteOf(v)?`<p class="vnote"><b>Note</b>${esc(noteOf(v))}</p>`:''}${isAway(v)?`<p class="vnote" style="background:#ffd54a"><b>Be back soon</b>${esc(v.name)} is away. You can still look and leave offers.</p>`:''}
    <div class="vstats" id="vst-${v.id}"></div></div>
-   <div id="vdeal-${v.id}"></div><div id="vlot-${v.id}"></div>
+   ${el.id==='tvSide'?'':`<div id="vdeal-${v.id}"></div><div id="vlot-${v.id}"></div>
    <div class="vtabs" role="tablist">${[['buy','Buy'],['sell','Sell to them'],['trade','Trade'],['chat',v.kind==='attendee'?'Chat':'Talk']].map(([k,l])=>`<button role="tab" data-act="vtab" data-id="${v.id}|${k}" aria-selected="${tab===k}">${l}${k==='buy'?`<span class="n">${v.inv.filter(c=>!c.sold).length}</span>`:k==='sell'?`<span class="n">${owned().length}</span>`:''}</button>`).join('')}</div>
-   <div id="vbody-${v.id}"></div>`;
+   <div id="vbody-${v.id}"></div>`}`;
   renderVStats(v);renderVBody(v);
 }
-function renderVStats(v){const el=$('#vst-'+v.id);if(!el)return;const q=S.q[v.id];const live=v.inv.filter(c=>!c.sold&&!c.box),nbx=boxCards(v).length;
+function renderTvActs(v){v=v||TV.v;const el=$('#tvActs'),lp=$('#tvLine');if(!el||!lp||!v||S.tv!==v.id)return;if(v.mine){el.innerHTML='';lp.innerHTML='';return}
+  const n=dealCards(v).length,l=pickCards(v).length;
+  el.innerHTML=`${n||l?`<button class="tva gold" data-act="tvPanel" data-id="deal">${n?`Deal · ${n} · ${money(dealTotal(v))}`:`Lot · ${l} card${l>1?'s':''}`}</button>`:''}<button class="tva" data-act="tvPanel" data-id="sell">Sell</button><button class="tva" data-act="tvPanel" data-id="trade">Trade</button><button class="tva" data-act="tvPanel" data-id="chat">${v.kind==='attendee'?'Chat':'Talk'}</button>`;
+  const q=S.q[v.id];lp.innerHTML=S.view==='room'&&v.mode==='queue'&&(v.kind!=='attendee'||v.real)?(q?.state==='turn'?`<button class="tvl turn" data-act="doneTurn" data-id="${v.id}">Your turn · Done</button>`:q?.state==='waiting'?`<button class="tvl" data-act="leaveLine" data-id="${v.id}">#${q.pos} in line · Leave</button>`:`<button class="tvl" data-act="joinLine" data-id="${v.id}">Get in line${v.lineLen?` · ${v.lineLen} waiting`:''}</button>`):''}
+function tvPanel(k){const v=TV.v;if(!v)return;const sh=$('#tvSh'),b=$('#tvShB');S.tvSheet=k;
+  $('#tvShT').textContent={deal:'Your deal',sell:`Sell to ${v.name}`,trade:`Trade with ${v.name}`,chat:v.kind==='attendee'?`Chat with ${v.name}`:`Talk to ${v.name}`}[k]||v.name;
+  if(k==='deal'){b.innerHTML=`<div id="vdeal-${v.id}"></div><div id="vlot-${v.id}"></div>`;renderDeal(v);renderLot(v);if(!dealCards(v).length&&!pickCards(v).length)b.innerHTML='<p class="mute" style="padding:0 14px">Nothing here yet. Tap a card, then Add to deal or Add to lot.</p>'}
+  else{S.vtab[v.id]=k;b.innerHTML=`<div id="vbody-${v.id}"></div>`;renderVBody(v)}
+  sh.hidden=false}
+function tvShClose(){const sh=$('#tvSh');if(!sh)return;sh.hidden=true;$('#tvShB').innerHTML='';S.tvSheet=null;if(TV.v)S.vtab[TV.v.id]='buy'}
+function renderVStats(v){try{renderTvActs(v)}catch(e){}const el=$('#vst-'+v.id);if(!el)return;const q=S.q[v.id];const live=v.inv.filter(c=>!c.sold&&!c.box),nbx=boxCards(v).length;
   el.innerHTML=`<div><small>Price range</small><b>${(()=>{const p=live.map(c=>c.price);return p.length?(Math.min(...p)===Math.max(...p)?kfmt(p[0]):kfmt(Math.min(...p))+'–'+kfmt(Math.max(...p))):'Sold out'})()}</b></div><div><small>Cards</small><b>${live.length}${nbx?`<span class="mute" style="font-size:12px;font-weight:600"> + ${nbx} in box</span>`:''}</b></div><div><small>${v.mode==='open'?'Table':'Line'}</small><b>${v.kind==='attendee'?'Collector':v.mode==='open'?'Open':q?.state==='turn'?'Your turn':q?.state==='waiting'?`You’re #${q.pos}`:`${v.lineLen} waiting`}</b></div>${rulesText(v)&&!v.mine?`<div class="rulebar"><b>Table deals</b> ${esc(rulesText(v))}</div>`:''}${v.mode==='queue'&&!v.mine&&(v.kind!=='attendee'||v.real)?`<div class="linecta">${q?.state==='turn'?`<b style="color:var(--go)">It’s your turn.</b><span class="mute">Make offers, lots or trades. Buy now always works.</span><button class="btn ghost sm" data-act="doneTurn" data-id="${v.id}">Done dealing</button>`:q?.state==='waiting'?`<b>You’re #${q.pos} in line</b><span class="mute">${q.pos<=1?'You’re next.':'Moving fast, usually under a minute.'} Keep browsing, we’ll ping you.</span><button class="btn ghost sm" data-act="leaveLine" data-id="${v.id}">Leave line</button>`:`<button class="btn gold sm" data-act="joinLine" data-id="${v.id}">${v.real&&v.kind==='attendee'?`Ask to deal with ${esc(v.person||v.name)}`:'Get in line to make offers'}${v.lineLen?` · ${v.lineLen} waiting`:''}</button><span class="mute">Buy now works without waiting.</span>`}</div>`:''}`;
   const t=document.querySelector(`[data-act="vtab"][data-id="${v.id}|buy"] .n`);if(t)t.textContent=live.length;renderDeal(v);renderLot(v)}
 function refreshParty(v){if(v.mine){const el=document.querySelector('[data-vid="me"]');if(el)renderMyTable(el);return}renderVStats(v);renderVBody(v)}
@@ -1946,7 +1979,7 @@ function renderVBody(v){const el=$('#vbody-'+v.id);if(!el)return;const tab=S.vta
   else if(tab==='sell')el.innerHTML=`<div class="sec">${sellHTML(v)}</div>`;
   else if(tab==='trade')el.innerHTML=`<div class="sec">${tradeHTML(v)}</div>`;
   else{el.innerHTML=`<div class="sec" id="talk-${v.id}"></div>`;renderTalk(v)}}
-function renderInv(v){if(VW&&VW.vid===v.id)setTimeout(()=>VW&&renderViewer(),0);if(S.tv===v.id){renderTvSurface();tvMeta()}if(v.mine)return refreshParty(v);renderVStats(v);if((S.vtab[v.id]||'buy')==='buy')renderVBody(v)}
+function renderInv(v){if(VW&&VW.vid===v.id)setTimeout(()=>VW&&renderViewer(),0);if(S.tv===v.id){renderTvSurface();tvMeta();renderTvActs(v);if(S.tvSheet==='deal')tvPanel('deal')}if(v.mine)return refreshParty(v);renderVStats(v);if((S.vtab[v.id]||'buy')==='buy')renderVBody(v)}
 function gridHTML(v){const f=S.vfilter[v.id]||'all',sort=S.vsort[v.id]||'high';
   let cs=v.inv.filter(c=>!c.box).filter(c=>f==='all'||(f==='graded'?c.grade!=='Raw':c.grade==='Raw'));
   cs=[...cs].sort((a,b)=>(a.sold-b.sold)||(sort==='high'?b.price-a.price:sort==='low'?a.price-b.price:a.name.localeCompare(b.name)));
@@ -2127,14 +2160,14 @@ function askHold(v,c){if(!v||!c||c.sold)return;if(holdMine(c))return toast(`Alre
 setInterval(()=>{const now=Date.now();const all=[...(ME?ME.inv:[]),...Object.values(VBY).flatMap(v=>v&&!v.mine&&Array.isArray(v.inv)?v.inv:[])];let mine=false;
   all.forEach(c=>{if(c&&c.hold&&c.hold.until<=now){const was=c.hold;delete c.hold;if(was.me)toast(`Your hold on the ${c.name} ran out`);if(ME&&ME.inv.includes(c))mine=true}});if(mine){save();if(S.view==='room')syncBooth(VBY.me)}},15000);
 const pickCards=v=>(S.pick[v.id]||[]).map(id=>v.inv.find(c=>c.id===id)).filter(c=>c&&!c.sold);
-function renderDeal(v){const el=$('#vdeal-'+v.id);if(!el)return;const cs=dealCards(v);if(!cs.length){el.innerHTML='';return}
+function renderDeal(v){try{renderTvActs(v)}catch(e){}const el=$('#vdeal-'+v.id);if(!el)return;const cs=dealCards(v);if(!cs.length){el.innerHTML='';return}
   const sub=cs.reduce((s,c)=>s+c.price,0),tot=dealTotal(v),list=cs.reduce((s,c)=>s+c.list,0),bp=bundlePct(v,cs.length),r=rulesOf(v),next=cs.length<3&&r.b3?{n:3-cs.length,p:r.b3}:cs.length<5&&cs.length>=3&&r.b5?{n:5-cs.length,p:r.b5}:null;
   el.innerHTML=`<div class="deal"><div class="dealhd"><span class="eyebrow">Your deal · ${cs.length} card${cs.length>1?'s':''}</span><b class="mono">${money(tot)}</b></div>
   ${bp?`<div class="dealrule on">Bundle deal: ${bp}% off · you save ${money(sub-tot)}</div>`:''}${next?`<div class="dealrule">Add ${next.n} more card${next.n>1?'s':''} for ${next.p}% off everything in your deal</div>`:''}
   ${cs.map(c=>`<div class="drow">${slab(c,'b')}<div style="min-width:0"><b>${esc(c.name)}</b><span>${esc(c.set)} · ${esc(c.grade)}${c.held?' · price held':''}</span></div><div class="dpr">${c.price<c.list?`<s>${money(c.list)}</s>`:''}<b>${money(c.price)}</b></div>
    <div class="dact">${S.dealEdit===c.id?`<form data-form="dealEdit" data-id="${v.id}|${c.id}" class="inline"><div class="amt sm"><span class="mute">$</span><input name="amt" id="de-${c.id}" inputmode="decimal" placeholder="New offer" autocomplete="off" aria-label="New offer"></div><button class="btn ghost sm">Send</button></form><button class="linkbtn" data-act="dealEditOpen" data-id="${v.id}|">Cancel</button>`:`<button class="linkbtn" data-act="dealEditOpen" data-id="${v.id}|${c.id}">Edit offer</button>`}<button class="linkbtn" data-act="dealRemove" data-id="${v.id}|${c.id}" style="color:var(--mute)">Remove</button></div></div>`).join('')}
   <div class="dealft"><span>${list>tot?`You’re saving ${money(list-tot)} off asking`:'At asking price'}</span><button class="btn gold" data-act="buyDeal" data-id="${v.id}">Buy all · ${money(tot)}</button></div></div>`}
-function renderLot(v){const el=$('#vlot-'+v.id);if(!el)return;const cs=pickCards(v);if(!cs.length){el.innerHTML='';return}
+function renderLot(v){try{renderTvActs(v)}catch(e){}const el=$('#vlot-'+v.id);if(!el)return;const cs=pickCards(v);if(!cs.length){el.innerHTML='';return}
   const ask=cs.reduce((s,c)=>s+c.price,0),L=S.lot[v.id]||{},talk=canTalk(v,ctxOf(v));
   el.innerHTML=`<div class="lot"><div class="dealhd"><span class="eyebrow" style="color:var(--orange)">Lot · ${cs.length} selected</span><span class="mono">asking ${money(ask)}</span></div>
   <div class="chips">${cs.map(c=>`<button class="lchip" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="Remove ${esc(c.name)} from lot">${esc(c.name)} · ${money(c.price)} ✕</button>`).join('')}</div>
@@ -2213,9 +2246,9 @@ function tvBind(){if(TV.bound)return;TV.bound=true;const st=$('#tvStage');
   addEventListener('resize',()=>{if(!$('#tv').hidden&&innerWidth!==TV.lastW)tvFit()});
 }
 function openTable(v,ctx){if(!v)return;exitLock();closeDrawer();keys.clear();tvBind();TV.v=v;TV.ctx=ctx;S.tv=v.id;$('#tv').hidden=false;document.body.classList.add('tvopen');
-  renderTvSurface();tvMeta();renderVendor(v,$('#tvSide'),ctx);$('#tv').classList.remove('tall');$('.tvgrab span').textContent='More';requestAnimationFrame(()=>tvFit(true));
+  tvShClose();renderTvSurface();tvMeta();renderVendor(v,$('#tvSide'),ctx);$('#tv').classList.remove('tall','collapsed');$('.tvgrab span').textContent='Less';renderTvActs(v);requestAnimationFrame(()=>tvFit(true));
   if(S.view==='room'&&player){const b=booths.find(x=>x.v===v);if(b)player.rotation.y=Math.PI;else if(S.talkBot)player.rotation.y=Math.atan2(S.talkBot.position.x-player.position.x,S.talkBot.position.z-player.position.z)}}
-function closeTable(){if($('#tv').hidden)return;$('#tv').hidden=true;document.body.classList.remove('tvopen');S.tv=null;TV.v=null;const sd=$('#tvSide');sd.innerHTML='';delete sd.dataset.vid;delete sd.dataset.ctx;if(S.talkBot){S.talkBot.userData.wait=1.5;S.talkBot=null}}
+function closeTable(){if($('#tv').hidden)return;tvShClose();$('#tv').hidden=true;document.body.classList.remove('tvopen');S.tv=null;TV.v=null;const sd=$('#tvSide');sd.innerHTML='';delete sd.dataset.vid;delete sd.dataset.ctx;if(S.talkBot){S.talkBot.userData.wait=1.5;S.talkBot=null}}
 
 /* ================= stage + VIP room sessions ================= */
 function sessObj(key){const D=showData;return key==='stage'?D.stage:D.rooms[key==='vip1'?0:1]}
@@ -2249,7 +2282,7 @@ function shipOpts(c){const o=[];if(c.grade==='Raw'&&c.price<75)o.push({id:'pwe',
   o.push({id:'bmwt',n:'Bubble mailer · tracked',cost:5.25,svc:'USPS GROUND ADVANTAGE',l:'G'});
   o.push({id:'pri',n:'Priority · insured to value',cost:+(9.85+c.price*.012).toFixed(2),svc:'USPS PRIORITY MAIL',l:'P'});return o}
 function openCheckout(v,c){addToDeal(v,c);openCheckoutDeal(v)}
-function openCheckoutDeal(v){exitLock();const cs=dealCards(v);if(!cs.length)return toast('Your deal is empty');const sub=dealSub(v),tot=dealTotal(v),bp=bundlePct(v,cs.length);
+function openCheckoutDeal(v,only){exitLock();const cs=only||dealCards(v);if(!cs.length)return toast('Your deal is empty');const sub=+cs.reduce((t,c)=>t+c.price,0).toFixed(2),bp=bundlePct(v,cs.length),tot=+(sub*(1-bp/100)).toFixed(2);
   const opts=shipOpts({grade:cs.every(c=>c.grade==='Raw')?'Raw':'PSA',price:tot});CO={v,cs,tot,sub,bp,opts,ship:tot>=500?'pri':'bmwt',payer:tot>=v.shipFree?'seller':'buyer',addr:(CO&&CO.addr)||ME.name+'\n'+ME.from};
   if(!opts.find(o=>o.id===CO.ship))CO.ship=opts[0].id;renderCheckout()}
 function renderCheckout(){
@@ -2272,7 +2305,7 @@ function placeOrder(){if(!CO||CO.done)return;if(CO.cs.some(c=>c.sold)){CO.done=t
     ME.ledger.unshift({id:cs.length>1?`${no}-${i+1}`:no,order:no,ts:Date.now(),side:'buy',card:snap(c),party:v.name,price:paid,ship:share,total,where:S.view==='room'?showData.name:'Marketplace',label:L});
     ME.inv.unshift(mkMine({...snap(c),cost:total,price:c.list,floor:round5(c.list*.85),mkt:c.list,forSale:false,from:v.name}));
     c.sold=true;c.held=false});
-  S.deal[v.id]=[];S.pick[v.id]=(S.pick[v.id]||[]).filter(id=>!cs.some(c=>c.id===id));
+  S.deal[v.id]=(S.deal[v.id]||[]).filter(id=>!cs.some(c=>c.id===id));S.pick[v.id]=(S.pick[v.id]||[]).filter(id=>!cs.some(c=>c.id===id));
   save(true);renderTabs();renderInv(v);if(S.view==='room')syncBooth(v);
   if(S.chat[v.id]){S.chat[v.id].push({f:'sys',t:`Order ${no} placed for ${cs.length} card${cs.length>1?'s':''}.`});renderTalk(v)}
   vendorSpeak(v,'Pleasure doing business! I’ll pack it up after the show.');
@@ -2623,6 +2656,8 @@ const ACT={
   phDel:p=>{const [cid,k]=p.split('|'),c=ME.inv.find(x=>x.id===cid);if(!c?.img)return;let ref;if(k[0]==='x'){const n=+k.slice(1);ref=(c.img.x||[])[n];c.img.x.splice(n,1)}else{ref=c.img[k];delete c.img[k]}save();removeStored(ref);renderPhotos();photosChanged(c)},
   vwDeal:()=>{const v=VBY[VW.vid];ACT.addDeal(`${VW.vid}|${VW.cid}`);renderVStats(v);renderViewer()},
   vwBuy:()=>{const v=VBY[VW.vid];closeViewer();openCheckoutDeal(v)},
+  vwBuyNow:()=>{const v=VW.vid==='me'?null:VBY[VW.vid],c=v&&findCard(VW.vid,VW.cid);if(!c||c.sold)return;if(holdOther(c))return toast('That card is on hold for someone else');closeViewer();openCheckoutDeal(v,[c])},
+  vwOfferOpen:()=>{if(!VW)return;VW.offer=true;renderViewer();setTimeout(()=>$('#vwamt')?.focus(),40)},
   vwLot:()=>{const vid=VW.vid,cid=VW.cid,v=VBY[vid],a=S.pick[vid]=S.pick[vid]||[],i=a.indexOf(cid);if(i>=0)a.splice(i,1);else a.push(cid);S.lot[vid]={};if(S.tv===vid)renderTvSurface();tvMarkSel();renderLot(v);if((S.vtab[vid]||'buy')==='buy'&&S.vdetail[vid])renderVBody(v);renderViewer()},
   vwLine:()=>{ACT.joinLine(VW.vid);renderViewer()},
   viewCard:p=>{const [vid,cid,i]=p.split('|');openViewer(vid,cid,i)},
@@ -2664,7 +2699,8 @@ const ACT={
   flip:id=>{S.flip=S.flip||{};S.flip[id]=!S.flip[id];document.querySelectorAll('#'+CSS.escape(id)).forEach(el=>el.classList.toggle('on',S.flip[id]))},
   morePh:cid=>{S.morePh=S.morePh===cid?null:cid;if(!$('#tv').hidden&&TV.v)renderVendor(TV.v,$('#tvSide'),TV.ctx);rerenderOpen()},
   myDetail:cid=>{S.vdetail.me=cid||null;if(!$('#tv').hidden&&TV.v===VBY.me){renderVendor(VBY.me,$('#tvSide'),TV.ctx);tvMarkSel();if(cid&&innerWidth<=820)$('#tvSide').scrollTop=0}rerenderOpen()},
-  tvSheet:()=>{const t=$('#tv').classList.toggle('tall');$('.tvgrab span').textContent=t?'Less':'More';$('.tvgrab').setAttribute('aria-label',t?'Shrink card panel':'Expand card panel');setTimeout(()=>tvFit(true),280)},
+  tvSheet:()=>{const c=$('#tv').classList.toggle('collapsed');$('.tvgrab span').textContent=c?'Booth info':'Less';$('.tvgrab').setAttribute('aria-label',c?'Show booth info':'Hide booth info');setTimeout(()=>tvFit(),60)},
+  tvPanel:k=>tvPanel(k),tvShClose:()=>tvShClose(),
   nextToggle:()=>$('#next').classList.toggle('open'),
   tvZoom:k=>{const r=$('#tvStage').getBoundingClientRect();if(k==='fit')return tvFit();tvZoomAt(r.width/2,r.height/2,TV.s*(k==='in'?1.35:1/1.35),true)},
   tvCard:p=>{if(TV.moved)return;const [vid,cid]=p.split('|');if(vid==='me'){S.vdetail.me=cid;tvMarkSel();return openViewer('me',cid)}openViewer(vid,cid);S.vdetail[vid]=cid;S.vtab[vid]='buy';renderVendor(VBY[vid],$('#tvSide'),TV.ctx);tvMarkSel();if(innerWidth<=820)$('#tvSide').scrollTop=0},

@@ -281,7 +281,7 @@ const _trTake=ACT.trTake;ACT.trTake=vid=>{const v=VBY[vid];if(!v||!v.real)return
 async function cancelTradeRow(v,quiet){const T=tradeOf(v),id=T.pendingRow||T.counterRow;T.pendingRow=null;T.counterRow=null;T.counter=null;ME.inv.forEach(c=>{if(c.pendTrade===v.id){c.pending=false;delete c.pendTrade}});if(!id)return;const r=MP.rows[id];const ids=((r&&r.ship&&r.ship.give)||[]).map(x=>x.id);ME.inv.forEach(c=>{if(ids.includes(c.id)){c.pending=false;delete c.pendTrade}});
   try{await NET.updateOffer(id,{status:'cancelled',by_user:MP.uid})}catch(e){}if(!quiet)toast('Trade cancelled')}
 const _trCancel=ACT.trCancel;ACT.trCancel=async vid=>{const v=VBY[vid];if(!v||!v.real)return _trCancel(vid);await cancelTradeRow(v);const T=tradeOf(v);T.msg=null;renderVBody(v)};
-ACT.openTrade=vid=>{const v=VBY[vid];if(!v)return;S.vtab[vid]='trade';if(v.real)openReal(v.uid,'show');else openTable(v,'show')};
+ACT.openTrade=async vid=>{const v=VBY[vid];if(!v)return;if(v.real)await openReal(v.uid,'show');else openTable(v,'show');setTimeout(()=>tvPanel('trade'),60)};
 const _trSend=ACT.trSend;ACT.trSend=async vid=>{const v=VBY[vid];if(!v||!v.real)return _trSend(vid);if(needTurn(v))return toast(`Get in ${v.person||v.name}’s line to deal first`);{const T0=tradeOf(v);if(T0.pendingRow||T0.counterRow)await cancelTradeRow(v,true)}
   const {T,getC,giveC}=tradeParts(v),c=+T.cash||0;if(!getC.length)return toast('Pick something from their table first');
   const r=await newRow({kind:'trade',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:getC.map(cardRef),amount:c,ship:{give:giveC.map(x=>({...cardRef(x),grade:x.grade,cost:x.cost}))}});
@@ -296,7 +296,7 @@ const _placeOrder=placeOrder;
 window.placeOrder=ACT.placeOrder=async function(){if(!CO||CO.done)return;const {v,cs,tot,opts}=CO;if(!v.real)return _placeOrder();CO.done=true;
   const o=opts.find(x=>x.id===CO.ship),addr=($('#addr')?.value||CO.addr).trim();
   const r=await newRow({kind:'order',buyer:MP.uid,seller:v.uid,buyer_name:ME.name,seller_name:v.person||v.name,cards:cs.map(cardRef),amount:tot,ship:{id:o.id,payer:CO.payer,cost:o.cost,addr}});if(!r)return;
-  cs.forEach(c=>{c.held=false;c.pending=true});S.deal[v.id]=[];try{renderInv(v)}catch(e){}
+  cs.forEach(c=>{c.held=false;c.pending=true});S.deal[v.id]=(S.deal[v.id]||[]).filter(id=>!cs.some(c=>c.id===id));try{renderInv(v)}catch(e){}
   openModal(`<div class="sec"><span class="eyebrow">Order sent</span><h2>Waiting for ${esc(v.person||v.name)}</h2><p>${cs.length} card${cs.length>1?'s':''} for ${money(tot)}${CO.payer==='buyer'?` plus ${money(o.cost)} shipping`:''}. ${v.online?'They’re online, so it should confirm in a moment.':'It confirms as soon as they’re back online.'} The cards land in your binder when it does.</p><p class="mute" style="font-size:12.5px">Demo money. Nothing is charged.</p><button class="btn gold" data-act="closeModal" style="justify-self:start">Keep shopping</button></div>`)};
 /* seller: fulfill an order or an accepted deal */
 function myCards(r){return r.cards.map(ref=>ME.inv.find(c=>c.id===ref.id&&!c.sold))}
