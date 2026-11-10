@@ -161,6 +161,18 @@ body:not(.isvendor) .vbtn{display:none!important}
 #splash .back{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:max(14px,env(safe-area-inset-left,0px))}
 #joy,#ebtn,#fbtn{display:none}
 
+#tour{position:fixed;inset:0;z-index:60;background:rgba(3,5,10,.55);display:flex;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+#tour .tcard2{background:var(--panel);border:1px solid var(--gold);border-radius:18px;padding:18px;max-width:340px;display:grid;gap:6px;box-shadow:0 20px 50px rgba(0,0,0,.6);height:max-content}
+#tour .tic{font-size:30px}#tour b{font-size:19px}#tour p{margin:0;color:var(--mute);font-size:15px;line-height:1.4}
+#tour .trow{display:flex;align-items:center;gap:12px;margin-top:8px}#tour .trow .btn{margin-left:auto;padding:10px 22px}
+#tour .tdots{display:flex;gap:5px}#tour .tdots i{width:7px;height:7px;border-radius:50%;background:var(--line)}#tour .tdots i.on{background:var(--gold)}
+#tour.tl-joy{align-items:flex-end;justify-content:flex-start}#tour.tl-joy .tcard2{margin-bottom:170px}
+#tour.tl-act{align-items:flex-end;justify-content:flex-end}#tour.tl-act .tcard2{margin-bottom:220px}
+#tour.tl-mid{align-items:center;justify-content:center}
+#tour.tl-menu{align-items:flex-end;justify-content:center}#tour.tl-menu .tcard2{margin-bottom:90px}
+.hmrow{display:flex;gap:14px;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;text-align:left;padding:13px 4px;cursor:pointer}.hmrow:last-child{border:0;color:var(--orange)}.hmrow .ic{font-size:24px;width:32px;text-align:center}.hmrow b{display:block;font-size:16.5px}.hmrow small{color:var(--mute);font-size:13px}
+.mobilebar .hmenu{font-size:15px!important;padding:10px 18px!important;font-weight:800}
+@media (pointer:coarse){#wchip,.mapwrap .explored{display:none!important}}
 .mobilebar{display:none;position:absolute;z-index:3;left:max(150px,env(safe-area-inset-left,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));gap:6px;flex-wrap:wrap;right:110px}
 @media (pointer:coarse){
   #joy{display:block;position:absolute;z-index:3;left:max(20px,env(safe-area-inset-left,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(120,150,210,.3);touch-action:none}
@@ -259,13 +271,13 @@ input,select,textarea{background:var(--bg);border:1px solid var(--line);border-r
 .filters input[type=search]{width:min(260px,100%)}
 .toggle{display:flex;gap:6px;align-items:center;font-size:14px}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
-.vcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
-.vcard .table{height:92px;display:flex;align-items:flex-end;justify-content:center;gap:8px;padding-bottom:10px;position:relative}
-.vcard .table::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--drape)}
-.vcard .b{padding:14px;display:grid;gap:6px;flex:1}
-.vcard h3{font-size:19px}
-.vcard .f{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--line);font-size:13px}
-.vcard.offline .table{filter:grayscale(.7) brightness(.8)}
+.mcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.mcard .table{height:92px;display:flex;align-items:flex-end;justify-content:center;gap:8px;padding-bottom:10px;position:relative}
+.mcard .table::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--drape)}
+.mcard .b{padding:14px;display:grid;gap:6px;flex:1}
+.mcard h3{font-size:19px}
+.mcard .f{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--line);font-size:13px}
+.mcard.offline .table{filter:grayscale(.7) brightness(.8)}
 .results{display:grid;gap:8px;margin-bottom:20px}
 .olist{display:grid;gap:10px}
 .orow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
@@ -547,6 +559,31 @@ body:has(#modal:not([hidden])) #offers{display:none}
 .vwact.rh{display:grid;gap:8px}.vw:not(.wide) .vwact.rh{position:sticky;bottom:0;z-index:3;box-shadow:0 -10px 24px rgba(3,5,10,.85)}.rhbuy{width:100%;padding:14px;font-size:17px;font-weight:800;border-radius:12px}.rhoff{width:100%;padding:12px;font-size:15px;border-radius:12px}
 .rhlinks{display:flex;gap:6px;justify-content:center;align-items:center;font-size:13px;color:var(--mute);flex-wrap:wrap}
 .rhdet{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.rhdet summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--mute);list-style:none}.rhdet summary::before{content:'▸ '}.rhdet[open] summary::before{content:'▾ '}.rhdet .specs{margin:8px 0}
+/* bottom tab bar (phones) */
+.tabbar{display:none}
+@media (max-width:720px){#acct{display:none!important}.tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:12;background:rgba(9,13,24,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+ .tabbar button{position:relative;background:none;border:0;color:var(--mute);display:grid;justify-items:center;gap:3px;padding:4px 0;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+ .tabbar svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+ .tabbar button[aria-current="true"]{color:var(--gold)}.tabbar i{position:absolute;top:0;left:calc(50% + 6px);background:var(--orange);color:#fff;font-style:normal;font-size:10px;font-weight:800;border-radius:999px;padding:1px 5px}
+ body.inworld .tabbar{display:none}
+ #tabs,#wallet{display:none!important}
+ .top{padding-block:10px;margin-bottom:14px;flex-wrap:nowrap}
+ #app{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+/* big-number headers */
+.hero{display:grid;gap:4px;margin:4px 0 18px}.hero small{color:var(--mute);font-weight:700;font-size:13px}.hero .big{font-family:var(--f-mono);font-weight:800;font-size:clamp(34px,9vw,46px);line-height:1.05}.hero .subl{font-size:14px;color:var(--mute)}.hero .subl b{font-weight:700}
+.pghead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}.pghead h1{font-size:28px}
+/* my cards list */
+.clist{display:grid;gap:2px}.crow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 6px;border-radius:12px;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;width:100%}
+.crow:hover{background:var(--panel)}.crow .slab{transform:scale(.8);transform-origin:left center;margin-right:-10px}.crow b{display:block;font-size:15.5px}.crow .sub2{font-size:13px;color:var(--mute)}
+.crow .rt{text-align:right}.crow .rt .p{font-family:var(--f-mono);font-weight:800;font-size:16px;display:block}.crow .st{font-size:12px;font-weight:700;color:var(--mute)}.crow .st.on{color:var(--go)}
+.bigadd{width:100%;padding:14px;font-size:16px;font-weight:800;border-radius:12px;margin-bottom:14px}
+.csheet{display:grid;gap:14px}.csheet .top2{display:flex;gap:14px;align-items:center}.csheet .fld{display:grid;grid-template-columns:1fr 130px;align-items:center;gap:10px;font-weight:600}.csheet .fld input{font-family:var(--f-mono);font-size:17px;text-align:right}
+.csheet .swrow{display:flex;justify-content:space-between;align-items:center;font-weight:600;padding:4px 0}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 4px;border-bottom:1px solid var(--line);font-weight:600}
+.mset{border-bottom:1px solid var(--line)}.mset>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:15px 4px;font-weight:700;font-size:16px}.mset>summary::after{content:'›';color:var(--mute);font-size:22px;transition:transform .15s}.mset[open]>summary::after{transform:rotate(90deg)}.mset>summary span{color:var(--mute);font-weight:500;font-size:14px;margin-left:auto;margin-right:10px}.mset .in{padding:0 0 16px}
+.hrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}.hrow .slab{transform:scale(.7);transform-origin:left center;margin-right:-14px}.hrow b{display:block;font-size:14.5px}.hrow span{font-size:12.5px;color:var(--mute)}.hrow .amt2{font-family:var(--f-mono);font-weight:800;text-align:right}
+.meid{display:flex;gap:14px;align-items:center;margin-bottom:6px}.meid .av2{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;color:#fff}
+html.touch .kbonly,html.touch .pa kbd{display:none!important}
 .linecta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px}.linecta .mute{font-size:12px}.linecta .btn{margin-left:auto}.linecta .btn.gold{margin-left:0}
 .fres{display:grid;gap:10px}
 .fgrp{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px}
@@ -736,9 +773,10 @@ textarea{width:100%;resize:vertical;min-height:62px}
 <header class="top" id="topbar">
   <div class="brand">Slab <span>Row</span><i></i></div>
   <nav class="tabs" id="tabs"></nav>
-  <button class="wallet" id="wallet" data-act="nav" data-id="desk" title="Open My Desk"></button>
+  <button class="wallet" id="wallet" data-act="nav" data-id="desk" title="Me"></button>
 </header>
 <main id="app"></main>
+<nav class="tabbar" id="tabbar" aria-label="Main"></nav>
 
 <div id="world" hidden>
   <div id="gl"></div>
@@ -755,7 +793,7 @@ textarea{width:100%;resize:vertical;min-height:62px}
     <form data-form="prox"><input id="proxin" name="msg" placeholder="Talk to people near you" autocomplete="off"><button class="btn gold sm">Say</button></form></div>
   <div class="hud hint" id="hint"><span id="lookHint">Click to look around</span><span>·</span><span><kbd>H</kbd> controls</span><button data-act="find" id="findBtn">Find a card · J</button><button data-act="mine">My cards · I</button><button data-act="promoToggle">Promote · P</button><button class="vbtn" data-act="boothKey">Operate booth · O</button><button class="vbtn" data-act="manageKey">Manage booth · M</button><button data-act="voicePanel" id="micBtn">Voice · off</button><button data-act="toggleChat">Chat · T</button><button data-act="nav" data-id="shows">Leave show</button></div>
   <button id="pttBtn" aria-label="Hold to talk">HOLD<br>TO TALK</button>
-  <div class="mobilebar"><button class="hbtn vbtn" data-act="boothKey">My booth</button><button class="hbtn" data-act="voicePanel" id="micBtnM">Voice</button><button class="hbtn" data-act="find" id="findBtnM">Find</button><button class="hbtn" data-act="mine">My cards</button><button class="hbtn" data-act="map">Map</button><button class="hbtn" data-act="toggleChat">Chat</button><button class="hbtn" data-act="agenda">Agenda</button><button class="hbtn" data-act="nav" data-id="shows">Leave</button></div>
+  <div class="mobilebar"><button class="hbtn vbtn" data-act="boothKey">My table</button><button class="hbtn hmenu" data-act="hudMenu" aria-label="Menu"><span aria-hidden="true">☰</span> Menu</button><span hidden id="micBtnM"></span><span hidden id="findBtnM"></span></div>
   <div class="hud controls" id="controls" hidden>
     <h3>Controls</h3>
     <div class="keys"><kbd>W A S D</kbd><span>Walk</span><kbd>Shift</kbd><span>Run</span><kbd>Space</kbd><span>Jump</span><kbd>Mouse</kbd><span>Look around (click the world first)</span><kbd>E</kbd><span>Interact · visit a table · sit</span><kbd>O</kbd><span>Operate your booth from anywhere (again to step out)</span><kbd>M</kbd><span>Manage your booth from anywhere</span><kbd>N</kbd><span>Map and walk-to</span><kbd>G</kbd><span>Agenda</span><kbd>C</kbd><span>Captions on/off</span><kbd>V</kbd><span>First / third person</span><kbd>I</kbd><span>My cards (prices, for sale)</span><kbd>P</kbd><span>Show or hide your promo card</span><kbd>T</kbd><span>Nearby chat</span><kbd>Q</kbd><span>Hold to talk (push-to-talk voice)</span><kbd>Esc</kbd><span>Free the mouse / close</span></div>
@@ -764,7 +802,7 @@ textarea{width:100%;resize:vertical;min-height:62px}
   <div id="joy"><i id="knob"></i></div>
   <button id="ebtn" data-act="interact" hidden>VISIT</button>
   <button id="fbtn" data-act="interact2" hidden>MANAGE</button>
-  <aside id="drawer" hidden><div class="dx"><span class="eyebrow" id="dTitle">Table</span><button class="hbtn" data-act="closeDrawer">Close · Esc</button></div><div id="dBody"></div></aside>
+  <aside id="drawer" hidden><div class="dx"><span class="eyebrow" id="dTitle">Table</span><button class="hbtn" data-act="closeDrawer">Close<span class="kbonly"> · Esc</span></button></div><div id="dBody"></div></aside>
   <div id="mapPanel" hidden></div>
   <div id="splash"></div>
 </div>
@@ -919,10 +957,12 @@ function attendeeParty(bot){const name=bot.userData.name;const id='p_'+name.repl
 /* ================= shell ================= */
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2800)}
 function renderWallet(){if(!ME)return;const L=ME.ledger,sp=spentOf(L),pf=sumOf(L.filter(e=>e.side==='sell'),'profit');
-  const h=`<span>Spent</span>${money(sp)}<span>P/L</span><b class="${pf>=0?'pos':'neg'}">${signed(pf)}</b>`;const w=$('#wallet');if(w)w.innerHTML=h;const c=$('#wchip');if(c)c.innerHTML=h}
+  const h=`<span>Spent</span>${money(sp)}<span>Profit</span><b class="${pf>=0?'pos':'neg'}">${signed(pf)}</b>`;const w=$('#wallet');if(w)w.innerHTML=h;const c=$('#wchip');if(c)c.innerHTML=h}
+const TABICON={shows:'<path d="M3 9.5 12 4l9 5.5V20H3z"/><path d="M9 20v-6h6v6"/>',market:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',inventory:'<rect x="6" y="3" width="12" height="18" rx="2"/><rect x="8.5" y="6" width="7" height="3" rx=".5"/>',desk:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'};
 function renderTabs(){renderWallet();
-  const t=[['shows','Shows'],['market','Marketplace'],['inventory','Inventory'],['desk','My Desk']];
-  $('#tabs').innerHTML=t.map(([id,l])=>`<button class="tab" data-act="nav" data-id="${id}" aria-current="${S.view===id}">${l}${id==='desk'&&ME?.ledger.length?`<span class="ct">${ME.ledger.length}</span>`:''}</button>`).join('');
+  const t=[['shows','Shows'],['market','Shop'],['inventory','My Cards'],['desk','Me']],ship=ME?ME.ledger.filter(e=>e.side==='sell'&&!e.shipped).length:0;
+  $('#tabs').innerHTML=t.map(([id,l])=>`<button class="tab" data-act="nav" data-id="${id}" aria-current="${S.view===id}">${l}${id==='desk'&&ship?`<span class="ct">${ship}</span>`:''}</button>`).join('');
+  const bb=$('#tabbar');if(bb)bb.innerHTML=t.map(([id,l])=>`<button data-act="nav" data-id="${id}" aria-current="${S.view===id}"><svg viewBox="0 0 24 24" aria-hidden="true">${TABICON[id]}</svg><span>${l}</span>${id==='desk'&&ship?`<i>${ship}</i>`:''}</button>`).join('');
 }
 function go(view){
   closeTable();
@@ -1018,7 +1058,7 @@ function vwActionsHTML(v,c){if(!v)return '';if(c.sold)return `<div class="vwact"
    ${talk?(VW.offer||reply?`<form class="row" data-form="vwOffer"><div class="amt" style="flex:1"><span class="mute">$</span><input name="amt" id="vwamt" inputmode="decimal" placeholder="Your offer" autocomplete="off" aria-label="Offer amount"></div><button class="btn ghost">Send offer</button></form>${reply&&reply.counter&&!reply.used?'':qoHTML('vwOffer','',c.price)}`:`<button class="btn ghost rhoff" data-act="vwOfferOpen">Make an offer</button>`)
     :q?.state==='waiting'?`<button class="btn ghost rhoff" disabled>You’re #${q.pos} in line to make offers</button>`:`<button class="btn ghost rhoff" data-act="vwLine">Get in line to make an offer</button>`}
    ${reply?`<div class="say"><span>${esc(reply.t)}</span>${reply.counter&&!reply.used?`<button class="btn gold sm" data-act="acceptCounter" data-id="${v.id}|${reply.counter.c}|${reply.counter.a}">Accept ${money(reply.counter.a)}</button>`:''}${reply.btn?`<button class="btn gold sm" data-act="${reply.btn.act}" data-id="${reply.btn.id}">${esc(reply.btn.label)}</button>`:''}</div>${reply.counter&&!reply.used&&talk&&S.mine[`c:${v.id}|${reply.counter.c}`]&&reply.counter.c===c.id?qcHTML('vwOffer','',c.price,reply.counter.a,S.mine[`c:${v.id}|${reply.counter.c}`]):''}`:''}
-   <div class="rhlinks"><button class="linkbtn" data-act="vwDeal">${inDeal?'✓ In your deal':'Add to deal'}</button><span>·</span><button class="linkbtn" data-act="vwLot" aria-pressed="${inLot}">${inLot?'✓ In your lot':'Add to lot'}</button>${dn?`<span>·</span><button class="linkbtn" data-act="vwBuy">Check out deal (${dn})</button>`:''}</div></div>`}
+   <div class="rhlinks"><button class="linkbtn" data-act="vwDeal">${inDeal?'✓ In your deal':'Add to deal'}</button><span>·</span><button class="linkbtn" data-act="vwLot" aria-pressed="${inLot}">${inLot?'✓ In your bundle':'Add to bundle'}</button>${dn?`<span>·</span><button class="linkbtn" data-act="vwBuy">Check out deal (${dn})</button>`:''}</div></div>`}
 function sparkHTML(c){const d=compsOf(c).slice().reverse(),k=compsInfo(c),lo=Math.min(...d,c.price),hi=Math.max(...d,c.price),W=300,H=64,y=x=>H-8-(x-lo)/(hi-lo||1)*(H-16);const pts=d.map((x,i)=>`${(4+i*(W-8)/(d.length-1)).toFixed(1)},${y(x).toFixed(1)}`).join(' '),col=k.vs<=-3?'var(--go)':k.vs>=3?'var(--orange)':'var(--gold)';
   return `<svg class="rhspark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Recent sales, dashed line is the asking price"><line x1="0" x2="${W}" y1="${y(c.price)}" y2="${y(c.price)}" stroke="var(--mute)" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/><polyline fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke" points="${pts}"/></svg><div class="rhsparkl"><span>Last ${d.length} sales</span><span>- - asking</span></div>`}
 function vwInfoHTML(c){const g=c.grade.split(' ')[0],col=GCOL[g]||['#3a4255','#e8edf6'],seller=VW.vid==='me'?(ME.table||'My Table'):VBY[VW.vid]?.name,k=compsInfo(c);
@@ -1048,9 +1088,9 @@ function slab(c,size='s'){
 
 /* ================= lobby ================= */
 function renderShows(){
-  $('#app').innerHTML=`<div class="intro"><h1>Card shows, from your couch</h1>
-  <p class="mute">Grab a ticket and walk into a full 3D venue: a grand lobby, an expo floor of seller tables, a main stage, and VIP rooms. Get in line, talk sellers down, and checkout prints the shipping label for them.</p></div>
-  <div class="shows">${SHOWS.map(s=>{const has=hasTicket(s.id),tk=tixOf(s.id);const vs=s.vendors.map(id=>VBY[id]).filter(v=>v&&v.inv&&v.inv[0]);
+  $('#app').innerHTML=`<div class="pghead"><h1>Card shows</h1><span id="hostslot"></span></div>
+  <p class="mute" style="margin:0 0 16px;font-size:15px">Walk into a live show, browse the tables, and buy, sell or trade.</p>
+  <div class="shows">${[...SHOWS].sort((a,b)=>(b.live?1:0)-(a.live?1:0)).map(s=>{const has=hasTicket(s.id),tk=tixOf(s.id);const vs=s.vendors.map(id=>VBY[id]).filter(v=>v&&v.inv&&v.inv[0]);
    return `<article class="show"><div class="banner">${s.live?'<span class="chip live">● Live</span>':'<span class="chip">Upcoming</span>'}
     ${vs.slice(0,6).map(v=>slab(v.inv[0],'b')).join('')}</div>
     <div class="body"><h2>${esc(s.name)}</h2>
@@ -1058,7 +1098,7 @@ function renderShows(){
      ${s.stage?`<div class="guest"><div class="mic">${initials(s.stage.speaker)}</div><div><b>Main stage: ${esc(s.stage.title)}</b><br><span class="mute">${esc(s.stage.sub)}${s.rooms.length?` · ${s.rooms.length} VIP rooms`:''}</span></div></div>`:s.guest?`<div class="guest"><div class="mic">${initials(s.guest.name)}</div><div><b>Main stage: ${esc(s.guest.name)}</b><br><span class="mute">${esc(s.guest.topic)}</span></div></div>`:''}
     </div>
     <div class="foot">${has?`<span class="chip gold">${tk?esc(s.tiers[tk.tier].label):'Free entry'}</span>`:`<span class="price">${s.price?(s.tiers?`From ${money(Math.min(...Object.values(s.tiers).map(t=>t.price)))}`:money(s.price)):'Free entry'}</span>`}
-     ${s.live?`<button class="btn gold" data-act="${has?'enter':'ticket'}" data-id="${s.id}">${has?'Enter show':'Get ticket'}</button>`
+     ${s.live?`<button class="btn gold" data-act="${has?'enter':'ticket'}" data-id="${s.id}">${has?'Walk in':'Get ticket'}</button>`
       :`<button class="btn ghost" data-act="ticket" data-id="${s.id}" ${has?'disabled':''}>${has?'See you Saturday':'Buy ticket'}</button>`}</div>
    </article>`}).join('')}</div>`;
 }
@@ -1496,7 +1536,22 @@ function buildWorld(){
   bindWorldInput();resizeWorld();renderNext();updatePromo();startShowRun();S.worldT=Date.now();setTimeout(wantCheck,3500);
   cancelAnimationFrame(raf);tick();
 }
-function enterVenue(){$('#splash').hidden=true;setTimeout(voiceUI,0);if(!matchMedia('(pointer:coarse)').matches)requestLock()}
+const TOUCH=matchMedia('(pointer:coarse)').matches;
+/* first-visit walkthrough: four taps, then never again */
+const TOUR=()=>TOUCH?[
+ ['tl-joy','👆','Drag here to walk','Put your thumb on the circle and slide it the way you want to go. Swipe anywhere else to look around.'],
+ ['tl-act','🃏','Walk up to a table','When you get close, a big button pops up here. Tap it to see the seller’s cards up close.'],
+ ['tl-mid','💲','Tap a card to buy it','You’ll see the price and how it compares to recent sales. Tap Buy, or make an offer.'],
+ ['tl-menu','☰','Everything else is in Menu','Find a card, see your cards, the map, chat, and leaving the show.']]:[
+ ['tl-mid','⌨️','Walk with W A S D','Hold Shift to run. Click the room and move the mouse to look around.'],
+ ['tl-mid','🃏','Walk up to a table and press E','You’ll see the seller’s cards up close.'],
+ ['tl-mid','💲','Click a card to buy it','You’ll see the price and how it compares to recent sales. Click Buy, or make an offer.'],
+ ['tl-mid','❓','Press H for every shortcut','Or use the buttons along the bottom of the screen.']];
+function startTour(i=0){const st=TOUR();let el=$('#tour');if(!el){el=document.createElement('div');el.id='tour';document.body.appendChild(el)}
+  if(i>=st.length||S.view!=='room'){el.remove();ME.tour=1;save();return}
+  exitLock();const [pos,ic,t,d]=st[i];
+  el.className=pos;el.innerHTML=`<div class="tcard2" role="dialog" aria-label="${esc(t)}"><div class="tic">${ic}</div><b>${esc(t)}</b><p>${esc(d)}</p><div class="trow"><span class="tdots">${st.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</span><button class="linkbtn" data-act="tourEnd">Skip</button><button class="btn gold" data-act="tourNext" data-id="${i+1}">${i===st.length-1?'Got it':'Next'}</button></div></div>`}document.documentElement.classList.toggle('touch',TOUCH);
+function enterVenue(){$('#splash').hidden=true;setTimeout(voiceUI,0);if(!ME.tour)setTimeout(startTour,900);if(!matchMedia('(pointer:coarse)').matches)requestLock()}
 function leaveWorld(){const rep=finishShowRun();if(rep)setTimeout(()=>showReport(rep),500);
   cancelAnimationFrame(raf);raf=null;timers.forEach(clearInterval);timers=[];keys.clear();exitLock();
   if(R){R.dispose();R.domElement.remove();R=null}scene=null;
@@ -1600,8 +1655,8 @@ function zoneCheck(){
   else if(z==='stage'&&p.z<-23.5){near='stage';label=showData.stage?'Take a seat':'See the stage program'}
   else if(z==='vip1'||z==='vip2'){near=z;label='Join the room'}
   else if(z==='lounge'){near='lounge';label='Open the agenda'}
-  else if(z==='lobby'&&Math.abs(p.x-10)<3.6&&p.z>24&&p.z<27.5){near='desk';label=checkedInNow()?'Show your ticket':'Check in'}
-  else if(GATE&&!GATE.open&&z==='lobby'&&p.z<23.6&&Math.abs(p.x)<6.6){near='gate';label=checkedInNow()?`General admission opens in ${mmss(GA_OPEN-Date.now())}`:'Check in at the ticket desk first'}
+  else if(z==='lobby'&&Math.abs(p.x-10)<3.6&&p.z>24&&p.z<27.5){near='desk';label='Ticket desk'}
+  else if(GATE&&!GATE.open&&z==='lobby'&&p.z<23.6&&Math.abs(p.x)<6.6){near='gate';label=`The floor opens in ${mmss(GA_OPEN-Date.now())}`}
   if(near!==S.near||label!==S.nearLabel||alt!==S.nearAlt){S.near=near;S.nearLabel=label;S.nearAlt=alt;const pr=$('#prompt'),eb=$('#ebtn'),fb=$('#fbtn');fb.hidden=!alt;fb.textContent=alt==='Step out'?'STEP OUT':alt.startsWith('Talk')?'TALK':'MANAGE';
     if(near){const K1=near==='me'?'O':near==='op'?'M':'E',K2=near==='me'?'M':near==='op'?'O':'F';pr.innerHTML=`<button class="pa" data-act="interact"><kbd>${K1}</kbd><span>${esc(label)}</span></button>${alt?`<button class="pa" data-act="interact2"><kbd>${K2}</kbd><span>${esc(alt)}</span></button>`:''}`;pr.hidden=false;eb.hidden=false;eb.textContent=near==='op'?'MANAGE':near==='me'?'OPERATE':near==='gate'?'DESK':/^[pr]:/.test(near)?'TRADE':near==='desk'?'CHECK IN':near==='stage'?(S.sat?'Q&A':'SIT'):/vip/.test(near)?'JOIN':near==='lounge'?'AGENDA':'VISIT'}
     else{pr.hidden=true;eb.hidden=true}}
@@ -1611,20 +1666,20 @@ function zoneCheck(){
 }
 function sessFor(z){const D=showData;if(z==='stage')return D.stage;if(z==='vip1')return D.rooms[0];if(z==='vip2')return D.rooms[1];return null}
 const OBJ=[
-  {t:'Check in at the ticket desk (right side of the lobby)',done:()=>checkedInNow()},
-  {t:'Head into the Expo Hall (through the roped doors once they open)',done:()=>S.explored.has('expo')},
-  {t:'Visit 3 tables on the expo floor',done:()=>[...S.explored].filter(x=>x.startsWith('b:')).length>=3},
-  {t:'Grab a seat at the Main Stage (straight through the Expo)',done:()=>S.explored.has('sat')},
-  {t:'Drop into VIP Room 1 (east doors → VIP Wing)',done:()=>S.explored.has('vip1')},
-  {t:'Take the grand stairs up to the VIP Lounge',done:()=>S.explored.has('lounge')},
+  {t:'Walk straight ahead into the Expo Hall',done:()=>S.explored.has('expo')},
+  {t:'Walk up to 3 tables and look at their cards',done:()=>[...S.explored].filter(x=>x.startsWith('b:')).length>=3},
+  {t:'Grab a seat at the Main Stage (past the tables)',done:()=>S.explored.has('sat')},
+  {t:'Peek into VIP Room 1 (doors on the right)',done:()=>S.explored.has('vip1')},
+  {t:'Take the big stairs up to the VIP Lounge',done:()=>S.explored.has('lounge')},
 ];
 
-function checkedInNow(){return showData.price?!!tixOf(showData.id)?.checkedIn:S.checkedIn}
-function gateOpen(){if(!showData.price)return true;const tk=tixOf(showData.id);return !!tk?.checkedIn&&(tk.tier==='early'||Date.now()>=GA_OPEN)}
+/* your ticket checks you in the moment you walk in — no desk stop */
+function checkedInNow(){return true}
+function gateOpen(){if(!showData.price)return true;const tk=tixOf(showData.id);return !!tk&&(tk.tier==='early'||Date.now()>=GA_OPEN)}
 const mmss=ms=>{const t=Math.max(0,Math.ceil(ms/1000));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
 function gateTick(){if(!GATE||!showData)return;const open=gateOpen();if(open!==GATE.open){GATE.open=open;GATE.col.lv=open?'x':'b';GATE.ropes.forEach(r=>r.visible=!open);if(open&&$('#splash').hidden)toast('Doors are open. Head into the Expo Hall.')}
-  const tk=tixOf(showData.id);if(tk?.checkedIn&&!open&&S.objective<=1)$('#next').innerHTML=`<b>NEXT</b>General admission opens in <span class="gatecd">${mmss(GA_OPEN-Date.now())}</span> (${clockStr(GA_OPEN)}). Upgrade at the ticket desk to go in now.`;
-  else if(open&&S.objective<=1)renderNext()}
+  const tk=tixOf(showData.id);if(tk&&!open&&S.objective<=0)$('#next').innerHTML=`<b>NEXT</b>The floor opens in <span class="gatecd">${mmss(GA_OPEN-Date.now())}</span>. Early-entry tickets at the desk on the right get you in now.`;
+  else if(open&&S.objective<=0)renderNext()}
 function checkObjectives(){while(S.objective<OBJ.length&&OBJ[S.objective].done())S.objective++;renderNext()}
 function renderNext(){const o=OBJ[S.objective];$('#next').innerHTML=o?`<b>NEXT</b>${esc(o.t)}`:`<b>DONE</b>You’ve seen the whole venue. Happy hunting.`}
 function captionTick(){if(!showData)return;const s=sessFor(zoneNow);if(!s)return;const lines=CAPTIONS[s.speaker]||CAPTIONS._;$('#capWho').textContent=s.speaker.toUpperCase();$('#capText').textContent=pick(lines)}
@@ -1703,7 +1758,7 @@ function reportHTML(rep){const rev=rep.sells.reduce((t,e)=>t+(+e.price||0),0),pr
   const cn=c=>esc([c.year,c.set,c.name,c.grade].filter(Boolean).join(' '));
   return `<div class="sec rep"><span class="eyebrow">Show report</span><h2>${esc(rep.name)}</h2><p class="mute" style="margin:0">${when} · ${mins<60?mins+' min':Math.floor(mins/60)+' hr '+(mins%60)+' min'} · ${rep.role==='vendor'?'you had a table':'you walked the floor'}</p>
    <div class="kpis">${rep.role==='vendor'||rep.sells.length?kpi('Sales',money(rev),`${rep.sells.length} card${rep.sells.length===1?'':'s'} sold`)+kpi('Profit',signed(pr),`after ${money(fees)} fees and shipping`,pr>=0?'pos':'neg'):''}${rep.role==='vendor'?kpi('Stopped by',rep.stops.length,`${rep.offers} made offers`):''}${rep.buys.length?kpi('You bought',money(spent),`${rep.buys.length} card${rep.buys.length===1?'':'s'}`):''}${best?kpi('Best sale',money(best.price),esc(best.card.name)):''}</div>
-   ${rep.sells.length?`<table><tr><th>Sold</th><th>To</th><th>Price</th><th>Profit</th></tr>${rep.sells.map(e=>`<tr><td>${cn(e.card)}</td><td>${esc(e.party||'')}</td><td class="mono">${money(e.price)}</td><td class="mono ${e.profit>=0?'pos':'neg'}">${signed(+e.profit||0)}</td></tr>`).join('')}</table>`:rep.role==='vendor'?'<p class="note">No sales this time. Tip: cards priced near comps and a note on your table get more stops.</p>':''}
+   ${rep.sells.length?`<table><tr><th>Sold</th><th>To</th><th>Price</th><th>Profit</th></tr>${rep.sells.map(e=>`<tr><td>${cn(e.card)}</td><td>${esc(e.party||'')}</td><td class="mono">${money(e.price)}</td><td class="mono ${e.profit>=0?'pos':'neg'}">${signed(+e.profit||0)}</td></tr>`).join('')}</table>`:rep.role==='vendor'?'<p class="note">No sales this time. Tip: cards priced near recent sales and a note on your table get more stops.</p>':''}
    ${rep.buys.length?`<table style="margin-top:10px"><tr><th>Your haul</th><th>From</th><th>Paid</th></tr>${rep.buys.map(e=>`<tr><td>${cn(e.card)}</td><td>${esc(e.party||'')}</td><td class="mono">${money(e.total||e.price)}</td></tr>`).join('')}</table>`:''}
    ${rep.role==='vendor'&&rep.stops.length?`<p class="mute" style="font-size:12.5px;margin:10px 0 0"><b>Who stopped by:</b> ${esc(rep.stops.slice(0,30).join(', '))}${rep.stops.length>30?` and ${rep.stops.length-30} more`:''}</p>`:''}</div>`}
 function showReport(rep){if(rep)openModal(reportHTML(rep),true)}
@@ -1725,7 +1780,7 @@ function walkTo(id){
 function sit(){
   const p=player.position;let best=null,bd=1e9;for(const s of seats){if(s.taken)continue;const d=Math.hypot(s.x-p.x,s.z-p.z);if(d<bd){bd=d;best=s}}
   if(!best)return;best.taken=true;S.sat=best;player.position.set(best.x,0,best.z);player.rotation.y=Math.PI;cam.yaw=0;cam.look=.02;seatPose(player,true);player.userData.path=[];
-  S.explored.add('sat');checkObjectives();toast('You grabbed a seat. Press E for the Q&A.');
+  S.explored.add('sat');checkObjectives();toast(TOUCH?'You grabbed a seat. Tap Q&A to ask a question.':'You grabbed a seat. Press E for the Q&A.');
 }
 function standUp(){if(!S.sat)return;const s=S.sat;s.taken=false;S.sat=false;seatPose(player,false);const ax=Math.abs(s.x)<8.5?(s.x<0?-.9:.9):(s.x<0?-16.2:16.2);player.position.set(ax,0,s.z+.7)}
 
@@ -1877,7 +1932,7 @@ function renderVoicePanel(el){const p=vprefs(),c=VOICE.call;
    <div class="vrow" style="display:grid"><div><b>Your mic</b><p>${p.mode==='ptt'?'Hold Q (or the Hold to talk button on a phone) while you speak.':p.mode==='open'?'Your mic is live whenever voice is on. Background noise is filtered.':'Nobody hears you. You can still listen.'}</p></div><div class="seg" style="justify-self:start">${[['ptt','Push to talk'],['open','Open mic'],['mute','Muted']].map(([k,l])=>`<button data-act="vMode" data-id="${k}" aria-pressed="${p.mode===k}">${l}</button>`).join('')}</div>
     <div style="display:grid;gap:6px"><div class="vmeter" id="vmeter"><i></i></div><span class="mute" style="font-size:12px">${VOICE.stream?'Mic connected. Talk to see the level move.':VOICE.micErr?`Mic not available here (${esc(VOICE.micErr)}). Push-to-talk still works as a demo.`:'<button class="linkbtn" data-act="vTest">Test my mic</button>'}</span></div></div>
    <div class="vrow"><div><b>Talk requests</b><p>Let people near you ask to talk privately. You can always say “Not right now”.</p></div><button class="vtog" data-act="vReq" aria-pressed="${p.requests}" aria-label="Allow talk requests"></button></div>
-   <div class="vrow" style="display:grid"><div><b>How calls work</b><p>Walk up to someone and press F (or Talk) to ask them to talk. During a call, tap + Add to bring more people in. The call shrinks to a green pill at the top so you can keep using the app; tap it for Mute, Add and End. At a vendor’s line you can’t hear the vendor while you wait. When it’s your turn, you both pick voice, chat or both.</p></div>${c?`<button class="btn ghost sm" data-act="endCall" style="justify-self:start">End call with ${esc(c.name)}</button>`:''}</div></div>`}
+   <div class="vrow" style="display:grid"><div><b>How calls work</b><p>Walk up to someone and tap Talk to ask them to talk. During a call, tap + Add to bring more people in. The call shrinks to a green pill at the top so you can keep using the app; tap it for Mute, Add and End. At a vendor’s line you can’t hear the vendor while you wait. When it’s your turn, you both pick voice, chat or both.</p></div>${c?`<button class="btn ghost sm" data-act="endCall" style="justify-self:start">End call with ${esc(c.name)}</button>`:''}</div></div>`}
 function interact2(){if(S.near?.startsWith('r:'))return talkReal(S.near.slice(2));if(S.near?.startsWith('p:'))return requestTalk(bots[+S.near.slice(2)]);if(S.near==='op')return leaveBooth();if(S.near==='me')return openTable(VBY.me,'show')}
 /* ---------- operating your own booth: stand behind the table, buyers come to you ---------- */
 function myBooth(){return booths.find(b=>b.v.mine)}
@@ -1885,7 +1940,7 @@ function operateBooth(){const b=myBooth();if(!b)return;if(S.sat)standUp();closeD
   S.op=b;player.userData.path=[];player.userData.vy=0;player.position.set(b.x-.2,0,b.z-.6);player.rotation.y=0;cam.fp=false;cam.yaw=Math.PI;cam.look=.24;
   S.offersOpen=true;renderOffers();syncBooth(VBY.me);hideBoothAlert();
   bots.forEach(bt=>{const u=bt.userData;if(u.visiting===b&&u.arrived&&u.pending){u.pending=false;u.wait=Math.max(u.wait,16);setTimeout(()=>{if(S.op===b&&u.visiting===b)visitorOffer(bt)},rnd(1200,2200))}});
-  toast(forSale().length?'You’re behind your table. Buyers will walk up. M to manage · O or move to step out':'You’re behind your table, but nothing is for sale. Press E to put cards out.');
+  toast(forSale().length?(TOUCH?'You’re behind your table. Buyers will walk up.':'You’re behind your table. Buyers will walk up. M to manage · O or move to step out'):(TOUCH?'You’re behind your table, but nothing is for sale. Tap Manage to put cards out.':'You’re behind your table, but nothing is for sale. Press E to put cards out.'));
   setTimeout(operateTick,1200)}
 function leaveBooth(){const b=S.op;if(!b)return;S.op=null;player.position.set(b.x,0,b.z+2.3);player.rotation.y=Math.PI;
   bots.forEach(bt=>{const u=bt.userData;if(u.visiting===b&&!u.arrived){u.visiting=null;u.path=[]}});syncBooth(VBY.me);if(!$('#tv').hidden&&TV.v===VBY.me)renderTvSurface()}
@@ -1962,11 +2017,11 @@ function renderVendor(v,el,ctx){
 }
 function renderTvActs(v){v=v||TV.v;const el=$('#tvActs'),lp=$('#tvLine');if(!el||!lp||!v||S.tv!==v.id)return;if(v.mine){el.innerHTML='';lp.innerHTML='';return}
   const n=dealCards(v).length,l=pickCards(v).length;
-  el.innerHTML=`${n||l?`<button class="tva gold" data-act="tvPanel" data-id="deal">${n?`Deal · ${n} · ${money(dealTotal(v))}`:`Lot · ${l} card${l>1?'s':''}`}</button>`:''}<button class="tva" data-act="tvPanel" data-id="sell">Sell</button><button class="tva" data-act="tvPanel" data-id="trade">Trade</button><button class="tva" data-act="tvPanel" data-id="chat">${v.kind==='attendee'?'Chat':'Talk'}</button>`;
+  el.innerHTML=`${n||l?`<button class="tva gold" data-act="tvPanel" data-id="deal">${n?`Deal · ${n} · ${money(dealTotal(v))}`:`Bundle · ${l} card${l>1?'s':''}`}</button>`:''}<button class="tva" data-act="tvPanel" data-id="sell">Sell</button><button class="tva" data-act="tvPanel" data-id="trade">Trade</button><button class="tva" data-act="tvPanel" data-id="chat">${v.kind==='attendee'?'Chat':'Talk'}</button>`;
   const q=S.q[v.id];lp.innerHTML=S.view==='room'&&v.mode==='queue'&&(v.kind!=='attendee'||v.real)?(q?.state==='turn'?`<button class="tvl turn" data-act="doneTurn" data-id="${v.id}">Your turn · Done</button>`:q?.state==='waiting'?`<button class="tvl" data-act="leaveLine" data-id="${v.id}">#${q.pos} in line · Leave</button>`:`<button class="tvl" data-act="joinLine" data-id="${v.id}">Get in line${v.lineLen?` · ${v.lineLen} waiting`:''}</button>`):''}
 function tvPanel(k){const v=TV.v;if(!v)return;const sh=$('#tvSh'),b=$('#tvShB');S.tvSheet=k;
   $('#tvShT').textContent={deal:'Your deal',sell:`Sell to ${v.name}`,trade:`Trade with ${v.name}`,chat:v.kind==='attendee'?`Chat with ${v.name}`:`Talk to ${v.name}`}[k]||v.name;
-  if(k==='deal'){b.innerHTML=`<div id="vdeal-${v.id}"></div><div id="vlot-${v.id}"></div>`;renderDeal(v);renderLot(v);if(!dealCards(v).length&&!pickCards(v).length)b.innerHTML='<p class="mute" style="padding:0 14px">Nothing here yet. Tap a card, then Add to deal or Add to lot.</p>'}
+  if(k==='deal'){b.innerHTML=`<div id="vdeal-${v.id}"></div><div id="vlot-${v.id}"></div>`;renderDeal(v);renderLot(v);if(!dealCards(v).length&&!pickCards(v).length)b.innerHTML='<p class="mute" style="padding:0 14px">Nothing here yet. Tap a card, then Add to deal or Add to bundle.</p>'}
   else{S.vtab[v.id]=k;b.innerHTML=`<div id="vbody-${v.id}"></div>`;renderVBody(v)}
   sh.hidden=false}
 function tvShClose(){const sh=$('#tvSh');if(!sh)return;sh.hidden=true;$('#tvShB').innerHTML='';S.tvSheet=null;if(TV.v)S.vtab[TV.v.id]='buy'}
@@ -1988,12 +2043,12 @@ function gridHTML(v){const f=S.vfilter[v.id]||'all',sort=S.vsort[v.id]||'high';
 function compsOf(c){let h=hash(c.id+c.name);const base=+(c.list||c.mkt||c.price)||1,out=[];for(let i=0;i<8;i++){h=(h*1103515245+12345)>>>0;out.push(Math.round(base*(.86+(h%1000)/1000*.26)))}return out}
 const COMPSRC=['eBay','Whatnot','eBay','PWCC','Goldin','eBay','MySlabs','Whatnot'];
 function compsInfo(c){const ps=compsOf(c);let h=hash(c.name+c.grade);const sales=ps.slice(0,5).map((p,i)=>{h=(h*1103515245+12345)>>>0;return {p,d:i*3+1+(h%5),src:COMPSRC[(h>>>7)%COMPSRC.length]}});const avg=Math.round(ps.reduce((t,x)=>t+x,0)/ps.length);return {sales,avg,lo:Math.min(...ps),hi:Math.max(...ps),vs:c.price?Math.round((c.price-avg)/avg*100):0}}
-function vsTag(c){if(!c||c.sold)return '';const k=compsInfo(c).vs;return k<=-5?`<span class="vs good">${-k}% below comps</span>`:k>=10?`<span class="vs high">${k}% above comps</span>`:''}
+function vsTag(c){if(!c||c.sold)return '';const k=compsInfo(c).vs;return k<=-5?`<span class="vs good">${-k}% below recent sales</span>`:k>=10?`<span class="vs high">${k}% above recent sales</span>`:''}
 function compsHTML(c){const k=compsInfo(c),ago=d=>new Date(Date.now()-d*864e5).toLocaleDateString(undefined,{month:'short',day:'numeric'});
-  return `<div class="comps"><div class="ch"><b>Comps</b><span>avg <b class="mono">${money(k.avg)}</b> · ${money(k.lo)}–${money(k.hi)}</span></div>
+  return `<div class="comps"><div class="ch"><b>Recent sales</b><span>avg <b class="mono">${money(k.avg)}</b> · ${money(k.lo)}–${money(k.hi)}</span></div>
    ${c.price?`<div class="cvs ${k.vs<=-5?'good':k.vs>=10?'high':''}">${k.vs<=-5?`Asking is ${-k.vs}% below recent sales`:k.vs>=10?`Asking is ${k.vs}% above recent sales`:k.vs<0?`Asking is ${-k.vs}% under recent sales`:k.vs===0?'Asking matches recent sales':`Asking is ${k.vs}% over recent sales`}</div>`:''}
    <div class="cl">${k.sales.map(x=>`<div><span>${ago(x.d)}</span><span class="mute">${x.src}</span><b class="mono">${money(x.p)}</b></div>`).join('')}</div>
-   <span class="cnote">Demo comps: simulated sales for this ${esc(c.grade)}. Real sold prices plug in here later.</span></div>`}
+   <span class="cnote">Practice data: made-up recent sales for this ${esc(c.grade)}. Real sold prices plug in here later.</span></div>`}
 function drawSpark(c){const el=$('#spark-'+c.id);if(!el)return;const d=compsOf(c),lo=Math.min(...d,c.price),hi=Math.max(...d,c.price),W=300,H=56;const y=v=>H-6-(v-lo)/(hi-lo||1)*(H-14);
   const pts=d.map((v,i)=>`${(6+i*(W-12)/(d.length-1)).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   el.innerHTML=`<line x1="0" x2="${W}" y1="${y(c.price)}" y2="${y(c.price)}" stroke="var(--mute)" stroke-dasharray="3 4" stroke-width="1" vector-effect="non-scaling-stroke"/><polyline fill="none" stroke="var(--gold)" stroke-width="2" vector-effect="non-scaling-stroke" points="${pts}"/>`}
@@ -2003,7 +2058,7 @@ function detailHTML(v,c){const talk=canTalk(v,ctxOf(v)),comps=compsOf(c),q=S.q[v
    <div class="price" style="font-size:26px">${c.price<c.list?`<s style="font-size:13px;color:var(--mute);margin-right:6px">${money(c.list)}</s>`:''}${money(c.price)}</div>${c.held&&!c.sold?'<span class="held">Price held for you</span>':''}</div></div>
   <dl class="specs"><dt>Grade</dt><dd>${esc(c.grade)}</dd>${c.cert?`<dt>Cert</dt><dd class="mono">${c.cert}</dd>`:''}<dt>Last 8 sales</dt><dd class="mono">${money(Math.min(...comps))}–${money(Math.max(...comps))}</dd><dt>Seller</dt><dd>${esc(v.name)}</dd></dl>
   <svg class="spark" id="spark-${c.id}" viewBox="0 0 300 56" preserveAspectRatio="none" role="img" aria-label="Last 8 sales; dashed line is the asking price"></svg>
-  ${c.sold?'<p class="mute">Sold.</p>':`${(S.deal[v.id]||[]).includes(c.id)?`<p class="held" style="font-size:12px">In your deal at ${money(c.price)} · Buy all from the deal above</p>`:`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="addDeal" data-id="${v.id}|${c.id}">Add to deal · ${money(c.price)}</button><button class="btn ghost" data-act="tvPick" data-id="${v.id}|${c.id}">${(S.pick[v.id]||[]).includes(c.id)?'Remove from lot':'Add to lot'}</button></div>`}
+  ${c.sold?'<p class="mute">Sold.</p>':`${(S.deal[v.id]||[]).includes(c.id)?`<p class="held" style="font-size:12px">In your deal at ${money(c.price)} · Buy all from the deal above</p>`:`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="addDeal" data-id="${v.id}|${c.id}">Add to deal · ${money(c.price)}</button><button class="btn ghost" data-act="tvPick" data-id="${v.id}|${c.id}">${(S.pick[v.id]||[]).includes(c.id)?'Remove from bundle':'Add to bundle'}</button></div>`}
   ${talk?`<form class="inline" data-form="dOffer" data-id="${v.id}|${c.id}"><div class="amt" style="flex:1"><span class="mute">$</span><input name="amt" id="damt-${c.id}" inputmode="decimal" placeholder="Your offer" autocomplete="off" aria-label="Offer amount"></div><button class="btn ghost">Make offer</button></form>`
    :`<p class="note">${esc(v.name)} deals with one person at a time. ${q?.state==='waiting'?`You’re #${q.pos} in line.`:'Get in line from the Talk tab to make an offer.'} Buy now works any time.</p>`}`}</div>`}
 function lineBoxHTML(v){const q=S.q[v.id]||{};return q.state==='waiting'
@@ -2020,7 +2075,7 @@ function tradeHTML(v){const {T,theirs,mine,getC,giveC,gv,yv}=tradeParts(v),c=+T.
   if(T.done)return `<div class="trade"><div class="say">${esc(T.done)}</div><button class="btn ghost sm" data-act="trNew" data-id="${v.id}">Start another trade</button></div>`;
   return `<div class="trade"><p class="note" style="margin:0">Swap cards with ${esc(v.name)}. Pick what you want from their table and what you’ll give from your binder, then even it up with cash.</p>
    <div class="tcol"><div class="th"><b>You get</b><span class="mono">${money(gv)}</span></div><div class="chips">${theirs.length?theirs.slice(0,40).map(x=>chip('trGet',x,T.get.includes(x.id),x.price)).join(''):'<span class="mute">Nothing on their table right now.</span>'}</div></div>
-   <div class="tcol"><div class="th"><b>You give</b><span class="mono">${money(yv)} <span class="mute" style="font-weight:500">comps</span></span></div><div class="chips">${mine.length?mine.slice(0,40).map(x=>chip('trGive',x,T.give.includes(x.id),tradeVal(x))).join(''):'<span class="mute">Your binder is empty. Add cards in Inventory.</span>'}</div></div>
+   <div class="tcol"><div class="th"><b>You give</b><span class="mono">${money(yv)} <span class="mute" style="font-weight:500">recent sales</span></span></div><div class="chips">${mine.length?mine.slice(0,40).map(x=>chip('trGive',x,T.give.includes(x.id),tradeVal(x))).join(''):'<span class="mute">Your binder is empty. Add cards in My Cards.</span>'}</div></div>
    <div class="tcash"><b>Cash</b>${(()=>{const dir=c>0?'me':c<0?'them':(T.dir||'none');return `<div class="seg">${[['none','No cash'],['me','I add cash'],['them',`${esc(v.person||v.name)} adds cash`]].map(([k,l])=>`<button data-act="trDir" data-id="${v.id}|${k}" aria-pressed="${dir===k}">${l}</button>`).join('')}</div>
     ${dir!=='none'?`<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="amt sm"><span class="mute">$</span><input data-trcash="${v.id}" id="trcash-${v.id}" value="${Math.abs(c)||''}" inputmode="decimal" placeholder="0" aria-label="${dir==='me'?'Cash you add':'Cash they add'}" style="width:90px"></div>${[10,25,50,100].map(d=>`<button class="btn ghost sm" data-act="trBump" data-id="${v.id}|${d}">+$${d}</button>`).join('')}</div>`:''}`})()}
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn ghost sm" data-act="trEven" data-id="${v.id}">Even it up</button><span class="tcl">${c>0?`You add <b>${money(c)}</b>`:c<0?`${esc(v.person||v.name)} adds <b>${money(-c)}</b>`:'No cash in this trade'}</span></div></div>
@@ -2051,21 +2106,21 @@ function doTrade(v,getC,giveC,cash,msg){const no=bookTrade(v,giveC,getC,cash);ge
 function sellHTML(v){
   if(!canTalk(v,ctxOf(v)))return lineBoxHTML(v);
   const mine=owned();
-  if(!mine.length)return `<p class="mute">Your binder is empty. Add cards in Inventory and they come with you to every show.</p>`;
+  if(!mine.length)return `<p class="mute">Your binder is empty. Add cards in My Cards and they come with you to every show.</p>`;
   const sel=(S.sellPick[v.id]||[]).filter(id=>mine.some(c=>c.id===id));S.sellPick[v.id]=sel;
-  return `<p class="note">${v.kind==='attendee'?`${esc(v.name)} is a collector and buys too.`:`${esc(v.name)} buys as well as sells.`} Pitch one card, or tick several and pitch them as one bundle for one number.</p>
+  return `<p class="note">${v.kind==='attendee'?`${esc(v.name)} is a collector and buys too.`:`${esc(v.name)} buys as well as sells.`} Offer to sell one card, or pick several and sell them together for one price.</p>
    ${bundleHTML(v,mine)}
    <div class="sellhead"><span class="mute">${sel.length?`${sel.length} of ${mine.length} in your bundle`:`${mine.length} card${mine.length>1?'s':''} in your binder`}</span><span>${sel.length<mine.length?`<button class="linkbtn" data-act="sellPickAll" data-id="${v.id}">Select all</button>`:''}${sel.length?`<button class="linkbtn" data-act="sellPickClear" data-id="${v.id}">Clear</button>`:''}</span></div>`+mine.map(c=>{const k=v.id+'|'+c.id,p=S.pitch[k],on=sel.includes(c.id);
    return `<div class="sellrow pk ${on?'on':''}"><button class="spick ${on?'on':''}" data-act="sellPick" data-id="${v.id}|${c.id}" aria-pressed="${on}" aria-label="${on?'Remove':'Add'} ${esc(c.name)} ${on?'from':'to'} bundle" title="${on?'Remove from bundle':'Add to bundle'}">${on?'✓':'+'}</button>${slabBtn(c,'me')}<div style="min-width:0"><div style="font-weight:700;font-size:14px">${esc(c.name)}</div><div class="mute" style="font-size:12px">${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)}</div><div class="mono" style="font-size:12px;margin-top:2px">Ask ${money(c.price)} · paid ${money(c.cost)}${c.forSale?'':' · not listed'}</div></div>
    ${p&&!on?`<div class="say">${p.typing?`<span class="mute">${esc(v.handle)} is looking it over…</span>`:esc(p.msg)}</div>${p.offer&&!p.typing?`<div class="oprofit" style="grid-column:1/-1">${profitHTML(c,p.offer)}</div>`:''}`:''}
-   <div class="ctl">${on?`<span class="chip" style="border-color:var(--orange);color:var(--orange)">In bundle</span>`:!p||p.dead?`<button class="btn gold sm" data-act="pitch" data-id="${k}">Pitch at ${money(c.price)}</button>`:(p.typing||p.wait)?'':`${p.offer?`<button class="btn gold sm" data-act="sellAccept" data-id="${k}">Sell for ${money(p.offer)}</button>`:''}${p.offer?qcHTML('pitchCounter',k,c.price,p.offer,S.mine['pt:'+k]||c.price):''}<form class="inline" data-form="pitchCounter" data-id="${k}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter amount"></div><button class="btn ghost sm">Counter</button></form>`}</div></div>`}).join('')}
+   <div class="ctl">${on?`<span class="chip" style="border-color:var(--orange);color:var(--orange)">In bundle</span>`:!p||p.dead?`<button class="btn gold sm" data-act="pitch" data-id="${k}">Offer at ${money(c.price)}</button>`:(p.typing||p.wait)?'':`${p.offer?`<button class="btn gold sm" data-act="sellAccept" data-id="${k}">Sell for ${money(p.offer)}</button>`:''}${p.offer?qcHTML('pitchCounter',k,c.price,p.offer,S.mine['pt:'+k]||c.price):''}<form class="inline" data-form="pitchCounter" data-id="${k}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter amount"></div><button class="btn ghost sm">Counter</button></form>`}</div></div>`}).join('')}
 const bundleCards=v=>(S.sellPick[v.id]||[]).map(id=>ME.inv.find(c=>c.id===id)).filter(c=>c&&!c.sold);
 const sumBy=(cs,k)=>+cs.reduce((s,c)=>s+(+c[k]||0),0).toFixed(2);
 function bundleHTML(v,mine){const cs=bundleCards(v);if(!cs.length)return '';const b=S.bundle[v.id],n=cs.length,ask=sumBy(cs,'price'),paid=sumBy(cs,'cost');
   const same=b&&b.ids.join()===cs.map(c=>c.id).join();
   let ctl;
-  if(n<2)ctl=`<span class="mute" style="font-size:12.5px">Tick at least one more card to pitch a bundle.</span>`;
-  else if(!same||b.dead)ctl=`<button class="btn gold sm" data-act="bundlePitch" data-id="${v.id}">Pitch all ${n} at ${money(ask)}</button><form class="inline" data-form="bundleAsk" data-id="${v.id}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Your price" autocomplete="off" aria-label="Bundle price"></div><button class="btn ghost sm">Pitch at my price</button></form>`;
+  if(n<2)ctl=`<span class="mute" style="font-size:12.5px">Pick at least one more card to sell them together.</span>`;
+  else if(!same||b.dead)ctl=`<button class="btn gold sm" data-act="bundlePitch" data-id="${v.id}">Offer all ${n} at ${money(ask)}</button><form class="inline" data-form="bundleAsk" data-id="${v.id}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Your price" autocomplete="off" aria-label="Bundle price"></div><button class="btn ghost sm">Offer at my price</button></form>`;
   else if(b.typing||b.wait)ctl='';
   else ctl=`${b.offer?`<button class="btn gold sm" data-act="bundleAccept" data-id="${v.id}">Sell all ${n} for ${money(b.offer)}</button>`:''}${b.offer?qcHTML('bundleCounter',v.id,ask,b.offer,S.mine['bd:'+v.id]||ask):''}<form class="inline" data-form="bundleCounter" data-id="${v.id}"><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="Counter" autocomplete="off" aria-label="Counter for the bundle"></div><button class="btn ghost sm">Counter</button></form>`;
   return `<div class="lot sbundle"><div class="bh"><span class="eyebrow" style="color:var(--orange)">Your bundle · ${n} card${n>1?'s':''}</span><b class="mono">${money(ask)}</b></div>
@@ -2079,16 +2134,16 @@ function doBundle(v,cs,amt){const ids=cs.map(c=>c.id),n=cs.length;
   const max=bundleMax(v,cs);
   if(amt<=max){S.bundle[v.id]={ids,offer:amt,max,tries:0,msg:`Deal. ${money(amt)} for all ${n}.`};return}
   const offer=round5(max*(.9+Math.random()*.05)),comps=round5(cs.reduce((s,c)=>s+(c.mkt||c.price),0));
-  S.bundle[v.id]={ids,offer,max,tries:0,msg:pick([`I’d do ${money(offer)} for all ${n}.`,`For the whole stack, ${money(offer)}. Comps add up to about ${money(comps)}.`,`${money(offer)} takes all ${n} off your hands.`])}}
-function counterBundle(v,b,amt){b.tries++;if(amt<=b.max){b.offer=amt;b.msg=`Alright, ${money(amt)} for the bundle works.`}else if(b.tries<2){b.offer=b.max;b.msg=`${money(b.max)} is my ceiling for the bundle.`}else{b.offer=null;b.dead=true;b.msg=`I’ll pass on the bundle at ${money(amt)}. Try pitching them one by one.`}}
+  S.bundle[v.id]={ids,offer,max,tries:0,msg:pick([`I’d do ${money(offer)} for all ${n}.`,`For the whole stack, ${money(offer)}. Recent sales add up to about ${money(comps)}.`,`${money(offer)} takes all ${n} off your hands.`])}}
+function counterBundle(v,b,amt){b.tries++;if(amt<=b.max){b.offer=amt;b.msg=`Alright, ${money(amt)} for the bundle works.`}else if(b.tries<2){b.offer=b.max;b.msg=`${money(b.max)} is my ceiling for the bundle.`}else{b.offer=null;b.dead=true;b.msg=`I’ll pass on the bundle at ${money(amt)}. Try offering them one at a time.`}}
 function startBundle(v,amt){const cs=bundleCards(v);if(cs.length<2)return toast('Pick at least two cards for a bundle');const a=amt||sumBy(cs,'price');
   const t=`${money(a)} for these ${cs.length}?`;(S.chat[v.id]=S.chat[v.id]||[]).push({f:'me',t});if(S.view==='room')say(player,t,3000);
   S.bundle[v.id]={ids:cs.map(c=>c.id),typing:true};renderVBody(v);
   setTimeout(()=>{doBundle(v,cs,a);renderVBody(v);vendorSpeak(v,S.bundle[v.id]?.msg)},900)}
 function doPitch(v,c,k){
-  if(!v.online){S.pitch[k]={msg:`${v.name} is offline. They’ll see your pitch at ${money(c.price)} when they’re back.`,wait:true};return}
+  if(!v.online){S.pitch[k]={msg:`${v.name} is offline. They’ll see your offer at ${money(c.price)} when they’re back.`,wait:true};return}
   const max=round5(c.mkt*(v.buyRate||.9)*(.95+Math.random()*.1)),offer=Math.min(c.price,max);
-  S.pitch[k]={offer,max,tries:0,msg:offer>=c.price?`I’ll pay your ask, ${money(c.price)}.`:pick([`Best I can do is ${money(offer)}.`,`I’m at ${money(offer)} on that. Comps are around ${money(c.mkt)}.`,`${money(offer)} and I’ll take it off your hands.`])}}
+  S.pitch[k]={offer,max,tries:0,msg:offer>=c.price?`I’ll pay your ask, ${money(c.price)}.`:pick([`Best I can do is ${money(offer)}.`,`I’m at ${money(offer)} on that. Recent sales are around ${money(c.mkt)}.`,`${money(offer)} and I’ll take it off your hands.`])}}
 function counterPitch(v,p,amt){p.tries++;if(amt<=p.max){p.offer=amt;p.msg=`Alright, ${money(amt)} works.`}else if(p.tries<2){p.offer=p.max;p.msg=`${money(p.max)} is my ceiling on that one.`}else{p.offer=null;p.dead=true;p.msg=`I’ll pass at ${money(amt)}. Good luck with it.`}}
 function renderMyTable(el){const fs=forSale();el.dataset.vid='me';
   el.innerHTML=`<div class="vh"><div class="vhead"><div class="vava" style="background:${ACC}">${initials(ME.table||'My Table')}</div><div style="min-width:0"><h3>${esc(ME.table||'My Table')}</h3><div class="vmeta">Your table · ${fs.length} cards out · ${rangeText(VBY.me)}</div></div></div></div>
@@ -2097,10 +2152,10 @@ function renderMyTable(el){const fs=forSale();el.dataset.vid='me';
    <div class="rrow"><b>Sale on everything</b>${seg('sale',[0,10,15,20,25,30])}</div><div class="rrow"><b>Buy 3+ cards</b>${seg('b3',[0,5,10,15,20])}</div><div class="rrow"><b>Buy 5+ cards</b>${seg('b5',[0,10,15,20,25])}</div>
    <p class="mute" style="font-size:12px;margin:0">Buyers see these on your table, and bundle discounts come off at checkout on their own.${r.sale?` Your asking prices stay as you set them; buyers see ${r.sale}% less.`:''}</p></div>`})()}
   <div class="sec"><p class="note">Buyers walk up and send offers, here and in the marketplace. Offers pop up as cards you can accept, counter or decline. Change an asking price and the sign over your table updates.</p>
-  ${fs.map(c=>`<div class="sellrow"><button class="slabbtn" data-act="viewCard" data-id="me|${c.id}" aria-label="View ${esc(c.name)}">${slab(c)}</button><div style="min-width:0"><b style="font-size:14px">${esc(c.name)}</b><div class="mute" style="font-size:12px">${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)} · paid ${money(c.cost)}${photoCount(c)?` · ${photoCount(c)} photo${photoCount(c)>1?'s':''}`:''}</div></div><div class="ctl"><button class="btn gold sm" data-act="viewCard" data-id="me|${c.id}">View</button><button class="btn ghost sm" data-act="photos" data-id="${c.id}">Photos</button><label class="switch">Ask $<input data-edit="price" data-id="${c.id}" id="tp-${c.id}" value="${c.base??c.price}" inputmode="decimal" style="width:80px"></label><label class="switch">Lowest $<input data-edit="floor" data-id="${c.id}" id="tf-${c.id}" value="${c.floor}" inputmode="decimal" style="width:80px"></label><button class="btn ghost sm" data-act="unlist" data-id="${c.id}">Take off table</button><label class="switch" title="Sell it from your dollar box instead of the table"><input type="checkbox" data-toggle="box" data-id="${c.id}" id="tb-${c.id}" ${c.box?'checked':''}> <span>In box</span></label></div></div>`).join('')||'<p class="mute">Nothing on your table. Mark cards for sale with I (My cards) or in Inventory.</p>'}</div>`}
+  ${fs.map(c=>`<div class="sellrow"><button class="slabbtn" data-act="viewCard" data-id="me|${c.id}" aria-label="View ${esc(c.name)}">${slab(c)}</button><div style="min-width:0"><b style="font-size:14px">${esc(c.name)}</b><div class="mute" style="font-size:12px">${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)} · paid ${money(c.cost)}${photoCount(c)?` · ${photoCount(c)} photo${photoCount(c)>1?'s':''}`:''}</div></div><div class="ctl"><button class="btn gold sm" data-act="viewCard" data-id="me|${c.id}">View</button><button class="btn ghost sm" data-act="photos" data-id="${c.id}">Photos</button><label class="switch">Ask $<input data-edit="price" data-id="${c.id}" id="tp-${c.id}" value="${c.base??c.price}" inputmode="decimal" style="width:80px"></label><label class="switch">Lowest $<input data-edit="floor" data-id="${c.id}" id="tf-${c.id}" value="${c.floor}" inputmode="decimal" style="width:80px"></label><button class="btn ghost sm" data-act="unlist" data-id="${c.id}">Take off table</button><label class="switch" title="Sell it from your dollar box instead of the table"><input type="checkbox" data-toggle="box" data-id="${c.id}" id="tb-${c.id}" ${c.box?'checked':''}> <span>In box</span></label></div></div>`).join('')||'<p class="mute">Nothing on your table. Mark cards for sale in My Cards.</p>'}</div>`}
 function renderMine(el){const L=ME.ledger,b=L.filter(e=>e.side!=='sell'),s2=L.filter(e=>e.side==='sell'),pf=sumOf(s2,'profit');
   el.innerHTML=`<div class="sec"><h3 style="font-size:21px">Your binder</h3><div class="vstats"><div><small>Spent</small><b>${money(sumOf(b,'total'))}</b></div><div><small>Sold</small><b>${money(sumOf(s2,'price'))}</b></div><div><small>Profit / loss</small><b class="${pf>=0?'pos':'neg'}">${signed(pf)}</b></div></div>
-  ${(()=>{const n=ME.ledger.filter(e=>e.side==='sell'&&!e.shipped).length;return n?`<p class="note" style="border-left:3px solid var(--orange)">${n} order${n===1?'':'s'} to pack after the show. Labels are in My Desk.</p>`:''})()}<label class="switch" style="margin-bottom:8px;flex-wrap:wrap">Card over your head <select data-pref="promo" id="pref-promo" style="padding:5px 8px;font-size:13px"><option value="">None</option>${owned().map(c=>`<option value="${c.id}" ${ME.promo===c.id?'selected':''}>${esc(c.name)} · ${money(c.price)}</option>`).join('')}</select></label><p class="mute" style="font-size:12px;margin-bottom:8px">Shows the card and price above you while you walk, so people come over with offers. Press P to show or hide it.</p><label class="switch" style="margin-bottom:8px"><input type="checkbox" data-pref="offersOn" id="pref-offers-w" ${offersOn()?'checked':''}> Accept offers from people</label><p class="note">Cards marked for sale get offers from people here and in the marketplace. ${ME.role==='vendor'?'They’re also out on your table in the Expo Hall.':'Switch to vendor mode in Inventory to get your own table.'}</p></div>
+  ${(()=>{const n=ME.ledger.filter(e=>e.side==='sell'&&!e.shipped).length;return n?`<p class="note" style="border-left:3px solid var(--orange)">${n} order${n===1?'':'s'} to pack after the show. Labels are under Me.</p>`:''})()}<label class="switch" style="margin-bottom:8px;flex-wrap:wrap">Card over your head <select data-pref="promo" id="pref-promo" style="padding:5px 8px;font-size:13px"><option value="">None</option>${owned().map(c=>`<option value="${c.id}" ${ME.promo===c.id?'selected':''}>${esc(c.name)} · ${money(c.price)}</option>`).join('')}</select></label><p class="mute" style="font-size:12px;margin-bottom:8px">Shows the card and price above you while you walk, so people come over with offers.<span class="kbonly"> Press P to show or hide it.</span></p><label class="switch" style="margin-bottom:8px"><input type="checkbox" data-pref="offersOn" id="pref-offers-w" ${offersOn()?'checked':''}> Accept offers from people</label><p class="note">Cards marked for sale get offers from people here and in the marketplace. ${ME.role==='vendor'?'They’re also out on your table in the Expo Hall.':'Switch to vendor under Me to get your own table.'}</p></div>
   <div class="sec">${owned().map(c=>`<div class="sellrow">${slabBtn(c,'me')}<div style="min-width:0"><b style="font-size:14px">${esc(c.name)}</b><div class="mute" style="font-size:12px">${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)} · paid ${money(c.cost)}</div></div><div class="ctl"><label class="switch">Ask $<input data-edit="price" data-id="${c.id}" id="mp-${c.id}" value="${c.base??c.price}" inputmode="decimal" style="width:80px"></label><label class="switch" title="Put this card in your dollar box instead of on the table"><input type="checkbox" data-toggle="box" data-id="${c.id}" id="mb-${c.id}" ${c.box?'checked':''}> <span>Box</span></label><label class="switch"><input type="checkbox" data-toggle="forSale" data-id="${c.id}" id="ms-${c.id}" ${c.forSale?'checked':''}> <span>${c.forSale?'For sale':'Not listed'}</span></label></div></div>`).join('')||'<p class="mute">Your binder is empty.</p>'}</div>`}
 function renderTalk(v,ctxName){
   const el=$('#talk-'+v.id);if(!el)return;ctxName=ctxName||ctxOf(v);
@@ -2169,20 +2224,20 @@ function renderDeal(v){try{renderTvActs(v)}catch(e){}const el=$('#vdeal-'+v.id);
   <div class="dealft"><span>${list>tot?`You’re saving ${money(list-tot)} off asking`:'At asking price'}</span><button class="btn gold" data-act="buyDeal" data-id="${v.id}">Buy all · ${money(tot)}</button></div></div>`}
 function renderLot(v){try{renderTvActs(v)}catch(e){}const el=$('#vlot-'+v.id);if(!el)return;const cs=pickCards(v);if(!cs.length){el.innerHTML='';return}
   const ask=cs.reduce((s,c)=>s+c.price,0),L=S.lot[v.id]||{},talk=canTalk(v,ctxOf(v));
-  el.innerHTML=`<div class="lot"><div class="dealhd"><span class="eyebrow" style="color:var(--orange)">Lot · ${cs.length} selected</span><span class="mono">asking ${money(ask)}</span></div>
-  <div class="chips">${cs.map(c=>`<button class="lchip" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="Remove ${esc(c.name)} from lot">${esc(c.name)} · ${money(c.price)} ✕</button>`).join('')}</div>
+  el.innerHTML=`<div class="lot"><div class="dealhd"><span class="eyebrow" style="color:var(--orange)">Bundle · ${cs.length} selected</span><span class="mono">asking ${money(ask)}</span></div>
+  <div class="chips">${cs.map(c=>`<button class="lchip" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="Remove ${esc(c.name)} from bundle">${esc(c.name)} · ${money(c.price)} ✕</button>`).join('')}</div>
   ${L.msg||L.typing?`<div class="say">${L.typing?`<span class="mute">${esc(v.handle)} is adding it up…</span>`:esc(L.msg)}</div>`:''}
-  <div class="ctl">${talk?`${L.counter?`<button class="btn gold sm" data-act="lotAccept" data-id="${v.id}">Take all ${cs.length} for ${money(L.counter)}</button>`:''}${L.counter&&S.mine['lot:'+v.id]?qcHTML('lotOffer',v.id,ask,L.counter,S.mine['lot:'+v.id]):L.counter?'':qoHTML('lotOffer',v.id,ask)}<form data-form="lotOffer" data-id="${v.id}" class="inline"><div class="amt sm"><span class="mute">$</span><input name="amt" id="lot-${v.id}" inputmode="decimal" placeholder="Lot offer" autocomplete="off" aria-label="Offer for the lot"></div><button class="btn gold sm">Offer on lot</button></form>`:`<p class="note" style="width:100%">${esc(v.name)} takes lot offers one person at a time. Get in line from the Talk tab, or add these at asking.</p>`}
+  <div class="ctl">${talk?`${L.counter?`<button class="btn gold sm" data-act="lotAccept" data-id="${v.id}">Take all ${cs.length} for ${money(L.counter)}</button>`:''}${L.counter&&S.mine['lot:'+v.id]?qcHTML('lotOffer',v.id,ask,L.counter,S.mine['lot:'+v.id]):L.counter?'':qoHTML('lotOffer',v.id,ask)}<form data-form="lotOffer" data-id="${v.id}" class="inline"><div class="amt sm"><span class="mute">$</span><input name="amt" id="lot-${v.id}" inputmode="decimal" placeholder="Bundle offer" autocomplete="off" aria-label="Offer for the bundle"></div><button class="btn gold sm">Offer on bundle</button></form>`:`<p class="note" style="width:100%">${esc(v.name)} takes bundle offers one person at a time. Get in line from the Talk tab, or add these at asking.</p>`}
    <button class="btn ghost sm" data-act="lotAddAll" data-id="${v.id}">Add at asking</button><button class="linkbtn" data-act="lotClear" data-id="${v.id}">Clear</button></div></div>`}
 function lotRespond(v,cs,amt){const ask=cs.reduce((s,c)=>s+c.price,0),floor=cs.reduce((s,c)=>s+Math.min(c.price,Math.ceil(c.list*v.floor/5)*5),0),min=round5(floor*(cs.length>=3?.94:cs.length===2?.97:1));
   if(amt>=ask)return {ok:ask,msg:`No need to go over. ${money(ask)} for all ${cs.length}.`};
-  if(amt>=min)return {ok:amt,msg:`${money(amt)} for the lot works. I’m holding all ${cs.length} for you.`};
+  if(amt>=min)return {ok:amt,msg:`${money(amt)} for the bundle works. I’m holding all ${cs.length} for you.`};
   if(amt<ask*.5)return {msg:`That’s too light for ${cs.length} cards. They’re ${money(ask)} at asking.`};
   const counter=Math.min(ask,Math.max(min,round5((amt+ask)/2)));return {counter,msg:`Can’t do ${money(amt)}. I’ll do ${money(counter)} for all ${cs.length}.`}}
 function applyLot(v,cs,total){const ask=cs.reduce((s,c)=>s+c.price,0);let rem=total;
   cs.forEach((c,i)=>{const p=i===cs.length-1?+rem.toFixed(2):Math.round(total*c.price/ask*100)/100;rem-=p;c.price=p;c.held=true;addToDeal(v,c)});
-  S.pick[v.id]=[];S.lot[v.id]={};(S.chat[v.id]=S.chat[v.id]||[]).push({f:'sys',t:`Lot of ${cs.length} held for you at ${money(total)}.`});
-  renderInv(v);if(S.view==='room')syncBooth(v);toast(`Lot held at ${money(total)}. It’s in your deal.`)}
+  S.pick[v.id]=[];S.lot[v.id]={};(S.chat[v.id]=S.chat[v.id]||[]).push({f:'sys',t:`Bundle of ${cs.length} held for you at ${money(total)}.`});
+  renderInv(v);if(S.view==='room')syncBooth(v);toast(`Bundle held at ${money(total)}. It’s in your deal.`)}
 function rulesOf(v){if(!v)return {};if(v.mine)return styleOf().rules||{};if(v.style&&v.style.rules)return v.style.rules;if(v.real||v.kind==='attendee')return {};if(!v.rules){const k=hash(v.id)%3;v.rules=k===0?{b3:10,b5:15}:k===1?{b3:5,b5:10}:{}}return v.rules}
 function bundlePct(v,n){const r=rulesOf(v);return n>=5&&r.b5?+r.b5:n>=3&&r.b3?+r.b3:0}
 function rulesText(v){const r=rulesOf(v),t=[];if(r.sale)t.push(`${r.sale}% off everything`);if(r.b3)t.push(`3+ cards ${r.b3}% off`);if(r.b5)t.push(`5+ cards ${r.b5}% off`);return t.join(' · ')}
@@ -2201,7 +2256,7 @@ function rcardHTML(c){if(hasPhotos(c))return pcardHTML(c,'f');const parts=c.grad
   const lbl=raw?'':`<div class="rl ${co.toLowerCase()}"><div class="rl-l"><span>${esc(c.year)} ${esc(c.set).toUpperCase()}</span><b>${esc(c.name).toUpperCase()}</b><span>${esc(c.num).toUpperCase()}</span></div><div class="rl-r"><span>${co} ${GWORD[gr]||''}</span><b>${esc(gr)}</b><i>${c.cert||''}</i></div></div>`;
   const ph=photo(c,'f');
   return `<div class="rslab ${raw?'raw':''}">${lbl}${ph?`<div class="rart ph" style="background-image:url('${ph}')"></div>`:`<div class="rart" style="--art:${c.art}"><span class="rin">${initials(c.name)}</span><span class="rnm">${esc(c.name)}</span><span class="rset">${esc(c.year)} ${esc(c.set)}</span></div>`}</div>`}
-function tcardHTML(c,v,x,y,kind,rot=0){const pk=(S.pick[v.id]||[]).includes(c.id),inDeal=(S.deal[v.id]||[]).includes(c.id);return `${c.sold||v.mine?'':`<button class="pick ${pk?'on':''}" style="left:${x-13}px;top:${y-13}px" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="${pk?'Remove from':'Add to'} lot: ${esc(c.name)}" title="Select for a lot offer">${pk?'✓':'+'}</button>`}<button class="tflip" style="left:${x+37}px;top:${y+246+(kind==='stand'?18:12)}px;width:76px" data-act="flip" data-id="tf-${c.id}" aria-label="Flip ${esc(c.name)} to see the back">↻ Flip</button><button class="tcard ${kind} ${c.sold?'sold':''} ${pk?'picked':''} ${S.vdetail[v.id]===c.id?'sel':''}" style="left:${x}px;top:${y}px;--r:${rot}deg" data-act="tvCard" data-id="${v.id}|${c.id}" aria-label="${esc(c.name)}, ${esc(c.grade)}, ${money(c.price)}">${flipHTML(c,'tf-'+c.id)}<span class="ptag">${c.price<c.list?`<s>${money(c.list)}</s><span class="neg2">${money(c.price)}</span>`:money(c.price)}</span>${!c.sold&&!v.mine&&compsInfo(c).vs<=-5?`<span class="ctag">${-compsInfo(c).vs}% UNDER COMPS</span>`:''}${c.sold?'<span class="soldtag">SOLD</span>':holdMine(c)&&!v.mine?'<span class="holdtag">HELD FOR YOU</span>':holdOf(c)?`<span class="holdtag">${v.mine?'HELD FOR '+esc((holdOf(c).name||'').toUpperCase().slice(0,14)):'ON HOLD'}</span>`:inDeal?'<span class="holdtag">IN YOUR DEAL</span>':c.held?'<span class="holdtag">HELD FOR YOU</span>':''}</button>`}
+function tcardHTML(c,v,x,y,kind,rot=0){const pk=(S.pick[v.id]||[]).includes(c.id),inDeal=(S.deal[v.id]||[]).includes(c.id);return `${c.sold||v.mine?'':`<button class="pick ${pk?'on':''}" style="left:${x-13}px;top:${y-13}px" data-act="tvPick" data-id="${v.id}|${c.id}" aria-label="${pk?'Remove from':'Add to'} bundle: ${esc(c.name)}" title="Add to bundle">${pk?'✓':'+'}</button>`}<button class="tflip" style="left:${x+37}px;top:${y+246+(kind==='stand'?18:12)}px;width:76px" data-act="flip" data-id="tf-${c.id}" aria-label="Flip ${esc(c.name)} to see the back">↻ Flip</button><button class="tcard ${kind} ${c.sold?'sold':''} ${pk?'picked':''} ${S.vdetail[v.id]===c.id?'sel':''}" style="left:${x}px;top:${y}px;--r:${rot}deg" data-act="tvCard" data-id="${v.id}|${c.id}" aria-label="${esc(c.name)}, ${esc(c.grade)}, ${money(c.price)}">${flipHTML(c,'tf-'+c.id)}<span class="ptag">${c.price<c.list?`<s>${money(c.list)}</s><span class="neg2">${money(c.price)}</span>`:money(c.price)}</span>${!c.sold&&!v.mine&&compsInfo(c).vs<=-5?`<span class="ctag">${-compsInfo(c).vs}% UNDER RECENT SALES</span>`:''}${c.sold?'<span class="soldtag">SOLD</span>':holdMine(c)&&!v.mine?'<span class="holdtag">HELD FOR YOU</span>':holdOf(c)?`<span class="holdtag">${v.mine?'HELD FOR '+esc((holdOf(c).name||'').toUpperCase().slice(0,14)):'ON HOLD'}</span>`:inDeal?'<span class="holdtag">IN YOUR DEAL</span>':c.held?'<span class="holdtag">HELD FOR YOU</span>':''}</button>`}
 function renderTvSurface(target,vv){const v=vv||TV.v;target=target||$('#tvSurf');if(!v)return;ensureBox(v);const inv=v.inv.filter(c=>!c.box),bx=boxCards(v);const st=boothStyle(v);
   const graded=inv.filter(c=>c.grade!=='Raw').sort((a,b)=>b.list-a.list),raw=inv.filter(c=>c.grade==='Raw');
   const nCase=Math.min(4,Math.ceil(graded.length/2)),caseC=graded.slice(0,nCase),standC=graded.slice(nCase);
@@ -2286,15 +2341,16 @@ function openCheckoutDeal(v,only){exitLock();const cs=only||dealCards(v);if(!cs.
   const opts=shipOpts({grade:cs.every(c=>c.grade==='Raw')?'Raw':'PSA',price:tot});CO={v,cs,tot,sub,bp,opts,ship:tot>=500?'pri':'bmwt',payer:tot>=v.shipFree?'seller':'buyer',addr:(CO&&CO.addr)||ME.name+'\n'+ME.from};
   if(!opts.find(o=>o.id===CO.ship))CO.ship=opts[0].id;renderCheckout()}
 function renderCheckout(){
-  const {v,cs,tot,opts}=CO;const o=opts.find(x=>x.id===CO.ship);const shipBuyer=CO.payer==='buyer'?o.cost:0;const list=cs.reduce((s,c)=>s+c.list,0);
-  openModal(`<div class="sec"><span class="eyebrow">From ${esc(v.name)}</span><h2>Checkout · ${cs.length} card${cs.length>1?'s':''}</h2>
-   ${cs.map(c=>`<div class="drow">${slab(c,'b')}<div style="min-width:0"><b>${esc(c.name)}</b><span>${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)}</span></div><div class="dpr">${c.price<c.list?`<s>${money(c.list)}</s>`:''}<b>${money(c.price)}</b></div></div>`).join('')}</div>
-  <div class="sec"><div class="sectionlabel" style="margin:0">Shipping · one package</div><div class="ship">${opts.map(x=>`<label><input type="radio" name="ship" id="ship-${x.id}" value="${x.id}" ${x.id===CO.ship?'checked':''} data-act="ship" data-id="${x.id}"><span>${x.n}</span><b class="mono">${money(x.cost)}</b></label>`).join('')}</div>
-   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:14px">Who pays shipping?</span><div class="seg"><button data-act="payer" data-id="buyer" aria-pressed="${CO.payer==='buyer'}">Buyer</button><button data-act="payer" data-id="seller" aria-pressed="${CO.payer==='seller'}">Seller</button></div></div>
-   ${tot>=v.shipFree?`<p class="mute" style="font-size:12px">${esc(v.name)} covers shipping on orders over ${money(v.shipFree)}.</p>`:''}</div>
-  <div class="sec"><label for="addr" class="sectionlabel" style="margin:0">Ship to</label><textarea id="addr" data-input="addr">${esc(CO.addr)}</textarea></div>
-  <div class="sec"><div class="sum"><div><span>Cards (${cs.length})</span><span class="mono">${money(CO.sub??tot)}</span></div>${list>(CO.sub??tot)?`<div class="mute" style="font-size:12.5px"><span>Negotiated off asking</span><span class="mono">−${money(list-(CO.sub??tot))}</span></div>`:''}${CO.bp?`<div style="font-size:12.5px;color:var(--go)"><span>Bundle deal (${CO.bp}% off)</span><span class="mono">−${money((CO.sub??tot)-tot)}</span></div>`:''}<div><span>Shipping (${CO.payer==='buyer'?'you pay':'seller pays'})</span><span class="mono">${money(shipBuyer)}</span></div><div class="tot"><span>You pay</span><span class="mono">${money(tot+shipBuyer)}</span></div></div>
-   <button class="btn gold" data-act="placeOrder">Place order · ${money(tot+shipBuyer)}</button><p class="mute" style="font-size:12px">Demo checkout. No card is charged.</p></div>`);
+  const {v,cs,tot,opts}=CO;const o=opts.find(x=>x.id===CO.ship);const shipBuyer=CO.payer==='buyer'?o.cost:0;const list=cs.reduce((s,c)=>s+(c.list||c.price),0),saved=list-tot;
+  const addr=(CO.addr||'').trim(),needAddr=!addr||/Your City/.test(addr),edit=CO.editAddr||needAddr;
+  openModal(`<div class="sec"><span class="eyebrow">From ${esc(v.name)}</span><h2>${cs.length>1?`${cs.length} cards`:esc(cs[0].name)}</h2>
+   ${cs.map(c=>`<div class="drow">${slab(c,'b')}<div style="min-width:0"><b>${esc(c.name)}</b><span>${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)}</span></div><div class="dpr"><b>${money(c.price)}</b></div></div>`).join('')}</div>
+  <div class="sec"><div class="sectionlabel" style="margin:0">Shipping</div><div class="ship">${opts.map(x=>`<label><input type="radio" name="ship" id="ship-${x.id}" value="${x.id}" ${x.id===CO.ship?'checked':''} data-act="ship" data-id="${x.id}"><span>${x.n}</span><b class="mono">${CO.payer==='seller'?'Free':money(x.cost)}</b></label>`).join('')}</div>
+   ${CO.payer==='seller'?`<p class="pos" style="font-size:13px;margin:0">${esc(v.name)} pays shipping on this order.</p>`:''}</div>
+  <div class="sec"><div style="display:flex;justify-content:space-between;align-items:center"><span class="sectionlabel" style="margin:0">Ship to</span>${needAddr?'':`<button class="linkbtn" data-act="addrEdit">${edit?'Done':'Change'}</button>`}</div>
+   ${edit?`<textarea id="addr" data-input="addr" placeholder="Name&#10;Street&#10;City, State ZIP">${esc(needAddr?(ME.name+'\n'):addr)}</textarea>`:`<p style="margin:0;white-space:pre-line">${esc(addr)}</p>`}</div>
+  <div class="sec"><div class="sum"><div><span>${cs.length>1?`${cs.length} cards`:'Card'}</span><span class="mono">${money(tot)}</span></div>${saved>0.5?`<div style="font-size:13px;color:var(--go)"><span>You saved</span><span class="mono">${money(saved)}</span></div>`:''}<div><span>Shipping</span><span class="mono">${shipBuyer?money(shipBuyer):'Free'}</span></div><div class="tot"><span>Total</span><span class="mono">${money(tot+shipBuyer)}</span></div></div>
+   <button class="btn gold rhbuy" data-act="placeOrder">Buy now · ${money(tot+shipBuyer)}</button><p class="mute" style="font-size:12px;text-align:center;margin:0">Demo money. No card is charged.</p></div>`);
 }
 function genTrk(){return ('9400111899'+Array.from({length:12},()=>Math.floor(Math.random()*10)).join('')).replace(/(\d{4})(?=\d)/g,'$1 ')}
 function placeOrder(){if(!CO||CO.done)return;if(CO.cs.some(c=>c.sold)){CO.done=true;closeModal();return toast('Something in your order already sold')}CO.done=true;
@@ -2315,29 +2371,29 @@ function orderModal(no,cs,v,o,shipPaid,total){
   openModal(`<div class="sec"><span class="eyebrow">Order ${no}</span><h2>Order placed</h2>
    ${cs.map(c=>`<div class="drow">${slab(c,'b')}<div style="min-width:0"><b>${esc(c.name)}</b><span>${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)}</span></div><div class="dpr"><b>${money(c.price)}</b></div></div>`).join('')}</div>
    <div class="sec"><div class="sum"><div><span>Cards</span><span class="mono">${money(total-shipPaid)}</span></div><div><span>Shipping · ${esc(o.svc.replace('USPS ','').toLowerCase())}</span><span class="mono">${shipPaid?money(shipPaid):'Seller pays'}</span></div><div class="tot"><span>Total</span><span class="mono">${money(total)}</span></div></div>
-   <p class="note">${esc(v.name)} packs and ships after the show. Tracking shows up in My Desk once they print the label. ${cs.length>1?'The cards are':'The card is'} already in your inventory, and ${money(total)} is added to your money spent.</p>
+   <p class="note">${esc(v.name)} packs and ships after the show. Tracking shows up under Me once they print the label. ${cs.length>1?'The cards are':'The card is'} already in your inventory, and ${money(total)} is added to your money spent.</p>
    <button class="btn gold" data-act="closeModal" style="justify-self:start">${S.view==='room'?'Keep walking the floor':'Done'}</button></div>`);
 }
 let SO=null;
 function allocate(cds,total){const ask=cds.reduce((s,c)=>s+(+c.price||0),0)||cds.length;let rem=total;return cds.map((c,i)=>{if(i===cds.length-1)return +rem.toFixed(2);const a=+(total*((+c.price||1)/ask)).toFixed(2);rem-=a;return a})}
 function shipFor(cds,price){return shipOpts(cds.length>1?{grade:cds.every(c=>c.grade==='Raw')?'Raw':'PSA',price}:cds[0])}
 function openSale(party,cds,price,extra={}){exitLock();cds=[].concat(cds);const opts=shipFor(cds,price);SO={party,cds,price,opts,ship:price>=500?'pri':'bmwt',payer:'buyer',...extra};if(!opts.find(o=>o.id===SO.ship))SO.ship=opts[0].id;renderSale()}
-function renderSale(){const {party,cds,price,opts}=SO,n=cds.length,cd=cds[0],o=opts.find(x=>x.id===SO.ship),fee=+(price*.08).toFixed(2),sp=SO.payer==='seller'?o.cost:0,cost=sumBy(cds,'cost'),ask=sumBy(cds,'price'),profit=price-fee-sp-cost,al=allocate(cds,price);
+function renderSale(){const {party,cds,price,opts}=SO,n=cds.length,cd=cds[0],o=opts.find(x=>x.id===SO.ship),fee=+(price*SELL_FEE).toFixed(2),sp=SO.payer==='seller'?o.cost:0,cost=sumBy(cds,'cost'),ask=sumBy(cds,'price'),profit=price-fee-sp-cost,al=allocate(cds,price);
   const who=`${party.kind==='attendee'?'Collector':'Dealer'}${party.city?' · '+esc(party.city):''}`;
   const head=n===1?`<div class="item" style="background:none;padding:0">${slabBtn(cd,'me','l')}<div style="min-width:0"><div class="nm" style="font-size:16px">${esc(cd.name)}</div><div class="sub">${esc(cd.year)} ${esc(cd.set)} · ${esc(cd.num)} · ${esc(cd.grade)}</div><div class="sub">${who}</div></div><div class="pr"><span class="price" style="font-size:18px">${money(price)}</span>${price!==cd.price?`<s>ask ${money(cd.price)}</s>`:''}</div></div>`
    :`<p class="mute" style="font-size:13px;margin:0">${who} · one package, one label · ${money(price)} for ${n} cards${price!==ask?` (asks were ${money(ask)})`:''}</p><div style="display:grid;gap:2px;max-height:240px;overflow:auto">${cds.map((c,i)=>`<div class="item" style="background:none;padding:4px 0">${slabBtn(c,'me')}<div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="sub">${esc(c.year)} ${esc(c.set)} · ${esc(c.grade)} · paid ${money(c.cost)}</div></div><div class="pr"><span class="mono" style="font-size:13.5px">${money(al[i])}</span>${al[i]!==c.price?`<s>ask ${money(c.price)}</s>`:''}</div></div>`).join('')}</div>`;
   openModal(`<div class="sec"><span class="eyebrow">${n>1?'Bundle sale':'You’re selling'}</span><h2>${n>1?`Sell ${n} cards to ${esc(party.name)}`:`Sell to ${esc(party.name)}`}</h2>${head}</div>
   <div class="sec"><div class="sectionlabel" style="margin:0">Shipping method${n>1?' · all cards in one package':''}</div><div class="ship">${opts.map(x=>`<label><input type="radio" name="sship" id="sship-${x.id}" value="${x.id}" ${x.id===SO.ship?'checked':''} data-act="sship" data-id="${x.id}"><span>${x.n}</span><b class="mono">${money(x.cost)}</b></label>`).join('')}</div>
    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:14px">Who pays shipping?</span><div class="seg"><button data-act="spayer" data-id="buyer" aria-pressed="${SO.payer==='buyer'}">Buyer</button><button data-act="spayer" data-id="seller" aria-pressed="${SO.payer==='seller'}">You</button></div></div></div>
-  <div class="sec"><div class="sum"><div><span>Sale price${n>1?` · ${n} cards`:''}</span><span class="mono">${money(price)}</span></div><div><span>Platform fee (8%)</span><span class="mono">−${money(fee)}</span></div><div><span>Shipping you pay</span><span class="mono">${sp?'−'+money(sp):money(0)}</span></div><div><span>What you paid</span><span class="mono">−${money(cost)}</span></div><div class="tot"><span>${profit>=0?'Profit':'Loss'}</span><span class="mono ${profit>=0?'pos':'neg'}">${signed(profit)}</span></div></div>
+  <div class="sec"><div class="sum"><div><span>Sale price${n>1?` · ${n} cards`:''}</span><span class="mono">${money(price)}</span></div>${fee?`<div><span>Platform fee</span><span class="mono">−${money(fee)}</span></div>`:''}<div><span>Shipping you pay</span><span class="mono">${sp?'−'+money(sp):money(0)}</span></div><div><span>What you paid</span><span class="mono">−${money(cost)}</span></div><div class="tot"><span>${profit>=0?'Profit':'Loss'}</span><span class="mono ${profit>=0?'pos':'neg'}">${signed(profit)}</span></div></div>
    <button class="btn gold" data-act="confirmSale">${n>1?`Confirm sale · ${n} cards · ${money(price)}`:'Confirm sale'}</button><p class="mute" style="font-size:12px">Demo payout. No money moves.</p></div>`);
 }
 function completeSale(party,cds,price,ship,payer){cds=[].concat(cds);
-  const n=cds.length,al=allocate(cds,price),fee=+(price*.08).toFixed(2),shipCost=payer==='seller'?ship.cost:0,cost=sumBy(cds,'cost'),net=+(price-fee-shipCost).toFixed(2),profit=+(net-cost).toFixed(2);
+  const n=cds.length,al=allocate(cds,price),fee=+(price*SELL_FEE).toFixed(2),shipCost=payer==='seller'?ship.cost:0,cost=sumBy(cds,'cost'),net=+(price-fee-shipCost).toFixed(2),profit=+(net-cost).toFixed(2);
   const no='SR-'+(20400+Math.floor(Math.random()*9000)),ts=Date.now(),where=S.view==='room'?showData.name:'Marketplace';
   const L={no,fromName:ME.name,fromCity:ME.from,toAddr:`${party.name}\n${party.city||''}`,svc:ship.svc,l:ship.l,cost:ship.cost,payer,trk:genTrk(),cardName:n>1?`${n}-card bundle`:cds[0].name,grade:n>1?'':cds[0].grade};
   cds.forEach((cd,i)=>{cd.sold=true;cd.forSale=false;if(slabMeshes[cd.id])slabMeshes[cd.id].visible=false;if(CARO[cd.id])CARO[cd.id].visible=false;
-    const p=al[i],f=+(p*.08).toFixed(2),sh=+(shipCost*(price?p/price:1/n)).toFixed(2),nt=+(p-f-sh).toFixed(2);
+    const p=al[i],f=+(p*SELL_FEE).toFixed(2),sh=+(shipCost*(price?p/price:1/n)).toFixed(2),nt=+(p-f-sh).toFixed(2);
     ME.ledger.unshift({id:n>1?`${no}-${i+1}`:no,order:no,ts,shipped:false,side:'sell',cardId:cd.id,card:snap(cd),party:party.name,price:p,fee:f,ship:sh,cost:cd.cost,net:nt,profit:+(nt-(cd.cost||0)).toFixed(2),where,label:L,...(n>1?{bundle:n}:{})});
     if(Array.isArray(party.inv)&&!party.mine)party.inv.push(card(cd.name,cd.year,cd.set,cd.num,cd.grade,round5(Math.max(p*1.18,cd.mkt||p))));
     Object.keys(S.pitch).forEach(k=>{if(k.endsWith('|'+cd.id))delete S.pitch[k]});
@@ -2351,22 +2407,22 @@ function confirmSale(){if(!SO||SO.done)return;if(SO.cds.some(c=>c.sold)){SO.done
   vendorSpeak(party,n>1?'Pleasure! Ship the stack over.':'Pleasure! Ship it over.');
   if(document.querySelector(`[data-vid="${party.id}"]`)&&!party.mine)refreshParty(party);rerenderOpen();refreshView();
   openModal(`<div class="sec"><span class="eyebrow">Order ${r.L.no}</span><h2>Sold${n>1?` · ${n} cards`:''}</h2><p>${money(price)} from ${esc(party.name)}${n>1?` for ${n} cards in one package`:''}. ${r.profit>=0?'Profit':'Loss'} <b class="${r.profit>=0?'pos':'neg'}">${signed(r.profit)}</b> after the ${money(r.fee)} fee${r.shipCost?` and ${money(r.shipCost)} shipping`:''}.</p>
-   <p class="note">Added to your packing list${n>1?' as one order with one label':''}. When you’re done ${S.view==='room'?'with the show':'selling'}, open My Desk → Orders to ship to print the label and mark it shipped.</p>
+   <p class="note">Added to your packing list${n>1?' as one order with one label':''}. When you’re done ${S.view==='room'?'with the show':'selling'}, open Me → Orders to ship to print the label and mark it shipped.</p>
    <button class="btn gold" data-act="closeModal" style="justify-self:start">${S.view==='room'?'Keep walking the floor':'Done'}</button></div>`);
 }
 /* accept every open offer at once: one order and label per buyer */
 function acceptAllModal(){exitLock();const os=S.offers.filter(o=>o.kind!=='hold'&&o.kind!=='trade');if(!os.length)return;
   S.allRows=os.map(o=>{const opts=shipFor(o.cds,o.amt);return {o,ship:opts.find(x=>x.id===(o.amt>=500?'pri':'bmwt'))||opts[0]}});
-  const tot=+os.reduce((s,o)=>s+o.amt,0).toFixed(2),cards=os.reduce((s,o)=>s+o.cds.length,0),fee=+(tot*.08).toFixed(2),cost=+os.reduce((s,o)=>s+sumBy(o.cds,'cost'),0).toFixed(2),profit=tot-fee-cost;
+  const tot=+os.reduce((s,o)=>s+o.amt,0).toFixed(2),cards=os.reduce((s,o)=>s+o.cds.length,0),fee=+(tot*SELL_FEE).toFixed(2),cost=+os.reduce((s,o)=>s+sumBy(o.cds,'cost'),0).toFixed(2),profit=tot-fee-cost;
   openModal(`<div class="sec"><span class="eyebrow">Accept all offers</span><h2>Sell ${cards} cards to ${os.length} buyer${os.length>1?'s':''}</h2><p class="mute" style="font-size:13px;margin:0">Each buyer gets one order and one label. Buyers pay shipping at the standard rate.</p></div>
   <div class="sec">${S.allRows.map(({o,ship})=>`<div class="item" style="background:none;padding:4px 0">${o.cds.length>1?`<div class="bstack">${o.cds.slice(0,3).map(c=>slab(c)).join('')}</div>`:slab(o.cds[0])}<div style="min-width:0"><div class="nm">${esc(o.party.name)}</div><div class="sub">${o.cds.length>1?`${o.cds.length} cards: `:''}${esc(o.cds.map(c=>c.name).join(', '))}</div><div class="sub">${esc(ship.n)} · buyer pays</div></div><div class="pr"><span class="price">${money(o.amt)}</span></div></div>`).join('')}</div>
-  <div class="sec"><div class="sum"><div><span>Sales</span><span class="mono">${money(tot)}</span></div><div><span>Platform fee (8%)</span><span class="mono">−${money(fee)}</span></div><div><span>What you paid</span><span class="mono">−${money(cost)}</span></div><div class="tot"><span>${profit>=0?'Profit':'Loss'}</span><span class="mono ${profit>=0?'pos':'neg'}">${signed(profit)}</span></div></div>
+  <div class="sec"><div class="sum"><div><span>Sales</span><span class="mono">${money(tot)}</span></div>${fee?`<div><span>Platform fee</span><span class="mono">−${money(fee)}</span></div>`:''}<div><span>What you paid</span><span class="mono">−${money(cost)}</span></div><div class="tot"><span>${profit>=0?'Profit':'Loss'}</span><span class="mono ${profit>=0?'pos':'neg'}">${signed(profit)}</span></div></div>
    <button class="btn gold" data-act="confirmAll">Confirm ${os.length} sale${os.length>1?'s':''} · ${money(tot)}</button><p class="mute" style="font-size:12px">Demo payout. No money moves.</p></div>`)}
 function confirmAll(){const rows=(S.allRows||[]).filter(r=>S.offers.includes(r.o)&&r.o.cds.every(c=>!c.sold));if(!rows.length){closeModal();return toast('Those offers are gone')}
   const rs=rows.map(({o,ship})=>{botDone(o,'Pleasure doing business!');return completeSale(o.party,o.cds,o.amt,ship,'buyer')});S.offers=S.offers.filter(o=>!rows.some(r=>r.o===o));S.allRows=null;renderOffers();rerenderOpen();refreshView();
   const tot=rows.reduce((s,r)=>s+r.o.amt,0),pf=rs.reduce((s,r)=>s+r.profit,0),cards=rows.reduce((s,r)=>s+r.o.cds.length,0);
   openModal(`<div class="sec"><span class="eyebrow">${rows.length} order${rows.length>1?'s':''}</span><h2>Sold · ${cards} cards</h2><p>${money(tot)} from ${rows.length} buyer${rows.length>1?'s':''}. ${pf>=0?'Profit':'Loss'} <b class="${pf>=0?'pos':'neg'}">${signed(pf)}</b> after fees.</p>
-   <p class="note">Each buyer is one order with one label on your packing list (My Desk → Orders to ship).</p><button class="btn gold" data-act="closeModal" style="justify-self:start">Done</button></div>`)}
+   <p class="note">Each buyer is one order with one label on your packing list (Me → Orders to ship).</p><button class="btn gold" data-act="closeModal" style="justify-self:start">Done</button></div>`)}
 
 function promoCard(){return ME.promo&&ME.inv.find(c=>c.id===ME.promo&&!c.sold)}
 function updatePromo(){if(!player)return;const u=player.userData;if(u.promo){player.remove(u.promo);u.promo.material.map.dispose();u.promo=null}
@@ -2392,7 +2448,8 @@ function newOffer(bot,via,want){const list=forSale().filter(c=>!S.offers.some(o=
   S.offers.push({id:'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),party,cds,cd,amt,max,tries:0,via,msg:'',bot});renderOffers();
   if(bot){bot.userData.path=[];bot.userData.wait=10;bot.rotation.y=Math.atan2(player.position.x-bot.position.x,player.position.z-bot.position.z);say(bot,cds.length>1?`Would you bundle your ${cd.name} with ${cds.length-1} more?`:`Is your ${cd.name} still for sale?`,4200)}
   toast(`New offer: ${money(amt)} for ${cds.length>1?`${cds.length} of your cards`:`your ${cd.name}`}${locked?' · Esc to free the mouse':''}`)}
-/* what you actually clear on a sale: price − 8% fee − what you paid, with and without covering shipping */
+/* seller fee: 0% (Caden's call). Profit = price − what you paid, with and without covering shipping */
+const SELL_FEE=0;
 /* quick counters: each moves 25 / 50 / 75% of the gap from your number toward theirs */
 function niceRound(x){const st=x<50?1:x<300?5:x<2000?10:x<10000?25:100;return Math.round(x/st)*st}
 function quickCounters(theirs,mine,list){theirs=+theirs;mine=+mine;if(!(theirs>0)||!(mine>0)||Math.abs(mine-theirs)<2)return[];const up=mine<theirs,lo=Math.min(mine,theirs),hi=Math.max(mine,theirs),out=[],seen=new Set();
@@ -2404,11 +2461,11 @@ function qoHTML(form,id,list,card){if(!(list>2))return '';const out=[],seen=new 
 S.mine={};S.trade={};
 document.addEventListener('submit',e=>{const f=e.target;if(!f||!f.dataset||!f.amt)return;const a=parseFloat(String(f.amt.value).replace(/[$,]/g,''));if(!(a>0))return;const fn=f.dataset.form,id=f.dataset.id;let k=null;
   if(fn==='ofCounter')k='of:'+id;else if(fn==='vwOffer'&&VW)k=`c:${VW.vid}|${VW.cid}`;else if(fn==='offer'&&f.card)k=`c:${id}|${f.card.value}`;else if(fn==='lotOffer')k='lot:'+id;else if(fn==='rCounter')k='r:'+id;else if(fn==='pitchCounter')k='pt:'+id;else if(fn==='bundleCounter'||fn==='bundleAsk')k='bd:'+id;if(k)S.mine[k]=a},true);
-function profitHTML(cds,amt,lead=''){cds=[].concat(cds);const opts=shipFor(cds,amt),sh=opts.find(x=>x.id===(amt>=500?'pri':'bmwt'))||opts[0],cost=sumBy(cds,'cost'),p=+(amt-amt*.08-cost).toFixed(2),ps=+(p-sh.cost).toFixed(2);
-  return `${lead?`<span class="mute">${lead}</span>`:''}<span class="${p>=0?'pos':'neg'}">${p>=0?'Profit':'Loss'} <b>${signed(p)}</b></span><span class="mute">· <b class="${ps>=0?'pos':'neg'}">${signed(ps)}</b> if you pay ${money(sh.cost)} shipping</span>`}
+function profitHTML(cds,amt,lead=''){cds=[].concat(cds);const opts=shipFor(cds,amt),sh=opts.find(x=>x.id===(amt>=500?'pri':'bmwt'))||opts[0],cost=sumBy(cds,'cost'),fee=+(amt*SELL_FEE).toFixed(2),p=+(amt-fee-cost).toFixed(2),ps=+(p-sh.cost).toFixed(2);
+  return `${lead?`<span class="mute">${lead}</span> `:''}<span class="${p>=0?'pos':'neg'}">${p>=0?'Profit':'Loss'} <b>${signed(p)}</b></span> <span class="mute">(you paid ${money(cost)}${fee?`, ${money(fee)} fee`:''})</span>${sh.cost?`<br><span class="mute">${signed(ps)} if you cover the ${money(sh.cost)} shipping</span>`:''}`}
 function ocardHTML(o){if(o.kind==='trade'){const give=o.give||[],cash=+o.amt||0,gv=o.cds.reduce((t,c)=>t+(+c.price||0),0),yv=give.reduce((t,c)=>t+(+c.mkt||+c.price||0),0),cost=o.cds.reduce((t,c)=>t+(+c.cost||0),0);
   return `<div class="ocard"><div class="otop"><div class="bstack">${o.cds.slice(0,3).map(c=>slab(c)).join('')}</div><div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">Trade offer · ${esc(o.party.name)}</span><b style="font-size:14.5px">They want your ${esc(o.cds.map(c=>c.name).join(', '))}</b><span class="who">Your ask ${money(gv)} · you paid ${money(cost)}</span></div></div>
-   <div class="tgive"><b>You’d get</b>${give.map(c=>`<span>${esc(c.name)} <span class="mute">${esc(c.grade||'')}</span> <span class="mono">${money(+c.mkt||+c.price||0)} comps</span></span>`).join('')}${cash?`<span>${cash>0?'+ '+money(cash)+' cash from them':'You add '+money(-cash)+' cash'}</span>`:''}<span class="mute">Their side ${money(yv+Math.max(cash,0))} vs your ask ${money(gv+Math.max(-cash,0))}</span></div>
+   <div class="tgive"><b>You’d get</b>${give.map(c=>`<span>${esc(c.name)} <span class="mute">${esc(c.grade||'')}</span> <span class="mono">${money(+c.mkt||+c.price||0)} recent sales</span></span>`).join('')}${cash?`<span>${cash>0?'+ '+money(cash)+' cash from them':'You add '+money(-cash)+' cash'}</span>`:''}<span class="mute">Their side ${money(yv+Math.max(cash,0))} vs your ask ${money(gv+Math.max(-cash,0))}</span></div>
    <div class="act"><button class="btn gold sm" data-act="ofTrade" data-id="${o.id}">Accept trade</button><form data-form="ofTradeCash" data-id="${o.id}" class="tcounter"><select name="dir" aria-label="Who adds cash"><option value="them">They add</option><option value="me">I add</option><option value="even">Straight up</option></select><div class="amt sm"><span class="mute">$</span><input name="amt" inputmode="decimal" placeholder="0" aria-label="Cash amount" autocomplete="off"></div><button class="btn ghost sm">Counter</button></form><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Decline</button></div></div>`}
   if(o.kind==='hold'){const c=o.cds[0];return `<div class="ocard"><div class="otop">${slabBtn(c,'me')}<div style="min-width:0;display:grid;gap:2px"><span class="eyebrow">Hold request</span><b style="font-size:14.5px">${esc(o.party.name)} wants you to hold your ${esc(c.name)}</b><span class="who">For 15 minutes at ${money(c.price)} · nobody else can buy it while it’s held</span></div></div><div class="act"><button class="btn gold sm" data-act="ofHold" data-id="${o.id}">Hold it 15 min</button><button class="btn ghost sm" data-act="ofDecline" data-id="${o.id}">Not now</button></div></div>`}
   const m=o.cds.length>1,ask=sumBy(o.cds,'price'),paid=sumBy(o.cds,'cost'),low=sumBy(o.cds,'floor');
@@ -2422,6 +2479,8 @@ function renderOffers(){S.offers=S.offers.filter(o=>o.cds.every(c=>!c.sold&&c.fo
   el.innerHTML=`<button class="odock" data-act="toggleOffers" aria-expanded="${!!S.offersOpen}"><i></i><b class="ot">${n} offer${n>1?'s':''}<em class="ol"> on your cards</em></b><span>${S.offersOpen?'Hide':'Review'}</span></button>${S.offersOpen?`<div class="olist"><div class="ohead"><span class="eyebrow">Incoming offers</span><button class="linkbtn" data-act="offersOff">Pause new offers</button></div>${(()=>{const os=S.offers.filter(o=>o.kind!=='hold'&&o.kind!=='trade');return os.length>1?`<button class="btn gold sm oall" data-act="ofAcceptAll">Accept all ${os.length} · ${money(os.reduce((t,o)=>t+o.amt,0))} for ${os.reduce((t,o)=>t+o.cds.length,0)} cards</button>`:''})()}${S.offers.map(ocardHTML).join('')}</div>`:''}`}
 function offerTick(){
   if(!ME||!offersOn()||!forSale().length||S.offers.length>=2||!$('#modal').hidden||(S.view==='room'&&!$('#splash').hidden))return;
+  /* don't interrupt someone shopping: no new practice offers while a table, card or the walkthrough is open (unless you're behind your own table) */
+  if(!S.op&&(!$('#tv').hidden||!$('#viewer').hidden||$('#tour')))return;
   if(S.view==='room'&&player){
     if(S.op){if(Math.random()<.2)newOffer(null,'Marketplace');return}
     const mb=booths.find(b=>b.v.mine);
@@ -2448,7 +2507,7 @@ function labelModal(e,es=[e]){const L=e.label,shipped=es.every(x=>x.shipped);
 const MK={q:'',online:false};
 function renderMarket(){
   const onl=VENDORS.filter(v=>v.online).length;
-  $('#app').innerHTML=`<div class="mkhead"><div class="intro" style="margin:0"><h1>Marketplace</h1><p class="mute">Every seller’s inventory is a booth, open 24/7. Buy anytime. If they’re online, talk them down live; if not, leave an offer.</p></div>
+  $('#app').innerHTML=`<div class="mkhead"><div class="intro" style="margin:0"><h1>Shop</h1><p class="mute">Buy from any seller, any time. Make an offer if the price isn’t right.</p></div>
    <div class="filters"><input type="search" id="mkq" placeholder="Search player, set, grade" value="${esc(MK.q)}" data-input="mkq" aria-label="Search listings"><label class="toggle"><input type="checkbox" id="mkon" data-input="mkon" ${MK.online?'checked':''}> Online now (${onl})</label></div></div>
    <div id="mkbody"></div>`;
   renderMarketBody();
@@ -2457,24 +2516,22 @@ function renderMarketBody(){
   const q=MK.q.trim().toLowerCase();const vs=VENDORS.filter(v=>!MK.online||v.online);let html='';
   if(q){const hits=vs.flatMap(v=>v.inv.filter(c=>!c.sold&&`${c.name} ${c.year} ${c.set} ${c.num} ${c.grade}`.toLowerCase().includes(q)).map(c=>({v,c})));
     html+=`<div class="sectionlabel">${hits.length} listing${hits.length===1?'':'s'} match “${esc(MK.q)}”</div><div class="results">${hits.map(({v,c})=>`<div class="item" style="background:var(--panel);border:1px solid var(--line)">${slab(c)}<div style="min-width:0"><div class="nm">${esc(c.name)}</div><div class="sub">${c.year} ${esc(c.set)} · ${esc(c.num)}</div><div class="vmeta"><span class="dot ${v.online?'on':''}"></span>${esc(v.name)}</div></div><div class="pr"><span class="price">${money(c.price)}</span><div class="acts"><button class="btn ghost sm" data-act="openBooth" data-id="${v.id}">Booth</button><button class="btn gold sm" data-act="buy" data-id="${v.id}|${c.id}">Buy</button></div></div></div>`).join('')||'<p class="mute">No listings match. Try a set name like “Prizm”.</p>'}</div>`}
-  html+=`<div class="sectionlabel">${vs.length+1} booths</div><div class="vgrid">${myBoothCard()}${vs.map(v=>{const live=v.inv.filter(c=>!c.sold);return `<article class="vcard ${v.online?'':'offline'}"><div class="table" style="--drape:${v.color};background:linear-gradient(#152342,#0c1426)">${live.slice(0,4).map(c=>slab(c,'b')).join('')}</div>
+  html+=`<div class="sectionlabel">${vs.length+1} booths</div><div class="vgrid">${myBoothCard()}${vs.map(v=>{const live=v.inv.filter(c=>!c.sold);return `<article class="mcard ${v.online?'':'offline'}"><div class="table" style="--drape:${v.color};background:linear-gradient(#152342,#0c1426)">${live.slice(0,4).map(c=>slab(c,'b')).join('')}</div>
    <div class="b"><h3>${esc(v.name)}</h3><div class="vmeta"><span class="dot ${v.online?'on':''}"></span>${v.online?'Online now':'Offline · offers open'}</div><p class="mute" style="font-size:13px">${esc(v.spec)}</p></div>
    <div class="f"><span><b>${live.length}</b> cards · <span class="price">${rangeText(v)}</span></span><button class="btn gold sm" data-act="openBooth" data-id="${v.id}">Visit</button></div></article>`}).join('')}</div>`;
   $('#mkbody').innerHTML=html;
 }
-function myBoothCard(){const fs=forSale();return `<article class="vcard" style="border-color:var(--gold)"><div class="table" style="--drape:${ACC};background:linear-gradient(#152342,#0c1426)">${fs.slice(0,4).map(c=>slab(c,'b')).join('')||'<span class="mute" style="font-size:13px;align-self:center">Nothing listed yet</span>'}</div>
+function myBoothCard(){const fs=forSale();return `<article class="mcard" style="border-color:var(--gold)"><div class="table" style="--drape:${ACC};background:linear-gradient(#152342,#0c1426)">${fs.slice(0,4).map(c=>slab(c,'b')).join('')||'<span class="mute" style="font-size:13px;align-self:center">Nothing listed yet</span>'}</div>
   <div class="b"><h3>${esc(ME.table||'My Table')} <span class="chip gold">You</span></h3><div class="vmeta"><span class="dot on"></span>Listed 24/7</div><p class="mute" style="font-size:13px">${fs.length} cards for sale. Offers come straight to you.</p></div>
   <div class="f"><span class="price">${fs.length?rangeText(VBY.me):'—'}</span><button class="btn gold sm" data-act="manageMine">Manage</button></div></article>`}
 function rolePicker(){return `<div class="rolepick">${[['collector','Collector','Walk in with your binder. Buy from anyone, and sell to dealers and other collectors.'],['vendor','Vendor','Everything a collector does, plus your own table in the Expo Hall at every show with your for-sale cards out.']].map(([k,t,d])=>`<button data-act="role" data-id="${k}" aria-pressed="${ME.role===k}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>`}
 const kpi=(a,b,c,cls='')=>`<div class="kpi"><small>${a}</small><b class="${cls}">${b}</b><span>${c}</span></div>`;
 function renderInventory(){
-  $('#app').innerHTML=`<div class="mkhead"><div class="intro" style="margin:0"><h1>Inventory</h1><p class="mute">Every card you own, vendor or not. Set your asking price and the lowest you’ll take, then mark it for sale. For-sale cards are listed in the marketplace 24/7, go on your table at shows in vendor mode, and can be pitched to any dealer or collector you meet.</p></div><span class="savebadge"></span></div>
-  <div class="panel"><div class="phead"><h2>How you show up at shows</h2></div>${rolePicker()}</div>
-  <div class="panel" id="avpanel"></div>
-  <div class="panel" id="design"></div>
-  <div class="kpis" id="invsum"></div>
-  ${ME.inv.some(c=>c.example&&!c.sold)?`<p class="note" style="margin-bottom:16px">Cards marked <b>Example</b> are samples so you can try buying and selling. <button class="btn ghost sm" data-act="clearExamples">Remove examples</button></p>`:''}
-  <div class="panel"><div class="phead"><h2>Add a card</h2><button class="btn ghost sm" data-act="togglePaste">Paste a list instead</button></div>
+  $('#app').innerHTML=`<div class="pghead"><h1>My Cards</h1><span class="savebadge"></span></div>
+  <div class="hero" id="invsum"></div>
+  ${ME.inv.some(c=>c.example&&!c.sold)?`<p class="note" style="margin-bottom:14px">Cards marked <b>Example</b> are samples to practice with. <button class="linkbtn" data-act="clearExamples">Remove them</button></p>`:''}
+  <button class="btn gold bigadd" data-act="addOpen" aria-expanded="${!!S.addOpen}">${S.addOpen?'Close':'+ Add a card'}</button>
+  <div class="panel" id="addpanel" ${S.addOpen?'':'hidden'}><div class="phead"><h2>Add a card</h2><button class="linkbtn" data-act="togglePaste">Paste a list instead</button></div>
    <form class="addform" data-form="addCard">
     <label>Player<input name="name" required placeholder="Jalen Okafor" id="f-name" autocomplete="off"></label>
     <label>Year<input name="year" inputmode="numeric" placeholder="2024" id="f-year"></label>
@@ -2490,9 +2547,29 @@ function renderInventory(){
    </form>
    <div id="pastebox" hidden style="display:grid;gap:8px"><textarea id="pastein" rows="5" placeholder="One card per line: Player, Year, Set, Card #, Grade, Paid, Asking&#10;Jalen Okafor, 2024, Prizm, Silver #312, PSA 10, 250, 340"></textarea><div><button class="btn gold sm" data-act="importPaste">Import cards</button></div></div>
   </div>
-  <div class="panel"><div class="phead"><h2>Your cards</h2><div class="toolbar">${[['all','In hand'],['sale','For sale'],['off','Not listed'],['sold','Sold']].map(([k,l])=>`<button class="pill" data-act="invF" data-id="${k}" aria-pressed="${S.invF===k}">${l}</button>`).join('')}<input type="search" data-input="invQ" id="invq" placeholder="Search" value="${esc(S.invQ)}" style="padding:5px 9px;font-size:13px" aria-label="Search your cards"></div></div><div class="tablewrap" id="invtable"></div></div>`;
-  renderInvSummary();renderInvTable();renderDesign();updateSaveBadge();
+  <div class="toolbar" style="margin-bottom:8px;flex-wrap:wrap">${[['all','All'],['sale','For sale'],['off','Not for sale'],['sold','Sold']].map(([k,l])=>`<button class="pill" data-act="invF" data-id="${k}" aria-pressed="${S.invF===k}">${l}</button>`).join('')}<input type="search" data-input="invQ" id="invq" placeholder="Search" value="${esc(S.invQ)}" style="padding:6px 10px;font-size:14px;flex:1;min-width:120px" aria-label="Search your cards"></div>
+  <div class="clist" id="invtable"></div>`;
+  renderInvSummary();renderInvTable();updateSaveBadge();
 }
+function renderInvSummary(){const el=$('#invsum');if(!el)return;const own=owned(),fs=forSale(),paid=sumOf(own,'cost'),worth=sumOf(own,'mkt'),d=worth-paid;
+  el.innerHTML=`<small>Your cards are worth about</small><div class="big">${money(worth)}</div><div class="subl"><b class="${d>=0?'pos':'neg'}">${d>=0?'▲':'▼'} ${money(Math.abs(d))}</b> vs. the ${money(paid)} you paid · ${own.length} card${own.length===1?'':'s'}, ${fs.length} for sale</div>`}
+function renderInvTable(){const f=S.invF,q=S.invQ.toLowerCase(),el=$('#invtable');if(!el)return;
+  const rows=ME.inv.filter(c=>(f==='all'?!c.sold:f==='sale'?c.forSale&&!c.sold:f==='off'?!c.forSale&&!c.sold:c.sold)&&`${c.name} ${c.set} ${c.year} ${c.grade} ${c.num}`.toLowerCase().includes(q));
+  el.innerHTML=rows.length?rows.map(c=>{const e=c.sold&&ME.ledger.find(x=>x.side==='sell'&&x.cardId===c.id);
+    return `<button class="crow" data-act="cardOpen" data-id="${c.id}">${slab(c)}<div style="min-width:0"><b>${esc(c.name)}${c.example?' <span class="chip">Example</span>':''}</b><span class="sub2">${esc([c.year,c.set,c.grade].filter(Boolean).join(' · '))}</span></div>
+     <div class="rt">${c.sold?`<span class="p">${e?money(e.price):'Sold'}</span><span class="st ${e&&e.profit>=0?'on':''}">${e?`Sold · ${signed(e.profit)}`:'Sold'}</span>`:`<span class="p">${money(c.price)}</span><span class="st ${c.forSale?'on':''}">${c.box?'In bargain box':c.forSale?'For sale':'Not for sale'}</span>`}</div></button>`}).join('')
+   :`<div class="empty"><p>${f==='sold'?'Nothing sold yet.':'No cards here yet. Tap “Add a card” to start.'}</p></div>`}
+function cardSheet(id){const c=ME.inv.find(x=>x.id===id);if(!c)return;if(c.sold){const e=ME.ledger.find(x=>x.side==='sell'&&x.cardId===c.id);return openModal(`<div class="sec csheet"><div class="top2">${slab(c)}<div><h2>${esc(c.name)}</h2><p class="mute">${esc([c.year,c.set,c.num,c.grade].filter(Boolean).join(' · '))}</p></div></div><div class="mrow"><span>Sold for</span><span class="mono">${e?money(e.price):'—'}</span></div><div class="mrow"><span>You paid</span><span class="mono">${money(c.cost)}</span></div><div class="mrow"><span>${e&&e.profit<0?'Loss':'Profit'}</span><span class="mono ${e&&e.profit>=0?'pos':'neg'}">${e?signed(e.profit):'—'}</span></div><button class="btn ghost" data-act="closeModal">Done</button></div>`)}
+  const m=c.price-c.cost;
+  openModal(`<div class="sec csheet"><div class="top2">${slab(c)}<div style="min-width:0"><h2>${esc(c.name)}</h2><p class="mute" style="margin:0">${esc([c.year,c.set,c.num,c.grade].filter(Boolean).join(' · '))}</p><p class="mute" style="margin:2px 0 0;font-size:13px">Recent sales around ${money(c.mkt)}</p></div></div>
+   <label class="swrow">For sale<span class="switch"><input type="checkbox" data-toggle="forSale" data-id="${c.id}" ${c.forSale?'checked':''}></span></label>
+   <label class="fld">Price<input data-edit="price" data-id="${c.id}" value="${c.price}" inputmode="decimal"></label>
+   <label class="fld">You paid<input data-edit="cost" data-id="${c.id}" value="${c.cost}" inputmode="decimal"></label>
+   <label class="fld">Lowest you’ll take<input data-edit="floor" data-id="${c.id}" value="${c.floor}" inputmode="decimal"></label>
+   <div class="mrow" style="border:0;padding:2px 4px"><span class="mute">If it sells at your price</span><b class="mono ${m>=0?'pos':'neg'}" id="mg-${c.id}">${signed(m)}</b></div>
+   ${ME.role==='vendor'?`<label class="swrow">Put in my bargain box<span class="switch"><input type="checkbox" data-toggle="box" data-id="${c.id}" ${c.box?'checked':''}></span></label>`:''}
+   <div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" data-act="photos" data-id="${c.id}" style="flex:1">${photoCount(c)?`Photos · ${photoCount(c)}`:'Add photos'}</button><button class="btn ghost" data-act="delCard" data-id="${c.id}">Delete</button></div>
+   <button class="btn gold" data-act="cardDone">Done</button></div>`)}
 function renderDesign(){renderAvatarPanel();const el=$('#design');if(!el)return;const st=styleOf();el.className='panel';
   const tg=(k,on,a,b)=>`<button class="txt" data-act="style" data-id="${k}|${on?'':'1'}" aria-pressed="${!!on}">${on?a:b}</button>`;
   el.innerHTML=`<div class="phead"><h2>Your booth</h2><span class="mute" style="font-size:12.5px">${ME.role==='vendor'?'Shows on your table at every show. Changes appear next time you walk in.':'Switch to vendor above to get a table at shows.'}</span></div>
@@ -2529,16 +2606,6 @@ function avPreview(){const host=$('#avprev');if(!host||!window.THREE)return;
   if(AVP.av){AVP.sc.remove(AVP.av);const i=ALL_AV.indexOf(AVP.av);if(i>=0)ALL_AV.splice(i,1)}
   AVP.av=makeAvatar(lookOf());{const i=ALL_AV.indexOf(AVP.av);if(i>=0)ALL_AV.splice(i,1)}AVP.av.rotation.y=.5;AVP.sc.add(AVP.av);
   const w=Math.max(200,host.clientWidth),h=innerWidth<760?230:300;AVP.r.setSize(w,h);AVP.cam.aspect=w/h;AVP.cam.updateProjectionMatrix();host.style.height=h+'px';host.prepend(AVP.r.domElement);AVP.start()}
-function renderInvSummary(){const el=$('#invsum');if(!el)return;const own=owned(),fs=forSale();
-  el.innerHTML=kpi('Cards in hand',own.length,`${fs.length} for sale`)+kpi('You paid',money(sumOf(own,'cost')),'cost basis of cards in hand')+kpi('Asking',money(sumOf(fs,'price')),'total of listed cards')+kpi('Comps value',money(sumOf(own,'mkt')),'estimated market, all cards')}
-function renderInvTable(){const f=S.invF,q=S.invQ.toLowerCase();
-  const rows=ME.inv.filter(c=>(f==='all'?!c.sold:f==='sale'?c.forSale&&!c.sold:f==='off'?!c.forSale&&!c.sold:c.sold)&&`${c.name} ${c.set} ${c.year} ${c.grade} ${c.num}`.toLowerCase().includes(q));
-  $('#invtable').innerHTML=rows.length?`<table class="t"><thead><tr><th>Card</th><th>Grade</th><th class="n">Paid</th><th class="n">${f==='sold'?'Sold for':'Asking'}</th><th class="n">${f==='sold'?'':'Lowest'}</th><th class="n">${f==='sold'?'':'Comps'}</th><th class="n">${f==='sold'?'Profit':'Margin'}</th><th>${f==='sold'?'':'For sale'}</th><th></th></tr></thead><tbody>${rows.map(c=>{
-    const cell=`<td><div class="cardcell">${c.sold?slab(c):`<button class="slabbtn" data-act="photos" data-id="${c.id}" aria-label="Photos for ${esc(c.name)}" title="Photos">${slab(c)}</button>`}<div><b>${esc(c.name)}${c.example?' <span class="chip">Example</span>':''}</b><span>${esc(c.year)} ${esc(c.set)}${c.num?' · '+esc(c.num):''}${c.from?` · from ${esc(c.from)}`:''}</span></div></div></td><td>${esc(c.grade)}</td>`;
-    if(c.sold){const e=ME.ledger.find(x=>x.side==='sell'&&x.cardId===c.id);return `<tr>${cell}<td class="n">${money(c.cost)}</td><td class="n">${e?money(e.price):'—'}</td><td class="n mute" colspan="2">${e?'to '+esc(e.party):''}</td><td class="n ${e&&e.profit>=0?'pos':'neg'}">${e?signed(e.profit):''}</td><td></td><td></td></tr>`}
-    const m=c.price-c.cost;
-    return `<tr>${cell}<td class="n"><input data-edit="cost" data-id="${c.id}" id="ic-${c.id}" value="${c.cost}" inputmode="decimal" aria-label="Paid"></td><td class="n"><input data-edit="price" data-id="${c.id}" id="ip-${c.id}" value="${c.price}" inputmode="decimal" aria-label="Asking"></td><td class="n"><input data-edit="floor" data-id="${c.id}" id="if-${c.id}" value="${c.floor}" inputmode="decimal" aria-label="Lowest"></td><td class="n">${money(c.mkt)}</td><td class="n ${m>=0?'pos':'neg'}" id="mg-${c.id}">${signed(m)}</td><td><label class="switch"><input type="checkbox" data-toggle="forSale" data-id="${c.id}" id="is-${c.id}" ${c.forSale?'checked':''}> <span>${c.forSale?'Listed':'Off'}</span></label></td><td style="white-space:nowrap"><button class="btn ${photoCount(c)?'ghost':'gold'} sm" data-act="photos" data-id="${c.id}">${photoCount(c)?`Photos · ${photoCount(c)}`:'Add photos'}</button> <button class="btn ghost sm" data-act="delCard" data-id="${c.id}">Delete</button></td></tr>`}).join('')}</tbody></table>`
-   :`<div class="empty"><p>${f==='sold'?'Nothing sold yet.':'No cards here yet. Add one above.'}</p></div>`}
 function chartSVG(sells,W=640){const pts=[...sells].reverse();if(!pts.length)return `<div class="empty"><p>No sales yet. Your running profit shows up here after your first sale.</p></div>`;
   let cum=0;const ys=[0,...pts.map(e=>cum+=e.profit)];const H=210,pl=58,pr=14,pt=30,pb=24,lo=Math.min(0,...ys),hi=Math.max(0,...ys),sp=hi-lo||1;
   const X=i=>pl+i*(W-pl-pr)/Math.max(1,ys.length-1),Y=v=>pt+(hi-v)/sp*(H-pt-pb);
@@ -2548,18 +2615,30 @@ function chartSVG(sells,W=640){const pts=[...sells].reverse();if(!pts.length)ret
    <polygon points="${X(0)},${Y(0)} ${line} ${X(ys.length-1)},${Y(0)}" fill="var(--gold)" opacity=".12"/><polyline points="${line}" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linejoin="round"/>
    ${ys.map((v,i)=>i?`<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="var(--gold)"/>`:'').join('')}<text x="${X(ys.length-1)}" y="${Y(last)-10}" text-anchor="end" fill="var(--ink)" font-size="12" font-weight="700" font-family="JetBrains Mono,monospace">${signed(last)}</text>
    <text x="${pl}" y="${H-6}" fill="var(--mute)" font-size="11" font-family="Figtree,sans-serif">First sale</text><text x="${W-pr}" y="${H-6}" text-anchor="end" fill="var(--mute)" font-size="11" font-family="Figtree,sans-serif">Latest</text></svg>`}
+function historyHTML(){const L=ME.ledger.slice(0,S.histAll?999:12);if(!L.length)return `<div class="empty"><p>Nothing yet. What you buy and sell shows up here.</p></div>`;
+  const art=c=>({...c,art:`linear-gradient(160deg,hsl(${hash(c.name+c.set)%360} 60% 46%),hsl(${(hash(c.name+c.set)%360+40)%360} 55% 24%))`});
+  return L.map(e=>{const d=new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    if(e.side==='sell')return `<div class="hrow">${e.card?slab(art(e.card)):''}<div style="min-width:0"><b>Sold ${esc(e.card?.name||'')}</b><span>to ${esc(e.party||'')} · ${d} · ${e.shipped?'Shipped':'To ship'}</span></div><div class="amt2">${money(e.price)}<div class="${e.profit>=0?'pos':'neg'}" style="font-size:12.5px">${signed(e.profit)}</div></div></div>`;
+    if(e.side==='buy')return `<div class="hrow">${e.card?slab(art(e.card)):''}<div style="min-width:0"><b>${e.trade?'Traded for':'Bought'} ${esc(e.card?.name||'')}</b><span>from ${esc(e.party||'')} · ${d}</span></div><div class="amt2">${money(e.total||e.price||0)}</div></div>`;
+    return `<div class="hrow"><span></span><div><b>${esc(e.side==='ticket'?'Show ticket':e.side==='pro'?'Pro':(e.card?.name||e.side))}</b><span>${esc(e.party||e.where||'')} · ${d}</span></div><div class="amt2">${money(e.total||e.price||0)}</div></div>`}).join('')+(ME.ledger.length>12?`<button class="linkbtn" style="margin-top:10px" data-act="histAll">${S.histAll?'Show less':`Show all ${ME.ledger.length}`}</button>`:'')}
 function renderDesk(){
-  const L=ME.ledger,buys=L.filter(e=>e.side==='buy'),sells=L.filter(e=>e.side==='sell');
-  const spent=spentOf(L),rev=sumOf(sells,'price'),fees=sumOf(sells,'fee'),shipP=sumOf(sells,'ship'),profit=sumOf(sells,'profit'),own=owned(),basis=sumOf(own,'cost'),mkt=sumOf(own,'mkt');
-  $('#app').innerHTML=`<div class="mkhead"><div class="intro" style="margin:0"><h1>My Desk</h1><p class="mute">What you’ve bought, what you’ve sold, and where you stand. You’re set up as a ${ME.role}.</p></div><span class="savebadge"></span></div>
-  <div class="kpis">${kpi('Money spent',money(spent),`${buys.length} card${buys.length===1?'':'s'} bought, plus tickets${ME.premium?' and Pro':''}`)}${kpi('Sales',money(rev),`${sells.length} card${sells.length===1?'':'s'} sold`)}${kpi('Profit / loss',signed(profit),`after ${money(fees)} fees and ${money(shipP)} shipping`,profit>=0?'pos':'neg')}${kpi('Avg margin',sells.length&&rev?Math.round(profit/rev*100)+'%':'—','profit ÷ sale price')}${kpi('In hand',money(basis),`${own.length} cards at cost`)}${kpi('Unrealized',signed(mkt-basis),`comps ${money(mkt)} vs. what you paid`,mkt-basis>=0?'pos':'neg')}</div>
+  const L=ME.ledger,sells=L.filter(e=>e.side==='sell'),spent=spentOf(L),rev=sumOf(sells,'price'),profit=sumOf(sells,'profit');
+  $('#app').innerHTML=`<div class="meid"><div class="av2" style="background:${ACC}">${esc((ME.name||'?').slice(0,1).toUpperCase())}</div><div><h1 style="font-size:26px">${esc(ME.name)}</h1><span class="mute">${ME.role==='vendor'?'Vendor':'Collector'}${ME.from&&!/Your City/.test(ME.from)?' · '+esc(ME.from):''}</span></div></div>
+  <div class="hero"><small>${sells.length?'Profit from your sales':'Profit'}</small><div class="big ${profit>=0?'pos':'neg'}">${signed(profit)}</div><div class="subl">Sold <b>${money(rev)}</b> · Spent <b>${money(spent)}</b></div></div>
   ${packHTML()}
-  ${(ME.reports||[]).length?`<div class="panel"><div class="phead"><h2>Show reports</h2><span class="mute" style="font-size:12.5px">One for each show you sold or bought at</span></div><div class="tablewrap"><table class="ledger"><tr><th>Show</th><th>Date</th><th>Sold</th><th>Bought</th><th></th></tr>${ME.reports.map(r=>`<tr><td>${esc(r.name)}</td><td>${new Date(r.start).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</td><td class="mono">${r.sells.length?money(r.sells.reduce((t,e)=>t+(+e.price||0),0)):'—'}</td><td class="mono">${r.buys.length?money(r.buys.reduce((t,e)=>t+(+e.total||+e.price||0),0)):'—'}</td><td><button class="btn ghost sm" data-act="report" data-id="${r.id}">View</button></td></tr>`).join('')}</table></div></div>`:''}
-  <div class="panel"><div class="phead"><h2>Running profit</h2><span class="mute" style="font-size:12.5px">One point per sale</span></div><div id="chartbox"></div></div>
-  <div class="panel"><div class="phead"><h2>Ledger</h2><div class="toolbar">${[['all','All'],['buy','Bought'],['sell','Sold']].map(([k,l])=>`<button class="pill" data-act="ledgerF" data-id="${k}" aria-pressed="${S.ledgerF===k}">${l}</button>`).join('')}</div></div><div class="tablewrap" id="ledger"></div></div>
-  <div class="panel"><div class="phead"><h2>Your details</h2></div><div class="addform"><label>Display name<input data-me="name" id="me-name" value="${esc(ME.name)}"></label><label>Ship-from address (city, state, ZIP)<input data-me="from" id="me-from" value="${esc(ME.from)}"></label><label>Table name (vendor mode)<input data-me="table" id="me-table" value="${esc(ME.table)}"></label></div><p class="note">Change your avatar and design your booth in <button class="linkbtn" data-act="nav" data-id="inventory">Inventory</button>.</p><label class="switch"><input type="checkbox" data-pref="offersOn" id="pref-offers" ${offersOn()?'checked':''}> Let dealers and collectors send me offers on my for-sale cards</label>${rolePicker()}</div>`;
-  const cb=$('#chartbox');cb.innerHTML=chartSVG(sells,Math.max(280,cb.clientWidth));
-  renderLedger();updateSaveBadge();
+  <div class="panel"><div class="phead"><h2>History</h2></div>${historyHTML()}</div>
+  <div class="panel" style="padding-top:2px">
+   <details class="mset"><summary>Your avatar</summary><div class="in" id="avpanel"></div></details>
+   <details class="mset"><summary>Collector or vendor<span>${ME.role==='vendor'?'Vendor':'Collector'}</span></summary><div class="in">${rolePicker()}</div></details>
+   ${ME.role==='vendor'?`<details class="mset"><summary>Your table’s look</summary><div class="in" id="design"></div></details>`:''}
+   <details class="mset"><summary>Name and address</summary><div class="in addform"><label>Display name<input data-me="name" id="me-name" value="${esc(ME.name)}"></label><label>Ship-from address (city, state, ZIP)<input data-me="from" id="me-from" value="${esc(ME.from)}"></label>${ME.role==='vendor'?`<label>Table name<input data-me="table" id="me-table" value="${esc(ME.table)}"></label>`:''}</div></details>
+   <label class="mrow" style="border-bottom:1px solid var(--line)">Let people send me offers<span class="switch"><input type="checkbox" data-pref="offersOn" id="pref-offers" ${offersOn()?'checked':''}></span></label>
+   ${(ME.reports||[]).length?`<details class="mset"><summary>Show reports<span>${ME.reports.length}</span></summary><div class="in">${ME.reports.map(r=>`<div class="mrow"><span>${esc(r.name)} <span class="mute" style="font-weight:500">· ${new Date(r.start).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span></span><button class="btn ghost sm" data-act="report" data-id="${r.id}">View</button></div>`).join('')}</div></details>`:''}
+   ${window.ACT&&ACT.signOut?'<button class="mrow" data-act="signOut" style="width:100%;background:none;border:0;border-bottom:1px solid var(--line);color:var(--orange);font:inherit;font-weight:700;cursor:pointer">Sign out</button>':''}
+   <details class="mset"><summary>Full details</summary><div class="in"><div class="toolbar" style="margin-bottom:8px">${[['all','All'],['buy','Bought'],['sell','Sold']].map(([k,l])=>`<button class="pill" data-act="ledgerF" data-id="${k}" aria-pressed="${S.ledgerF===k}">${l}</button>`).join('')}</div><div class="tablewrap" id="ledger"></div><div id="chartbox" style="margin-top:12px"></div></div></details>
+  </div>`;
+  const cb=$('#chartbox');cb.innerHTML=chartSVG(sells,Math.max(280,cb.clientWidth||600));
+  renderLedger();renderDesign();updateSaveBadge();
 }
 function statusOf(e){if(e.side==='ticket'||e.side==='pro')return '<span class="mute">Paid</span>';if(e.side==='sell')return e.shipped?'<span class="pos">Shipped</span>':'<span style="color:var(--orange)">To pack</span>';
   return Date.now()-e.ts>120000?`<span class="pos">Shipped</span><div class="mono mute" style="font-size:11px">${e.label.trk}</div>`:'<span class="mute">Seller packing</span>'}
@@ -2573,8 +2652,8 @@ function packHTML(){const all=ME.ledger.filter(e=>e.side==='sell');if(!all.lengt
   return `<div class="panel"><div class="phead"><h2>Orders to ship <span class="mute" style="font-size:14px;font-weight:600">${todo.length}</span></h2>${done.length?`<button class="btn ghost sm" data-act="showShipped">${S.showShipped?'Hide':'Show'} shipped (${done.length})</button>`:''}</div>
    ${todo.length?todo.map(row).join(''):'<p class="mute">All packed. Nice.</p>'}${S.showShipped?done.map(row).join(''):''}</div>`}
 function renderLedger(){const f=S.ledgerF,rows=ME.ledger.filter(e=>f==='all'||e.side===f||(f==='buy'&&e.side!=='sell')),el=$('#ledger');if(!el)return;
-  el.innerHTML=rows.length?`<table class="t"><thead><tr><th>Date</th><th></th><th>Card</th><th>With</th><th>Where</th><th class="n">Price</th><th class="n">Shipping</th><th class="n">Fee</th><th class="n">Paid for it</th><th class="n">Total / P&amp;L</th><th>Status</th></tr></thead><tbody>${rows.map(e=>`<tr><td class="mono" style="white-space:nowrap">${new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td><span class="chip ${e.side==='sell'?'gold':''}">${e.trade?(e.side==='sell'?'Traded away':'Traded for'):{sell:'Sold',buy:'Bought',ticket:'Ticket',pro:'Pro plan'}[e.side]}</span></td><td><b>${esc(e.card.name)}</b><div class="mute" style="font-size:12px">${[e.card.year,e.card.set,e.card.grade].filter(Boolean).map(esc).join(' · ')}</div></td><td>${esc(e.party)}</td><td class="mute">${esc(e.where)}</td><td class="n">${money(e.price)}</td><td class="n">${e.ship?money(e.ship):'—'}</td><td class="n">${e.fee?money(e.fee):'—'}</td><td class="n">${e.side==='sell'?money(e.cost):'—'}</td><td class="n ${e.side==='sell'?(e.profit>=0?'pos':'neg'):''}">${e.side==='sell'?signed(e.profit):'−'+money(e.total)}</td><td style="white-space:nowrap">${statusOf(e)}</td></tr>`).join('')}</tbody></table>`
-   :`<div class="empty"><p>No ${f==='all'?'transactions':f==='buy'?'purchases':'sales'} yet. Buy at a show or in the marketplace, or pitch a card to a dealer.</p></div>`}
+  el.innerHTML=rows.length?`<table class="t"><thead><tr><th>Date</th><th></th><th>Card</th><th>With</th><th>Where</th><th class="n">Price</th><th class="n">Shipping</th><th class="n">Fee</th><th class="n">Paid for it</th><th class="n">Total / profit</th><th>Status</th></tr></thead><tbody>${rows.map(e=>`<tr><td class="mono" style="white-space:nowrap">${new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td><span class="chip ${e.side==='sell'?'gold':''}">${e.trade?(e.side==='sell'?'Traded away':'Traded for'):{sell:'Sold',buy:'Bought',ticket:'Ticket',pro:'Pro plan'}[e.side]}</span></td><td><b>${esc(e.card.name)}</b><div class="mute" style="font-size:12px">${[e.card.year,e.card.set,e.card.grade].filter(Boolean).map(esc).join(' · ')}</div></td><td>${esc(e.party)}</td><td class="mute">${esc(e.where)}</td><td class="n">${money(e.price)}</td><td class="n">${e.ship?money(e.ship):'—'}</td><td class="n">${e.fee?money(e.fee):'—'}</td><td class="n">${e.side==='sell'?money(e.cost):'—'}</td><td class="n ${e.side==='sell'?(e.profit>=0?'pos':'neg'):''}">${e.side==='sell'?signed(e.profit):'−'+money(e.total)}</td><td style="white-space:nowrap">${statusOf(e)}</td></tr>`).join('')}</tbody></table>`
+   :`<div class="empty"><p>No ${f==='all'?'transactions':f==='buy'?'purchases':'sales'} yet. Buy at a show or in the Shop, or offer to sell a card to a dealer.</p></div>`}
 
 /* ================= modal ================= */
 function openModal(html,wide){exitLock();const m=$('#modal');m.innerHTML=`<div class="sheet ${wide?'wide':''}" role="dialog" aria-modal="true"><button class="x" data-act="closeModal" aria-label="Close">×</button>${html}</div>`;m.hidden=false;keys.clear()}
@@ -2598,6 +2677,19 @@ const ACT={
   map:()=>$('#mapPanel').hidden?openMap():($('#mapPanel').hidden=true),
   closeMap:()=>{$('#mapPanel').hidden=true;relockAfterClick()},
   agenda:()=>openDrawer('agenda'),
+  tourNext:i=>startTour(+i),
+  tourEnd:()=>startTour(99),
+  addrEdit:()=>{const t=$('#addr');if(t)CO.addr=t.value;CO.editAddr=!CO.editAddr;renderCheckout()},
+  hudMenu:()=>{exitLock();const I=(id,ic,t,sub)=>`<button class="hmrow" data-act="hudGo" data-id="${id}"><span class="ic" aria-hidden="true">${ic}</span><span><b>${t}</b>${sub?`<small>${sub}</small>`:''}</span></button>`;
+    openModal(`<div class="sec hmenu2"><h2 style="margin-bottom:6px">${esc(showData?.name||'Menu')}</h2>
+     ${I('find','🔍','Find a card','Search every table at this show')}
+     ${I('mine','🃏','My cards','What you brought, and what’s for sale')}
+     ${I('map','🗺️','Map','See the rooms and jump to one')}
+     ${I('agenda','📅','What’s on','Stage times and rooms')}
+     ${I('toggleChat','💬','Chat','Talk to people near you')}
+     ${I('voicePanel','🎙️','Voice','Talk out loud with people')}
+     ${I('leave','🚪','Leave show','')}</div>`)},
+  hudGo:id=>{closeModal();if(id==='leave')return go('shows');setTimeout(()=>ACT[id](),30)},
   closeControls:()=>{$('#controls').hidden=true;relockAfterClick()},
   toggleChat:()=>{const c=$('#chatbox');if(c.hidden||c.classList.contains('min')){chatState('open');exitLock();setTimeout(()=>$('#proxin').focus(),30)}else{chatState('closed');relockAfterClick()}},
   chatMin:()=>{const c=$('#chatbox');if(c.classList.contains('min')){chatState('open');exitLock();setTimeout(()=>$('#proxin').focus(),30)}else{chatState('min');relockAfterClick()}},
@@ -2646,8 +2738,8 @@ const ACT={
   look:p=>{const [k,val]=p.split('|');ME.look=lookOf();ME.look[k]=val;save();renderAvatarPanel()},
   lookRandom:()=>{const P=a=>a[Math.floor(Math.random()*a.length)];ME.look={skin:P(LK.skin),hair:P(LK.hair),hairStyle:P(HAIRSTYLES)[0],shirt:P(LK.shirt),pants:P(LK.pants),shoes:P(LK.shoes),hat:P(HATS)[0],hatColor:P(LK.hat),glasses:Math.random()<.7?'none':P(GLASSES)[0]};save();renderAvatarPanel()},
   promoToggle:()=>{document.dispatchEvent(new KeyboardEvent('keydown',{key:'p'}))},
-  ship:id=>{CO.addr=$('#addr').value;CO.ship=id;renderCheckout()},
-  payer:id=>{CO.addr=$('#addr').value;CO.payer=id;renderCheckout()},
+  ship:id=>{CO.addr=$('#addr')?.value??CO.addr;CO.ship=id;renderCheckout()},
+  payer:id=>{CO.addr=$('#addr')?.value??CO.addr;CO.payer=id;renderCheckout()},
   placeOrder,
   openBooth:id=>openTable(VBY[id],'market'),
   closeTable:()=>{closeTable();relockAfterClick()},
@@ -2690,8 +2782,8 @@ const ACT={
   turnVoice:()=>{const v=VOICE.turnV;$('#vreq').hidden=true;if(!v)return;startBoothVoice(v);S.vtab[v.id]='chat';openTable(v,'show')},
   turnChat:()=>{const v=VOICE.turnV;$('#vreq').hidden=true;if(!v)return;S.vtab[v.id]='chat';openTable(v,'show')},
   boothVoice:id=>{const v=VBY[id];if(v){startBoothVoice(v);refreshParty(v)}},
-  boothKey:()=>{if(!myBooth())return toast('You don’t have a table at this show. Switch to Vendor in Inventory to get one.');if(S.op){leaveBooth();toast('Stepped out from behind your table');return}ACT.boothGo()},
-  manageKey:()=>{if(!myBooth())return toast('You don’t have a table at this show. Switch to Vendor in Inventory to get one.');if(!$('#tv').hidden&&TV.v===VBY.me){closeTable();relockAfterClick();return}closeViewer();if(!$('#modal').hidden)closeModal();if(!$('#tv').hidden)closeTable();openTable(VBY.me,'show')},
+  boothKey:()=>{if(!myBooth())return toast('You don’t have a table at this show. Switch to vendor under Me to get one.');if(S.op){leaveBooth();toast('Stepped out from behind your table');return}ACT.boothGo()},
+  manageKey:()=>{if(!myBooth())return toast('You don’t have a table at this show. Switch to vendor under Me to get one.');if(!$('#tv').hidden&&TV.v===VBY.me){closeTable();relockAfterClick();return}closeViewer();if(!$('#modal').hidden)closeModal();if(!$('#tv').hidden)closeTable();openTable(VBY.me,'show')},
   boothGo:()=>{hideBoothAlert();closeViewer();if(!$('#modal').hidden)closeModal();if(!$('#tv').hidden)closeTable();operateBooth()},
   boothDismiss:()=>{hideBoothAlert();S.alertSnooze=Date.now()+60000},
   closeViewer:()=>{closeViewer();relockAfterClick()},
@@ -2705,7 +2797,7 @@ const ACT={
   tvZoom:k=>{const r=$('#tvStage').getBoundingClientRect();if(k==='fit')return tvFit();tvZoomAt(r.width/2,r.height/2,TV.s*(k==='in'?1.35:1/1.35),true)},
   tvCard:p=>{if(TV.moved)return;const [vid,cid]=p.split('|');if(vid==='me'){S.vdetail.me=cid;tvMarkSel();return openViewer('me',cid)}openViewer(vid,cid);S.vdetail[vid]=cid;S.vtab[vid]='buy';renderVendor(VBY[vid],$('#tvSide'),TV.ctx);tvMarkSel();if(innerWidth<=820)$('#tvSide').scrollTop=0},
   toggleOffers:()=>{S.offersOpen=!S.offersOpen;renderOffers()},
-  offersOff:()=>{ME.offersOn=false;save();S.offersOpen=false;renderOffers();toast('New offers paused. Turn them back on in My Desk or My cards (I).')},
+  offersOff:()=>{ME.offersOn=false;save();S.offersOpen=false;renderOffers();toast('New offers paused. Turn them back on under Me.')},
   viewLabel:id=>{const es=orderOf(id);if(es[0]?.label)labelModal(es[0],es)},
   markShipped:id=>{const es=orderOf(id);if(!es.length)return;const t=Date.now();es.forEach(e=>{e.shipped=true;e.shippedAt=t});save();closeModal();if(S.view==='desk')renderDesk();toast(`Order ${es[0].order||id} marked shipped${es.length>1?` (${es.length} cards)`:''}. ${es[0].party} gets tracking.`)},
   showShipped:()=>{S.showShipped=!S.showShipped;renderDesk()},
@@ -2732,11 +2824,15 @@ const ACT={
   bundlePitch:vid=>startBundle(VBY[vid],null),
   bundleAccept:vid=>{const v=VBY[vid],b=S.bundle[vid],cs=bundleCards(v);if(b?.offer&&cs.length)openSale(v,cs,b.offer,{bundleV:vid})},
   ofDecline:id=>{const o=S.offers.find(x=>x.id===id);botDone(o,pick(['No worries. Good luck with it!','All good, thanks for looking.']));S.offers=S.offers.filter(x=>x.id!==id);renderOffers();if(o)toast(`Declined ${o.party.name}’s offer`)},
+  histAll:()=>{S.histAll=!S.histAll;renderDesk()},
+  addOpen:()=>{S.addOpen=!S.addOpen;renderInventory();if(S.addOpen)setTimeout(()=>$('#f-name')?.focus(),50)},
+  cardOpen:id=>cardSheet(id),
+  cardDone:()=>{closeModal();if(S.view==='inventory'){renderInvSummary();renderInvTable()}},
   role:k=>{ME.role=k;save();refreshView();toast(k==='vendor'?'Vendor mode: your table is set up at the next show you enter':'Collector mode')},
   clearExamples:()=>{ME.inv=ME.inv.filter(c=>!c.example||c.sold);save();renderInventory()},
   togglePaste:()=>{const b=$('#pastebox');b.hidden=!b.hidden;if(!b.hidden)$('#pastein').focus()},
   importPaste:()=>{const num=x=>parseFloat(String(x||'').replace(/[$,]/g,''));let n=0;for(const l of $('#pastein').value.split('\n').map(x=>x.trim()).filter(Boolean)){const f=l.split(/\t|,/).map(x=>x.trim());if(f.length<3||!f[0])continue;const [name,year,set,cnum,grade,cost,price]=f;const pr=num(price)||0;ME.inv.unshift(mkMine({name,year,set,num:cnum,grade:GRADES.find(g=>g.toLowerCase()===(grade||'').toLowerCase())||grade||'Raw',cost:num(cost)||0,price:pr,forSale:pr>0}));n++}save();renderInventory();toast(n?`Imported ${n} card${n===1?'':'s'}`:'Nothing to import. Use one card per line.')},
-  delCard:(id,b)=>{if(!b.dataset.armed){b.dataset.armed=1;b.textContent='Confirm delete';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='Delete'}},3000);return}const gone=ME.inv.find(c=>c.id===id);ME.inv=ME.inv.filter(c=>c.id!==id);save();renderInventory();const gi=gone?.img;if(gi)[gi.f,gi.b,...(gi.x||[])].forEach(removeStored)},
+  delCard:(id,b)=>{if(!b.dataset.armed){b.dataset.armed=1;b.textContent='Confirm delete';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='Delete'}},3000);return}const gone=ME.inv.find(c=>c.id===id);ME.inv=ME.inv.filter(c=>c.id!==id);save();closeModal();renderInventory();const gi=gone?.img;if(gi)[gi.f,gi.b,...(gi.x||[])].forEach(removeStored)},
   unlist:id=>{const c=ME.inv.find(x=>x.id===id);if(!c)return;c.forSale=false;if(slabMeshes[id])slabMeshes[id].visible=false;save();if(S.view==='room')syncBooth(VBY.me);rerenderOpen();renderOffers()},
   mine:()=>{S.side==='mine'?closeDrawer():openDrawer('mine')},
   manageMine:()=>{closeModal();closeTable();go('inventory')},
@@ -2817,10 +2913,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!ME)return;
   if(t.dataset.pick){const l=t.closest('label'),n=t.files.length;if(l){l.firstChild.textContent=n?`${t.dataset.pick} ✓${n>1?' '+n:''}`:t.dataset.pick;l.classList.toggle('gold',!!n);l.classList.toggle('ghost',!n)}return}
   if(t.dataset.edit){const c=ME.inv.find(x=>x.id===t.dataset.id);if(!c)return;const k=t.dataset.edit,val=parseFloat(String(t.value).replace(/[$,]/g,''));if(!(val>=0)){t.value=c[k];return}
     const sp=+(styleOf().rules||{}).sale||0;if(k==='price'&&sp){c.base=val;c.list=val;c.price=Math.max(1,Math.round(val*(1-sp/100)))}else{c[k]=val;if(k==='price')c.list=val}t.value=val;save();const mg=$('#mg-'+c.id);if(mg){const m=c.price-c.cost;mg.textContent=signed(m);mg.className='n '+(m>=0?'pos':'neg')}
-    if(S.view==='inventory')renderInvSummary();if(S.view==='room')syncBooth(VBY.me);renderOffers()}
+    if(S.view==='inventory'){renderInvSummary();renderInvTable()}if(S.view==='room')syncBooth(VBY.me);renderOffers()}
   if(t.dataset.toggle==='box'){const c=ME.inv.find(x=>x.id===t.dataset.id);if(!c)return;c.box=t.checked;if(c.box&&!c.forSale)c.forSale=true;save();if(S.view==='room'){syncBooth(VBY.me);if(!$('#tv').hidden&&TV.v===VBY.me)renderTvSurface()}toast(c.box?`${c.name} is in your box`:`${c.name} is back on the table`);return}
-  if(t.dataset.toggle==='forSale'){const c=ME.inv.find(x=>x.id===t.dataset.id);if(!c)return;c.forSale=t.checked;const sp=t.parentElement.querySelector('span');if(sp)sp.textContent=t.checked?(S.view==='inventory'?'Listed':'For sale'):(S.view==='inventory'?'Off':'Not listed');
-    if(!t.checked&&slabMeshes[c.id])slabMeshes[c.id].visible=false;save();if(S.view==='inventory')renderInvSummary();if(S.view==='room')syncBooth(VBY.me);renderOffers()}
+  if(t.dataset.toggle==='forSale'){const c=ME.inv.find(x=>x.id===t.dataset.id);if(!c)return;c.forSale=t.checked;const sp=t.parentElement.querySelector('span');if(sp)sp.textContent=t.checked?'For sale':'Not for sale';
+    if(!t.checked&&slabMeshes[c.id])slabMeshes[c.id].visible=false;save();if(S.view==='inventory'){renderInvSummary();renderInvTable()}if(S.view==='room')syncBooth(VBY.me);renderOffers()}
   if(t.dataset.pref==='offersOn'){ME.offersOn=t.checked;save();if(!t.checked){S.offers=[];renderOffers()}toast(t.checked?'Offers on':'Offers paused')}
   if(t.dataset.pref==='promo'){setPromo(t.value||null);toast(t.value?'Your card is floating over your head':'Promo card removed')}
   if(t.dataset.trcash){const v=VBY[t.dataset.trcash];if(!v)return;const T=tradeOf(v),a=Math.abs(parseFloat(String(t.value).replace(/[$,]/g,''))||0),dir=(+T.cash>0)?'me':(+T.cash<0)?'them':(T.dir||'me');T.cash=dir==='them'?-a:a;T.counter=null;renderVBody(v)}

@@ -76,7 +76,7 @@ async function afterLogin(s){
 function mountAcct(){if($('#acct'))return $('#acct').textContent=ME.name;$('#wallet').insertAdjacentHTML('afterend',`<button class="acct" id="acct" data-act="acct">${esc(ME.name)}</button>`)}
 ACT.acct=()=>openModal(`<div class="sec"><span class="eyebrow">Signed in</span><h2>${esc(ME.name)}</h2><p class="mute" style="margin:0">${esc(MP.email||'')}</p></div>
   <div class="sec"><form class="hostform" data-form="acctName"><label>Display name<input name="name" maxlength="24" value="${esc(ME.name)}"></label><button class="btn ghost" style="align-self:end">Save name</button></form>
-  <p class="mute" style="font-size:12.5px">Your name shows over your head, on your table and on offers. Switch between collector and vendor in Inventory.</p></div>
+  <p class="mute" style="font-size:12.5px">Your name shows over your head, on your table and on offers. Switch between collector and vendor under Me.</p></div>
   <div class="sec" style="display:flex;gap:8px"><button class="btn ghost" data-act="signOut">Sign out</button></div>`);
 FORMS.acctName=f=>{const n=f.name.value.trim().slice(0,24);if(!n)return;const old=ME.name;ME.name=n;if(ME.table===`${old}’s Table`)ME.table=`${n}’s Table`;MP.profile.name=n;save(true);mountAcct();closeModal();toast('Name saved')};
 ACT.signOut=async()=>{try{await NET.signOut()}catch(e){}location.reload()};
@@ -127,7 +127,7 @@ function dbShow(r){const st=Date.parse(r.starts_at)||Date.now(),en=r.ends_at?Dat
 const _renderShows=renderShows;
 window.renderShows=function(){SHOWS.forEach(s=>{if(s.db&&s.hostId===MP.uid){ME.tickets=ME.tickets||{};if(!ME.tickets[s.id])ME.tickets[s.id]={tier:'early',code:'HOST',checkedIn:true}}});
   _renderShows();const shows=$('.shows');if(!shows)return;
-  shows.insertAdjacentHTML('beforebegin',`<div class="hostbar"><span class="mute" style="font-size:13px">${SHOWS.filter(s=>s.db&&s.live).length} live show${SHOWS.filter(s=>s.db&&s.live).length===1?'':'s'} made by people on Slab Row · ${Object.keys(MP.online).length} online now</span><span style="display:flex;gap:8px"><button class="btn ghost sm" data-act="refreshShows">Refresh</button><button class="btn gold sm" data-act="hostShow">Host a show</button></span></div>`);
+  const hb=$('#hostslot');if(hb)hb.innerHTML=`<button class="btn ghost sm" data-act="hostShow">+ Host a show</button>`;
   shows.querySelectorAll('article').forEach(a=>{const b=a.querySelector('[data-id]');const s=b&&SHOWS.find(x=>x.id===b.dataset.id);if(!s||!s.db)return;
     const foot=a.querySelector('.foot');if(s.hostId===MP.uid){foot.insertAdjacentHTML('afterbegin','<span class="chip gold">Your show</span>');foot.insertAdjacentHTML('beforeend',`<button class="btn ghost sm" data-act="delShow" data-id="${s.dbid}">Delete</button>`)}
     if(s.hostId===MP.uid&&!s.live&&!s.ended){const go=foot.querySelector('[data-act]');if(go){go.outerHTML=`<button class="btn gold" data-act="enter" data-id="${s.id}">Open early (host)</button>`}}})};
@@ -377,7 +377,7 @@ window.renderMarketBody=function(){_rmb();const host=$('#mkbody');if(!host||MP.m
   NET.listings().then(async ls=>{MP.mkLoading=false;const by={};ls.forEach(l=>{if(l.owner!==MP.uid)(by[l.owner]=by[l.owner]||[]).push(l)});await loadParties(Object.keys(by).filter(u=>!MP.profiles[u]));
     Object.entries(by).forEach(([u,a])=>MP.listings[u]=a);const people=Object.keys(by);if(!$('#mkbody'))return;$('#realmk')?.remove();
     $('#mkbody').insertAdjacentHTML('afterbegin',`<div id="realmk"><div class="sectionlabel">Real people selling · ${people.length}</div>${people.length?`<div class="reallist">${people.map(u=>{const p=MP.profiles[u]||{name:'Collector'},a=by[u],on=!!MP.online[u],lo=Math.min(...a.map(l=>+l.price)),hi=Math.max(...a.map(l=>+l.price));
-      return `<div class="realrow"><div class="vava" style="background:${p.color||'#3db5ff'};width:38px;height:38px;font-size:14px">${initials(p.table_name||p.name)}</div><div class="who"><b>${esc(p.role==='vendor'&&p.table_name?p.table_name:p.name)}</b><span><span class="dot ${on?'on':''}"></span> ${on?'Online now':'Offline · offers wait for them'} · ${a.length} card${a.length>1?'s':''} · ${money(lo)}${hi>lo?'–'+money(hi):''}</span></div><button class="btn gold sm" data-act="visitReal" data-id="${u}">Visit</button></div>`}).join('')}</div>`:'<p class="mute" style="margin-bottom:18px">Nobody else has cards for sale yet. Mark cards “For sale” in Inventory and they show up here for everyone.</p>'}</div>`)}).catch(()=>{MP.mkLoading=false})};
+      return `<div class="realrow"><div class="vava" style="background:${p.color||'#3db5ff'};width:38px;height:38px;font-size:14px">${initials(p.table_name||p.name)}</div><div class="who"><b>${esc(p.role==='vendor'&&p.table_name?p.table_name:p.name)}</b><span><span class="dot ${on?'on':''}"></span> ${on?'Online now':'Offline · offers wait for them'} · ${a.length} card${a.length>1?'s':''} · ${money(lo)}${hi>lo?'–'+money(hi):''}</span></div><button class="btn gold sm" data-act="visitReal" data-id="${u}">Visit</button></div>`}).join('')}</div>`:'<p class="mute" style="margin-bottom:18px">No one else is selling yet. Cards you mark “For sale” in My Cards show up here for everyone.</p>'}</div>`)}).catch(()=>{MP.mkLoading=false})};
 ACT.visitReal=uid=>openReal(uid,'market');
 
 /* ================= real voice calls (WebRTC mesh, up to 6 people) ================= */
@@ -584,3 +584,6 @@ const _ca2=window.confirmAll;window.confirmAll=ACT.confirmAll=function(){const r
   let s=null;try{s=await NET.session()}catch(e){}
   if(s){try{await afterLogin(s)}catch(e){console.error(e);renderAuth('Couldn’t load your account: '+NET.friendly(e))}}else renderAuth()})();
 })();
+
+/* shows list keeps itself fresh, no Refresh button */
+setInterval(async()=>{if(S.view!=='shows'||!MP.uid||!$('#modal').hidden||document.hidden)return;try{await refreshShows();if(S.view==='shows'&&$('#modal').hidden)renderShows()}catch(e){}},30000);
