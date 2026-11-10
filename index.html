@@ -98,7 +98,8 @@ p{margin:0}
 .entering.show{opacity:1}
 .entering small{font-family:var(--f-mono);font-size:13px;letter-spacing:.42em;color:var(--gold);display:block;margin-bottom:6px}
 .entering b{font-family:var(--f-disp);font-weight:800;font-size:clamp(34px,6vw,64px);text-shadow:0 0 24px rgba(61,181,255,.55),0 2px 10px rgba(0,0,0,.6)}
-.mapwrap{top:calc(10px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));pointer-events:auto;cursor:pointer;display:grid;justify-items:center;gap:4px}
+.mapwrap{top:calc(10px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:6px;background:rgba(10,15,28,.85);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px 8px 11px;font:inherit;font-weight:700;font-size:14px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.mapwrap svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}.mapwrap:hover{border-color:var(--gold)}.mapwrap #mini,.mapwrap .explored{display:none!important}
 #mini{width:200px;height:200px;display:block}
 .explored{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;color:var(--mute)}
 .explored b{color:var(--gold)}
@@ -583,6 +584,7 @@ body:has(#modal:not([hidden])) #offers{display:none}
 .mset{border-bottom:1px solid var(--line)}.mset>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:15px 4px;font-weight:700;font-size:16px}.mset>summary::after{content:'›';color:var(--mute);font-size:22px;transition:transform .15s}.mset[open]>summary::after{transform:rotate(90deg)}.mset>summary span{color:var(--mute);font-weight:500;font-size:14px;margin-left:auto;margin-right:10px}.mset .in{padding:0 0 16px}
 .hrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--line)}.hrow .slab{transform:scale(.7);transform-origin:left center;margin-right:-14px}.hrow b{display:block;font-size:14.5px}.hrow span{font-size:12.5px;color:var(--mute)}.hrow .amt2{font-family:var(--f-mono);font-weight:800;text-align:right}
 .meid{display:flex;gap:14px;align-items:center;margin-bottom:6px}.meid .av2{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:22px;color:#fff}
+body:has(#mapPanel:not([hidden])) #offers{display:none!important}
 html.touch .kbonly,html.touch .pa kbd{display:none!important}
 .linecta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px}.linecta .mute{font-size:12px}.linecta .btn{margin-left:auto}.linecta .btn.gold{margin-left:0}
 .fres{display:grid;gap:10px}
@@ -784,7 +786,7 @@ textarea{width:100%;resize:vertical;min-height:62px}
   <div class="hud next" id="next" data-act="nextToggle"></div>
   <div class="hud onscreen" id="onscreen" hidden><small>ON SCREEN</small><b id="osTitle"></b><span>Event recap · Lobby LED wall</span></div>
   <div class="hud entering" id="entering"><small>NOW ENTERING</small><b id="entName"></b></div>
-  <div class="hud mapwrap" data-act="map" title="Open map (N)"><canvas id="mini" width="400" height="400"></canvas><span class="explored">SPACES EXPLORED <b id="expCt">0/0</b></span></div>
+  <button class="hud mapwrap" data-act="map" title="Map" aria-label="Open map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Map</span><canvas id="mini" width="400" height="400" hidden></canvas><span class="explored" hidden><b id="expCt">0/0</b></span></button>
   <div class="hud wchip" id="wchip"></div>
   <div class="hud cross" id="cross" hidden></div>
   <div class="hud caption" id="caption" hidden><small id="capWho"></small><span id="capText"></span></div>
@@ -1702,7 +1704,7 @@ function drawZones(c,k,big){
   c.fillStyle='rgba(255,255,255,.12)';c.fillRect(-15*k,-39.3*k,30*k,14.7*k);
   c.fillStyle='rgba(255,255,255,.6)';for(const b of bots){c.beginPath();c.arc(b.position.x*k,b.position.z*k,big?3:2,0,7);c.fill()}
 }
-function drawMini(){
+function drawMini(){if($('#mini').hidden)return;
   const cv=$('#mini'),c=cv.getContext('2d'),W=cv.width,r=W/2-4,k=3.1;c.clearRect(0,0,W,W);
   c.save();c.beginPath();c.arc(W/2,W/2,r,0,7);c.fillStyle='rgba(4,8,16,.82)';c.fill();c.clip();
   c.translate(W/2,W/2);c.rotate(cam.yaw);c.translate(-player.position.x*k,-player.position.z*k);drawZones(c,k,false);c.restore();
@@ -1712,7 +1714,7 @@ function drawMini(){
 }
 function openMap(){
   exitLock();const p=$('#mapPanel');p.hidden=false;const D=showData;
-  p.innerHTML=`<div class="box"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="font-size:24px;font-style:italic;text-transform:uppercase">${esc(D.name)} · Venue map</h2><button class="hbtn" data-act="closeMap">Close · M</button></div>
+  p.innerHTML=`<div class="box"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="font-size:24px;font-style:italic;text-transform:uppercase">${esc(D.name)} · Venue map</h2><button class="hbtn" data-act="closeMap">Close<span class="kbonly"> · M</span></button></div>
   <canvas id="bigmap" width="1040" height="1000"></canvas>
   <div class="eyebrow">Walk to</div>
   <div class="dir">${[['desk','Ticket check-in','Grand Lobby'],['stage',D.stage?.title||'Main Stage','Main Stage · take a seat'],...D.rooms.map((r,i)=>['vip'+(i+1),r.title,`VIP Room ${i+1} · ${r.speaker}`]),['lounge','VIP Lounge','Up the grand stairs']].map(([id,t,s])=>`<div class="dirrow"><div class="t"><b>${esc(t)}</b><span>${esc(s)}</span></div><button class="btn gold sm" data-act="walkTo" data-id="${id}">Walk</button></div>`).join('')}
